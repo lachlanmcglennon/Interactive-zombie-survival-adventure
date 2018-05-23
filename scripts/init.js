@@ -91,22 +91,44 @@ function init() {
     app.ticker.add(function () {
         if (app.keys.mouseLeft == true || app.keys.autofire === true) {
             app.bullets.push(new Bullet({}, 
-            PIXI.Texture.WHITE, 2, function() {
-                this.speed += Math.random() * 0.05;
-                this.direction += toRadians(5);
-                setAccelInDirection(this.accel, this.direction, this.speed);
+            PIXI.Texture.WHITE, 1, function() {
             },
-            []));
+            [
+                2, [-50, -50, false], [-50, 0, false], 
+                [50, 0, true], [50, -50, false], [70, -50, true], [70, 0, false],
+                [-70, 20, true], [-70, 70, false], [-50, 70, true], [-50, 20, false], 
+                [50, 20, true], [50, 70, false], [70, 70, true], [120, 70, false]
+            ]));
             setAccelToPoint(app.bullets.slice(-1)[0].position, app.mouse.position, app.bullets.slice(-1)[0].accel, app.bullets.slice(-1)[0].speed);
-            
-            app.bullets.push(new Bullet({}, 
-            PIXI.Texture.WHITE, 2, function() {
-                this.speed += Math.random() * 0.05;
-                this.direction += toRadians(-5);
+            app.bullets.slice(-1)[0].move = function () {
+                if (this.position.x == player.position.x + this.moveConsts[this.moveConsts[0]][0] 
+                    && this.position.y == player.position.y + this.moveConsts[this.moveConsts[0]][1]) {
+                    this.moveConsts[0] += 1;
+                    
+                    if (this.moveConsts[0] > this.moveConsts.length - 1) {
+                        this.moveConsts[0] = 2;
+                        this.curLifetime = 1;
+                        return;
+                    }
+                    
+                    if (this.moveConsts[this.moveConsts[0]][2] == true) {
+                        this.position.x = player.position.x + this.moveConsts[this.moveConsts[0]][0];
+                        this.position.y = player.position.y + this.moveConsts[this.moveConsts[0]][1];
+                        this.moveConsts[0] += 1;
+                    }
+                    
+                    if (this.moveConsts[0] > this.moveConsts.length - 1) {
+                        this.moveConsts[0] = 2;
+                        this.curLifetime = 1;
+                        return;
+                    }
+                    
+                    this.direction = getAngleInRadians(this.position, new PIXI.Point(
+                    player.position.x + this.moveConsts[this.moveConsts[0]][0], 
+                    player.position.y + this.moveConsts[this.moveConsts[0]][1]));
+                }
                 setAccelInDirection(this.accel, this.direction, this.speed);
-            },
-            []));
-            setAccelToPoint(app.bullets.slice(-1)[0].position, app.mouse.position, app.bullets.slice(-1)[0].accel, app.bullets.slice(-1)[0].speed);
+            }
         }
     });
     

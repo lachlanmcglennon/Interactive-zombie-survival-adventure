@@ -36,12 +36,12 @@ function Bullet(weapon, texture, speed, moveFunction, moveConsts) {
     
     this.move = moveFunction;
     this.moveConsts = moveConsts;
-    this.curLifetime = 300;
+    this.curLifetime = 3000;
     this.tint = "000000";
     this.anchor.set(0.5, 0.5);
-    this.position.copy(player.position);
+    this.position.set(player.position.x - 50, player.position.y - 50);
     
-    this.direction = getAngleInRadians(this.position, app.mouse.position);
+    this.direction = getAngleInRadians(this.position, new PIXI.Point(player.position.x - 50, player.position.y));
     
     this.tick = function(bullets, i) {
         this.curLifetime -= 1;
