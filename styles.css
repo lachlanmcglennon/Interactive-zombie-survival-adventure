@@ -1,0 +1,8 @@
+.game {
+	top: 30px; 
+	left: 0; 
+	padding:0;
+	margin: 0;
+	background:transparent;
+    position: absolute;
+}
