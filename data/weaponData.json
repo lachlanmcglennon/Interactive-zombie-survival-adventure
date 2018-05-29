@@ -1,0 +1,8 @@
+weaponTypes = "[
+        {
+            "name" : "Laser",
+            "speed" : 10,
+            "useTime" : 1,
+            "damageMod" : 0.1
+        }
+    ]";

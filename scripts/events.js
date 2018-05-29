@@ -1,5 +1,7 @@
 //This file is for creating event listeners.
 
+function addEvents() {
+    console.log(app.player);
 document.addEventListener('keydown', 
     function (event) {
         if (event.key == "d") {
@@ -42,6 +44,11 @@ document.addEventListener('keyup',
         }
     });
 
+playerCol.addEventListener("change", function (event) {
+    app.player.colour = getPlayerColour();
+    app.player.tint = app.player.colour;
+}, false);
+
 document.addEventListener('mousedown', 
     function (event) {
         app.keys.mouseLeft = true;
@@ -51,3 +58,5 @@ document.addEventListener('mouseup',
     function (event) {
         app.keys.mouseLeft = false;
     });
+    
+}
