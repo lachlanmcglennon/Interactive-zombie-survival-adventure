@@ -57,3 +57,27 @@ function genRandomColour() {
 function getDistanceFrom(p1, p2) {
     return Math.sqrt(Math.pow(Math.abs(p1.x - p2.x), 2) + Math.pow(Math.abs(p1.y - p2.y), 2));
 }
+
+function updateUI () {
+    var enemyHP = document.getElementById("curEnemyHP");
+    if (app.enemies.length > 0) {
+        enemyHP.innerHTML = "Current enemy HP:" + app.enemies[0].armour.curHP.toFixed(2);
+    }
+    document.getElementById("curPlayerHP").innerHTML = "Current player HP: " + app.player.armour.curHP.toFixed(2);
+    document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
+    document.getElementById("curPower").innerHTML = "Enemy Power: " + app.power.toFixed(2);
+    document.getElementById("curMoney").innerHTML = "Money: " + app.money.curMoney.toFixed(2);
+    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + app.money.highestMoneyGainRate.toFixed(2);
+    
+    
+}
+
+function newWeapon() {
+    app.player.weapon = new Weapon(app.player, app.money.curMoney);
+    app.money.curMoney = 0;
+}
+
+function newArmor() {
+    app.player.armour = new Armour(app.player, app.money.curMoney);
+    app.money.curMoney = 0;
+}

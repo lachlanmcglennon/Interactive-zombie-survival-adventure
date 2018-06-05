@@ -34,9 +34,7 @@ function init() {
     
     var img = new Image();
     img.src = "images/player.png";
-    var base = new PIXI.BaseTexture(img),    
-    
-    player = new Entity(new PIXI.Texture(base), getPlayerColour(), 0, 2, 0, app.renderer.width / 2, app.renderer.height / 2);
+    var base = new PIXI.BaseTexture(img);   
     
     app.ticker.speed = 1;
     
@@ -49,6 +47,44 @@ function init() {
     app.mouse = new Mouse();
     app.bullets = [];
     app.enemies = [];
+    app.money = {
+        curMoney : 0,
+        highestMoneyGainRate : 0,
+        moneyGainedIn5Sec : [],
+        moneyGainedSec : 0
+    };
+    
+    app.ticker.add(function () {
+        if (app.tick % 60 === 0) {
+            app.money.curMoney += app.money.highestMoneyGainRate;
+            var average = 0;
+            for (var i = 0; i < 5; i += 1) {
+                average += app.money.moneyGainedIn5Sec[i];
+            }
+            average /= 5;
+            if (average > app.money.highestMoneyGainRate) {
+                app.money.highestMoneyGainRate = average;
+            }
+            
+            app.money.moneyGainedSec += 1;
+            if (app.money.moneyGainedSec >= 6) {
+                app.money.moneyGainedSec = 0;
+            }
+            
+            app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = 0;
+        }
+    });
+    
+    app.wave = {
+        number : 0,
+        enemiesInWave: 1,
+        enemiesOnScreen: 0,
+        enemyFactor: 0.1
+    };
+    
+    app.power = 1;
+    
+    var player = new Entity(new PIXI.Texture(base), getPlayerColour(), app.power * 10, 2, 0, app.renderer.width / 2, app.renderer.height / 2);
     
     app.stage.addChild(player);
     
@@ -63,8 +99,16 @@ function init() {
     app.ticker.add(function () {
         app.tick += 1;
         
-        if (app.tick % 120 == 0) {
-            app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), 0, 2, 1, 0, 0));
+        if ((app.tick % 1 == 0) && (app.wave.enemiesInWave > 0)) {
+            app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), app.power * app.wave.enemyFactor, 2, 1, 0, 0));
+            app.wave.enemiesInWave -= 1;
+            app.wave.enemiesOnScreen += 1;
+        }
+        if ((app.wave.enemiesOnScreen == 0) && app.wave.enemiesInWave === 0) {
+            app.wave.enemiesInWave = 1;
+            app.wave.number += 1;
+            app.power *= 1.2;
+            app.wave.enemyFactor *= 1.01;
         }
     });
     
@@ -74,6 +118,8 @@ function init() {
             app.bullets[i].tick(app.bullets, i);
         }
     });
+    
+    app.ticker.add(updateUI);
     
     console.log(app.player);
     addEvents();

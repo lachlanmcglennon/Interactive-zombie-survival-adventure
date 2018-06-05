@@ -13,5 +13,13 @@ var weaponTypes = [
             damageMod : 5,
             image : bulletImage,
             ai : SniperAi
+        },
+        {
+            name : "MachineGun",
+            speed : 3,
+            useTime : 10,
+            damageMod : 2,
+            image : bulletImage,
+            ai : SniperAi
         }
     ];
