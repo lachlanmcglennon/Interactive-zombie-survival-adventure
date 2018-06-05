@@ -152,8 +152,8 @@ function Bullet(entity, texture, moveFunction, moveConsts) {
     this.position.copy(moveToPoint(entity.position, this.entity.weaponTarget, 10));
     
     this.accel = setAccelInDirection(this.direction, this.speed);
-    this.accel.x += this.entity.accel.x;
-    this.accel.y += this.entity.accel.y;
+    //this.accel.x += this.entity.accel.x;
+    //this.accel.y += this.entity.accel.y;
     
     this.tick = function(bullets, i) {
         this.curLifetime -= 1;

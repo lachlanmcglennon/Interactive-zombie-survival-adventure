@@ -77,7 +77,7 @@ function newWeapon() {
     app.money.curMoney = 0;
 }
 
-function newArmor() {
+function newArmour() {
     app.player.armour = new Armour(app.player, app.money.curMoney);
     app.money.curMoney = 0;
 }

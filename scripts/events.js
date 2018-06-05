@@ -18,6 +18,20 @@ document.addEventListener('keydown',
             app.keys.s = true;
         }
     
+        if (event.key == "ArrowRight") {
+            app.keys.d = true;
+        }
+    
+        if (event.key == "ArrowLeft") {
+            app.keys.a = true;
+        }
+        if (event.key == "ArrowUp") {
+            app.keys.w = true;
+        }
+        if (event.key == "ArrowDown") {
+            app.keys.s = true;
+        }
+    
         if (event.key == "e") {
             if (app.keys.autofire == false) {
                 app.keys.autofire = true;
@@ -40,6 +54,20 @@ document.addEventListener('keyup',
             app.keys.w = false;
         }
         if (event.key == "s") {
+            app.keys.s = false;
+        }
+    
+        if (event.key == "ArrowRight") {
+            app.keys.d = false;
+        }
+    
+        if (event.key == "ArrowLeft") {
+            app.keys.a = false;
+        }
+        if (event.key == "ArrowUp") {
+            app.keys.w = false;
+        }
+        if (event.key == "ArrowDown") {
             app.keys.s = false;
         }
     });
