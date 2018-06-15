@@ -80,31 +80,33 @@ function newWeapon() {
 
 function getWeaponName(entity) {
     var temp = "";
-    switch (entity.numbarrels) {
-        default:
-            temp += "";
-            break;
-        case 2:
-            temp += "Dual";
-            break;
-        case 3:
-            temp += "Triple";
-            break;
-        case 4:
-            temp += "Quad";
-            break;
-        case 5:
-            temp += "Penta";
-            break;
-        case 6:
-            temp += "Sexta";
-            break;
-        case 7:
-            temp += "Septa";
-            break;
-        case 8:
-            temp += "Octo";
-            break;
+    if (entity.weaponPlaceType != 1) {
+        switch (entity.numbarrels) {
+            default:
+                temp += "";
+                break;
+            case 2:
+                temp += "Dual";
+                break;
+            case 3:
+                temp += "Triple";
+                break;
+            case 4:
+                temp += "Quad";
+                break;
+            case 5:
+                temp += "Penta";
+                break;
+            case 6:
+                temp += "Sexta";
+                break;
+            case 7:
+                temp += "Septa";
+                break;
+            case 8:
+                temp += "Octo";
+                break;
+        }
     }
     switch (entity.weaponPlaceType) {
         default:
