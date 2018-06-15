@@ -1,9 +1,17 @@
-var bulletImage = new PIXI.Graphics();
-bulletImage.lineStyle(2, 0xFFFFFF, 1);
+var sniperImage = new PIXI.Graphics();
+sniperImage.beginFill(0xFFFFFF, 1);
 
-//bulletImage.beginFill(0x00FF22, 0.5);
-bulletImage.drawCircle(0, 0, 4);
-//bulletImage.endFill();
+sniperImage.drawCircle(0, 0, 4);
+
+var laserImage = new PIXI.Graphics();
+laserImage.beginFill(0xFFFFFF, 1);
+
+laserImage.drawRect(0, 0, 25, 4);
+
+var destroyerImage = new PIXI.Graphics();
+destroyerImage.beginFill(0xFFFFFF, 1);
+
+destroyerImage.drawCircle(0, 0, 10);
 
 var weaponTypes = [
         {
@@ -11,15 +19,35 @@ var weaponTypes = [
             speed : 5,
             useTime : 30,
             damageMod : 5,
-            image : bulletImage,
+            lifetime : 120,
+            image : sniperImage,
+            ai : SniperAi
+        },
+        {
+            name : "Laser",
+            speed : 6,
+            useTime : 5,
+            damageMod : 5 / 6,
+            lifetime : 30,
+            image : laserImage,
+            ai : CloseAi
+        },
+        {
+            name : "Destroyer",
+            speed : 2,
+            useTime : 60,
+            damageMod : 10,
+            lifetime : 240,
+            image : destroyerImage,
             ai : SniperAi
         },
         {
             name : "MachineGun",
-            speed : 3,
+            speed : 4,
             useTime : 10,
-            damageMod : 2,
-            image : bulletImage,
-            ai : SniperAi
+            damageMod : 5 / 3,
+            lifetime : 60,
+            image : sniperImage,
+            ai : CloseAi
         }
     ];

@@ -1,7 +1,6 @@
 //This file is for creating event listeners.
 
 function addEvents() {
-    console.log(app.player);
 document.addEventListener('keydown', 
     function (event) {
         if (event.key == "d") {
@@ -38,6 +37,23 @@ document.addEventListener('keydown',
             } else {
                 app.keys.autofire = false;
             }
+        }
+    
+        if (event.key == "p") {
+            if (app.keys.pause == false) {
+                app.keys.pause = true;
+                app.ticker.stop();
+            } else {
+                app.keys.pause = false;
+                app.ticker.start();
+            }
+        }
+        
+        if (event.key == "n") {
+            newWeapon();
+        }
+        if (event.key == "m") {
+            newArmour();
         }
     });
 

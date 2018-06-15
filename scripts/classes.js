@@ -13,6 +13,7 @@ function Keys() {
     
     this.mouseLeft = false;
     this.autofire = false;
+    this.pause = false;
 }
 
 function Mouse() {
@@ -41,7 +42,7 @@ function Entity(texture, colour, power, speed, team, x, y) {
     this.power = power;
     
     this.interactive = true;
-    this.hitArea = new PIXI.Rectangle(0, 0, 20, 20);
+    this.hitArea = new PIXI.Circle(0, 0, 10);
     
     this.position.set(x, y);
     
@@ -53,13 +54,82 @@ function Entity(texture, colour, power, speed, team, x, y) {
     this.weaponTarget = new PIXI.Point();
     
     this.team = team;
-    this.weapon = new Weapon(this, this.power);
+    this.weapons = [];
+    this.numbarrels = 1;
+    this.weaponPlaceType = 1;
+    this.weaponProto = new Weapon(this, power / this.numbarrels);
+    
+    this.newWeapon = function(power) {
+        this.weapons = [];
+        var maxDeviation = toRadians(90);
+        this.numbarrels = Math.ceil(Math.random() * 8);
+        this.weaponPlaceType = Math.ceil(Math.random() * 3);
+        //this.weaponPlaceType = 2;
+
+        switch (this.weaponPlaceType) {
+            default:
+                this.weaponProto = new Weapon(this, power);
+                this.weapons[0] = Object.create(this.weaponProto);
+                app.ticker.add(this.weapons[0].reload, this.weapons[0]);
+                break;
+            case 2:
+                this.weaponProto = new Weapon(this, power / this.numbarrels);
+                var angleBetween = toRadians(10);
+                
+                if (this.numbarrels % 2 == 0) {
+                    var n = 1;
+                    
+                    for (var i = 0; i < this.numbarrels; i += 2) {
+                        n = 1 + Math.floor(i / 2);
+                        
+                        this.weapons[i] = Object.create(this.weaponProto);
+                        this.weapons[i].setDirection((n * angleBetween + toRadians(-5)));
+                        app.ticker.add(this.weapons[i].reload, this.weapons[i]);
+                        
+                        this.weapons[i + 1] = Object.create(this.weaponProto);
+                        this.weapons[i + 1].setDirection((n * angleBetween + toRadians(-5)) * -1);
+                        app.ticker.add(this.weapons[i + 1].reload, this.weapons[i + 1]);
+                    }
+                } else {
+                    this.weapons[0] = Object.create(this.weaponProto);
+                    this.weapons[0].setDirection(0);
+                    app.ticker.add(this.weapons[0].reload, this.weapons[0]);
+                    var n = 1;
+                    
+                    for (var i = 1; i < this.numbarrels; i += 2) {
+                        n = 1 + Math.floor(i / 2);
+                        
+                        this.weapons[i] = Object.create(this.weaponProto);
+                        this.weapons[i].setDirection((n * angleBetween + toRadians(-5)));
+                        app.ticker.add(this.weapons[i].reload, this.weapons[i]);
+                        
+                        this.weapons[i + 1] = Object.create(this.weaponProto);
+                        this.weapons[i + 1].setDirection((n * angleBetween + toRadians(-5)) * -1);
+                        app.ticker.add(this.weapons[i + 1].reload, this.weapons[i + 1]);
+                    }
+                }
+                
+                break;
+            case 3:
+                this.weaponProto = new Weapon(this, power / this.numbarrels);
+                var angleBetween = toRadians(360) / this.numbarrels;
+                for (var i = 0; i < this.numbarrels; i += 1) {
+                    this.weapons[i] = Object.create(this.weaponProto);
+                    this.weapons[i].setDirection(i * angleBetween);
+                    app.ticker.add(this.weapons[i].reload, this.weapons[i]);
+                }
+                break;
+        }
+        this.weaponName = getWeaponName(this);
+    }
+    this.newWeapon(this.power);
+    
     this.armour = new Armour(this, this.power);
     
     if (this.team == 0) {
         PlayerAI.call(this);
     } else {
-        this.weapon.type.ai.call(this);
+        this.weaponProto.type.ai.call(this);
     }
     
     this.delete = function () {
@@ -69,8 +139,8 @@ function Entity(texture, colour, power, speed, team, x, y) {
         
     app.stage.addChild(this);
     app.ticker.add(function () {
-        this.hitArea.x = this.position.x - 10;
-        this.hitArea.y = this.position.y - 10;
+        this.hitArea.x = this.position.x - 5;
+        this.hitArea.y = this.position.y - 5;
     },this);
 }
 
@@ -82,15 +152,20 @@ function Weapon(entity, power) {
     this.entity = entity;
     
     this.damage = power * this.type.damageMod;
+    this.direction = 0;
+    
+    this.setDirection = function(direction) {
+        this.direction = direction;
+    }
     
     this.maxUse = this.type.useTime;
     this.curUse = this.maxUse;
     this.fire = function() {
         if (this.curUse === 0) {
-            app.bullets.push(new Bullet(this.entity, this.bulletTexture, 
+            app.bullets.push(new Bullet(this, this.bulletTexture, 
             function() {
                 this.tint = entity.colour;
-            }, []));
+            }, [], this.direction));
             
             this.curUse = this.maxUse;
         }
@@ -101,8 +176,6 @@ function Weapon(entity, power) {
             this.curUse -= 1;
         }
     };
-    
-    app.ticker.add(this.reload, this);
 }
 
 function Armour(entity, power) {
@@ -132,24 +205,29 @@ function Armour(entity, power) {
     }, this);
 }
 
-function Bullet(entity, texture, moveFunction, moveConsts) {
+function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
     PIXI.Sprite.call(this, texture);
-    this.entity = entity;
+    this.weapon = weapon;
     
-    this.damage = this.entity.weapon.damage;
+    this.cacheAsBitmap = true;
     
-    Moveable.call(this, this.entity.weapon.type.speed);
+    this.tint = this.weapon.entity.colour;
+    
+    this.damage = this.weapon.damage;
+    
+    Moveable.call(this, this.weapon.type.speed);
     this.move = moveFunction;
     this.moveConsts = moveConsts;
-    this.curLifetime = 120;
+    this.curLifetime = this.weapon.type.lifetime;
     //this.tint = "000000";
     this.anchor.set(0.5, 0.5);
     
-    this.position.copy(entity.position);
+    this.position.copy(this.weapon.entity.position);
     
-    this.direction = getAngleInRadians(this.position, this.entity.weaponTarget);
+    this.direction = getAngleInRadians(this.position, this.weapon.entity.weaponTarget) + direction;
+    this.rotation = this.direction;
     
-    this.position.copy(moveToPoint(entity.position, this.entity.weaponTarget, 10));
+    this.position.copy(moveToPoint(this.weapon.entity.position, this.weapon.entity.weaponTarget, 10));
     
     this.accel = setAccelInDirection(this.direction, this.speed);
     //this.accel.x += this.entity.accel.x;
@@ -164,23 +242,23 @@ function Bullet(entity, texture, moveFunction, moveConsts) {
         
         if (this.curLifetime == 0) {
             bullets.splice(i, 1);
-            app.stage.removeChild(this);
+            app.particles.removeChild(this);
             return;
         }
         
-        if(this.entity.team == 0) {
+        if(this.weapon.entity.team == 0) {
             for (var n = 0; n < app.enemies.length; n += 1) {
                 if (app.enemies[n].hitArea.contains(this.position.x, this.position.y)) {
                     app.enemies[n].armour.curHP -= this.damage;
                     if (app.enemies[n].armour.curHP <= 0) {
-                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] += app.enemies[n].power;
+                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] += app.enemies[n].power / app.wave.enemyFactor;
                         app.wave.enemiesOnScreen -= 1;
                         app.enemies[n].delete();
                         app.enemies.splice(n, 1);
                         n -= 1;
                     }
                     bullets.splice(i, 1);
-                    app.stage.removeChild(this);
+                    app.particles.removeChild(this);
                 }
             }
         } else {
@@ -199,12 +277,12 @@ function Bullet(entity, texture, moveFunction, moveConsts) {
                         app.player.armour.curHP = app.player.armour.maxHP;
                     }
                     bullets.splice(i, 1);
-                    app.stage.removeChild(this);
+                    app.particles.removeChild(this);
                 }
         }
     }
     
-    app.stage.addChild(this);
+    app.particles.addChild(this);
 }
 
 Entity.prototype = Object.create(PIXI.Sprite.prototype);

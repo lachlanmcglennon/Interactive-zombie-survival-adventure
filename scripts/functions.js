@@ -64,6 +64,7 @@ function updateUI () {
         enemyHP.innerHTML = "Current enemy HP:" + app.enemies[0].armour.curHP.toFixed(2);
     }
     document.getElementById("curPlayerHP").innerHTML = "Current player HP: " + app.player.armour.curHP.toFixed(2);
+    document.getElementById("curPlayerWeapon").innerHTML = "Current Weapon: " + app.player.weaponName;
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
     document.getElementById("curPower").innerHTML = "Enemy Power: " + app.power.toFixed(2);
     document.getElementById("curMoney").innerHTML = "Money: " + app.money.curMoney.toFixed(2);
@@ -73,8 +74,51 @@ function updateUI () {
 }
 
 function newWeapon() {
-    app.player.weapon = new Weapon(app.player, app.money.curMoney);
+    app.player.newWeapon(app.money.curMoney);
     app.money.curMoney = 0;
+}
+
+function getWeaponName(entity) {
+    var temp = "";
+    switch (entity.numbarrels) {
+        default:
+            temp += "";
+            break;
+        case 2:
+            temp += "Dual";
+            break;
+        case 3:
+            temp += "Triple";
+            break;
+        case 4:
+            temp += "Quad";
+            break;
+        case 5:
+            temp += "Penta";
+            break;
+        case 6:
+            temp += "Sexta";
+            break;
+        case 7:
+            temp += "Septa";
+            break;
+        case 8:
+            temp += "Octo";
+            break;
+    }
+    switch (entity.weaponPlaceType) {
+        default:
+            temp += "";
+            break;
+        case 2:
+            temp += "Spread";
+            break;
+        case 3:
+            temp += "Scatter";
+            break;
+    }
+    temp += entity.weaponProto.type.name;
+    return temp;
 }
 
 function newArmour() {

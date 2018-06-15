@@ -1,0 +1,4 @@
+1. Making waves have more enemies that spawn in random locations
+2. Adding more weapon types as well as special weapon effects like homing.
+3. More stuff to do with money like upgrades.
+4. Implement a camera system, and arena boundries.

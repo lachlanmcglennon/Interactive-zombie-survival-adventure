@@ -6,7 +6,9 @@ function init() {
   app = new PIXI.Application(window.innerWidth, window.innerHeight, {
     //backgroundColor: 0xcccccc,
     transparent: true,
-      antialias: true
+      antialias: true,
+      width: 1920,
+      height: 1080
       
   });
     var gameDiv = document.getElementById("game");
@@ -28,9 +30,9 @@ function init() {
 
     window.onresize = resize;
     
-    var particles = new PIXI.particles.ParticleContainer();
+    app.particles = new PIXI.particles.ParticleContainer();
     
-    app.stage.addChild(particles);
+    app.stage.addChild(app.particles);
     
     var img = new Image();
     img.src = "images/player.png";
@@ -49,7 +51,7 @@ function init() {
     app.enemies = [];
     app.money = {
         curMoney : 0,
-        highestMoneyGainRate : 0,
+        highestMoneyGainRate : 0.1,
         moneyGainedIn5Sec : [],
         moneyGainedSec : 0
     };
@@ -77,7 +79,7 @@ function init() {
     
     app.wave = {
         number : 0,
-        enemiesInWave: 1,
+        enemiesInWave: 10,
         enemiesOnScreen: 0,
         enemyFactor: 0.1
     };
@@ -99,13 +101,33 @@ function init() {
     app.ticker.add(function () {
         app.tick += 1;
         
-        if ((app.tick % 1 == 0) && (app.wave.enemiesInWave > 0)) {
-            app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), app.power * app.wave.enemyFactor, 2, 1, 0, 0));
+        if (((app.tick % 60 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) 
+            && (app.wave.enemiesOnScreen < 3)) {
+            var xToSpawn = 0, yToSpawn = 0;
+            
+            if (Math.random() <= 0.5) {
+                if (Math.random() <= 0.5) {
+                    xToSpawn = 0;
+                } else {
+                    xToSpawn = app.renderer.width;
+                }
+                yToSpawn = Math.random() * app.renderer.height;
+            } else {
+                if (Math.random() <= 0.5) {
+                    yToSpawn = 0;
+                } else {
+                    yToSpawn = app.renderer.height;
+                }
+                xToSpawn = Math.random() * app.renderer.width;
+            }
+            
+            app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), 
+                app.power * app.wave.enemyFactor, 2, 1, xToSpawn, yToSpawn));
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
         if ((app.wave.enemiesOnScreen == 0) && app.wave.enemiesInWave === 0) {
-            app.wave.enemiesInWave = 1;
+            app.wave.enemiesInWave = 10;
             app.wave.number += 1;
             app.power *= 1.2;
             app.wave.enemyFactor *= 1.01;

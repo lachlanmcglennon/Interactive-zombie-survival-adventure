@@ -1,7 +1,9 @@
 function PlayerAI() {
     this.tick = function() {
         if (app.keys.mouseLeft == true || app.keys.autofire === true) {
-            this.weapon.fire();
+            for(var i = 0; i < this.weapons.length; i += 1) {
+                this.weapons[i].fire();   
+            }
         }
         
         this.rotation = getAngleInRadians(this.position, app.mouse.position);
@@ -43,15 +45,34 @@ function PlayerAI() {
 
 function SniperAi() {
     this.tick = function() {
-        if (getDistanceFrom(this.position, app.player.position) > 100) {
-            this.moveTarget = moveToPoint(app.player.position, this.position, 100);
+        if (getDistanceFrom(this.position, app.player.position) > 150) {
+            this.moveTarget = moveToPoint(app.player.position, this.position, 150);
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         } else {
             this.accel.set(0, 0);
         }
         this.weaponTarget = app.player.position;
         this.rotation = getAngleInRadians(this.position, app.player.position);
-        this.weapon.fire();
+        for(var i = 0; i < this.weapons.length; i += 1) {
+            this.weapons[i].fire();   
+        }
+    }
+    app.ticker.add(this.tick, this);
+}
+
+function CloseAi() {
+    this.tick = function() {
+        if (getDistanceFrom(this.position, app.player.position) > 30) {
+            this.moveTarget = moveToPoint(app.player.position, this.position, 30);
+            this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
+        } else {
+            this.accel.set(0, 0);
+        }
+        this.weaponTarget = app.player.position;
+        this.rotation = getAngleInRadians(this.position, app.player.position);
+        for(var i = 0; i < this.weapons.length; i += 1) {
+            this.weapons[i].fire();   
+        }
     }
     app.ticker.add(this.tick, this);
 }
