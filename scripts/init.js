@@ -23,14 +23,6 @@ function init() {
         } else {
             height = container.clientHeight;
         }
-        
-        if (width > 960) {
-            width = 960;
-        }
-        
-        if (height > 960) {
-            height = 540;
-        }
 
         app.renderer.resize(width, height);
     }
@@ -111,23 +103,8 @@ function init() {
         
         if (((app.tick % 60 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) 
             && (app.wave.enemiesOnScreen < 3)) {
-            var xToSpawn = 0, yToSpawn = 0;
-            
-            if (Math.random() <= 0.5) {
-                if (Math.random() <= 0.5) {
-                    xToSpawn = 0;
-                } else {
-                    xToSpawn = app.renderer.width;
-                }
-                yToSpawn = Math.random() * app.renderer.height;
-            } else {
-                if (Math.random() <= 0.5) {
-                    yToSpawn = 0;
-                } else {
-                    yToSpawn = app.renderer.height;
-                }
-                xToSpawn = Math.random() * app.renderer.width;
-            }
+            var temp = moveInDirection(app.player.position, 300, toRadians(360 * Math.random()));
+            var xToSpawn = temp.x, yToSpawn = temp.y;
             
             app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), 
                 app.power * app.wave.enemyFactor, 2, 1, xToSpawn, yToSpawn));

@@ -13,6 +13,14 @@ function setAccelToPoint(source, target, speed) {
     return res;
 }
 
+function moveInDirection(source, distance, direction) {
+    //Returns the accel to move to a given point by a given speed.
+    var res = new PIXI.Point();
+    res.x = source.x + distance * Math.cos(direction);
+    res.y = source.y + distance * Math.cos(direction);
+    return res;
+}
+
 function moveToPoint(source, target, distance) {
     //Returns the position after moving distance amount to the target.
     var res = new PIXI.Point();
