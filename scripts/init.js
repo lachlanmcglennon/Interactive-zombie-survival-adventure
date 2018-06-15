@@ -16,13 +16,8 @@ function init() {
     
     function resize() {
         var container = document.getElementById("content");
-        var width = container.clientWidth;
-        var height = container.clientHeight;
-        if (container.clientHeight < 400) {
-            height = window.innerHeight - 5;
-        } else {
-            height = container.clientHeight;
-        }
+        var width = window.innerWidth;
+        var height = window.innerHeight - 5;
 
         app.renderer.resize(width, height);
     }
@@ -101,9 +96,9 @@ function init() {
     app.ticker.add(function () {
         app.tick += 1;
         
-        if (((app.tick % 60 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) 
+        if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) 
             && (app.wave.enemiesOnScreen < 3)) {
-            var temp = moveInDirection(app.player.position, 300, toRadians(360 * Math.random()));
+            var temp = moveInDirection(app.player.position, 500, toRadians(360 * Math.random()));
             var xToSpawn = temp.x, yToSpawn = temp.y;
             
             app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), 
