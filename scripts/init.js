@@ -7,8 +7,8 @@ function init() {
     //backgroundColor: 0xcccccc,
     transparent: true,
       antialias: true,
-      width: 1920,
-      height: 1080
+      width: 960,
+      height: 540
       
   });
     var gameDiv = document.getElementById("game");
@@ -22,6 +22,14 @@ function init() {
             height = window.innerHeight - 5;
         } else {
             height = container.clientHeight;
+        }
+        
+        if (width > 960) {
+            width = 960;
+        }
+        
+        if (height > 960) {
+            height = 540;
         }
 
         app.renderer.resize(width, height);
