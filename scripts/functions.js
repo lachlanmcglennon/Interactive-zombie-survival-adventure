@@ -107,17 +107,17 @@ function getWeaponName(entity) {
                 temp += "Octo";
                 break;
         }
-    }
-    switch (entity.weaponPlaceType) {
-        default:
-            temp += "";
-            break;
-        case 2:
-            temp += "Spread";
-            break;
-        case 3:
-            temp += "Scatter";
-            break;
+        switch (entity.weaponPlaceType) {
+            default:
+                temp += "";
+                break;
+            case 2:
+                temp += "Spread";
+                break;
+            case 3:
+                temp += "Scatter";
+                break;
+        }
     }
     temp += entity.weaponProto.type.name;
     return temp;
