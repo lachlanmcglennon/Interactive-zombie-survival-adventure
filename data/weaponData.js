@@ -21,6 +21,7 @@ var weaponTypes = [
             damageMod : 5,
             lifetime : 120,
             image : sniperImage,
+            size: 4,
             ai : SniperAi
         },
         {
@@ -30,6 +31,7 @@ var weaponTypes = [
             damageMod : 5 / 6,
             lifetime : 30,
             image : laserImage,
+            size: 6,
             ai : CloseAi
         },
         {
@@ -39,6 +41,7 @@ var weaponTypes = [
             damageMod : 10,
             lifetime : 240,
             image : destroyerImage,
+            size: 10,
             ai : SniperAi
         },
         {
@@ -48,6 +51,7 @@ var weaponTypes = [
             damageMod : 5 / 3,
             lifetime : 60,
             image : sniperImage,
+            size: 4,
             ai : CloseAi
         }
     ];

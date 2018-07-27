@@ -25,7 +25,11 @@ function init() {
 
     window.onresize = resize;
     
-    app.particles = new PIXI.particles.ParticleContainer();
+    app.particles = new PIXI.particles.ParticleContainer(
+        100
+    );
+    
+    app.particles.autoResize = true;
     
     app.stage.addChild(app.particles);
     
@@ -50,6 +54,19 @@ function init() {
         moneyGainedIn5Sec : [],
         moneyGainedSec : 0
     };
+    
+    app.transform = new PIXI.Point(0, 0);
+    
+    var wallImage = new PIXI.Graphics();
+    wallImage.lineStyle(2, 0x000000);
+
+    wallImage.drawRect(0, 0, app.renderer.width * 3, app.renderer.height * 3);
+    
+    app.wall = new PIXI.Sprite(app.renderer.generateTexture(wallImage));
+    
+    app.wall.position.set(-app.renderer.width, -app.renderer.height);
+    
+    app.stage.addChild(app.wall);
     
     app.ticker.add(function () {
         if (app.tick % 60 === 0) {
@@ -98,7 +115,11 @@ function init() {
         
         if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) 
             && (app.wave.enemiesOnScreen < 3)) {
-            var temp = moveInDirection(app.player.position, 500, toRadians(360 * Math.random()));
+            var temp = moveInDirection(app.player.position, 300, toRadians(360 * Math.random()));
+            
+            while((collidingWithWall(temp)) || (getDistanceFrom(app.player.position, temp) < 200)) {
+                temp = moveInDirection(app.player.position, 300, toRadians(360 * Math.random()));
+            }
             var xToSpawn = temp.x, yToSpawn = temp.y;
             
             app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), 

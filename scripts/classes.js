@@ -1,5 +1,6 @@
 //This file constains prototype definitions for all new objects in the game.
 
+//Keys currently being pressed.
 function Keys() {
     this.a = false;
     this.d = false;
@@ -39,6 +40,7 @@ function Entity(texture, colour, power, speed, team, x, y) {
     
     this.tint = this.colour;
     
+    //Power of this entity based on the current wave.
     this.power = power;
     
     this.interactive = true;
@@ -53,6 +55,7 @@ function Entity(texture, colour, power, speed, team, x, y) {
     this.moveTarget = new PIXI.Point();
     this.weaponTarget = new PIXI.Point();
     
+    //0 for player, 1 for enemy.
     this.team = team;
     this.weapons = [];
     this.numbarrels = 1;
@@ -141,6 +144,22 @@ function Entity(texture, colour, power, speed, team, x, y) {
     app.ticker.add(function () {
         this.hitArea.x = this.position.x - 5;
         this.hitArea.y = this.position.y - 5;
+        
+        if (this.position.x > app.wall.position.x + app.wall.width) {
+            this.position.x = app.wall.position.x + app.wall.width;
+        }
+        
+        if (this.position.x < app.wall.position.x) {
+            this.position.x = app.wall.position.x;
+        }
+        
+        if (this.position.y > app.wall.position.y + app.wall.height) {
+            this.position.y = app.wall.position.y + app.wall.height;
+        }
+        
+        if (this.position.y < app.wall.position.y) {
+            this.position.y = app.wall.position.y;
+        }
     },this);
 }
 
@@ -209,7 +228,7 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
     PIXI.Sprite.call(this, texture);
     this.weapon = weapon;
     
-    this.cacheAsBitmap = true;
+    //this.cacheAsBitmap = true;
     
     this.tint = this.weapon.entity.colour;
     
@@ -240,7 +259,7 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
             this.alpha = this.curLifetime * 0.1;
         }
         
-        if (this.curLifetime == 0) {
+        if ((this.curLifetime == 0) || collidingWithWall(this.position)) {
             bullets.splice(i, 1);
             app.particles.removeChild(this);
             return;

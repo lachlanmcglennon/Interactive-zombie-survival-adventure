@@ -66,6 +66,32 @@ function getDistanceFrom(p1, p2) {
     return Math.sqrt(Math.pow(Math.abs(p1.x - p2.x), 2) + Math.pow(Math.abs(p1.y - p2.y), 2));
 }
 
+function collidingWithWallX (pos) {
+    if (pos.x > app.wall.position.x + app.wall.width) {
+        return true;
+    }
+
+    if (pos.x < app.wall.position.x) {
+        return true;
+    }
+    return false;
+}
+
+function collidingWithWallY (pos) {
+    if (pos.y > app.wall.position.y + app.wall.height) {
+        return true;
+    }
+
+    if (pos.y < app.wall.position.y) {
+        return true;
+    }
+    return false;
+}
+
+function collidingWithWall (pos) {
+    return (collidingWithWallX(pos) || collidingWithWallY(pos));
+}
+
 function updateUI () {
     var enemyHP = document.getElementById("curEnemyHP");
     if (app.enemies.length > 0) {
