@@ -17,7 +17,7 @@ function moveInDirection(source, distance, direction) {
     //Returns the accel to move to a given point by a given speed.
     var res = new PIXI.Point();
     res.x = source.x + distance * Math.cos(direction);
-    res.y = source.y + distance * Math.cos(direction);
+    res.y = source.y + distance * Math.sin(direction);
     return res;
 }
 
@@ -41,6 +41,18 @@ function toRadians(degrees) {
     return (degrees * Math.PI)/180;
 }
 
+function getDistanceFrom(p1, p2) {
+    return Math.sqrt(Math.pow(Math.abs(p1.x - p2.x), 2) + Math.pow(Math.abs(p1.y - p2.y), 2));
+}
+
+function circularCollision(eSize1, eSize2, ePos1, ePos2) {
+    if (getDistanceFrom(ePos1, ePos2) < eSize1 + eSize2) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function getPlayerColour() {
     var colour = document.getElementById("playerCol");
     return colour.value.replace("#", "0x");
@@ -62,11 +74,7 @@ function genRandomColour() {
     decimalToHexString(Math.floor(255 * Math.random()));
 }
 
-function getDistanceFrom(p1, p2) {
-    return Math.sqrt(Math.pow(Math.abs(p1.x - p2.x), 2) + Math.pow(Math.abs(p1.y - p2.y), 2));
-}
-
-function collidingWithWallX (pos) {
+function collidingWithWallX (pos, size) {
     if (pos.x > app.wall.position.x + app.wall.width) {
         return true;
     }

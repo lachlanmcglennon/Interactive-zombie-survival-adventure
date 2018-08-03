@@ -25,13 +25,19 @@ function init() {
 
     window.onresize = resize;
     
+    app = loadBulletImages(app);
+    
     app.particles = new PIXI.particles.ParticleContainer(
-        100
+        1000
     );
     
     app.particles.autoResize = true;
     
     app.stage.addChild(app.particles);
+    
+    app.players = new PIXI.Container();
+    
+    app.stage.addChild(app.players);
     
     var img = new Image();
     img.src = "images/player.png";
@@ -66,7 +72,26 @@ function init() {
     
     app.wall.position.set(-app.renderer.width, -app.renderer.height);
     
-    app.stage.addChild(app.wall);
+    app.players.addChild(app.wall);
+    
+    var inventoryImage = new PIXI.Graphics();
+    inventoryImage.lineStyle(2, 0x000000);
+    
+    inventoryImage.beginFill(0xFFFFFF);
+
+    inventoryImage.drawRect(0, 0, 500, app.renderer.height);
+    
+    inventoryImage.endFill();
+    
+    app.inventoryArea = new PIXI.Container();
+    
+    inventoryImage = new PIXI.Sprite(app.renderer.generateTexture(inventoryImage));
+    
+    app.inventoryArea.addChild(inventoryImage);
+    
+    app.inventoryArea.position.set(0, -1);
+    
+    app.stage.addChild(app.inventoryArea);
     
     app.ticker.add(function () {
         if (app.tick % 60 === 0) {
@@ -98,14 +123,10 @@ function init() {
     
     app.power = 1;
     
-    var player = new Entity(new PIXI.Texture(base), getPlayerColour(), app.power * 10, 2, 0, app.renderer.width / 2, app.renderer.height / 2);
-    
-    app.stage.addChild(player);
-    
-    app.player = player;
+    app.player = new Entity(new PIXI.Texture(base), getPlayerColour(), app.power * 10, 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
     
     app.stage.on("mousemove", function (event) {
-        app.mouse.position = event.data.getLocalPosition(app.stage);
+        app.mouse.position = event.data.getLocalPosition(app.players);
     }, false);
     
     app.keys = new Keys();
@@ -114,16 +135,16 @@ function init() {
         app.tick += 1;
         
         if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) 
-            && (app.wave.enemiesOnScreen < 3)) {
-            var temp = moveInDirection(app.player.position, 300, toRadians(360 * Math.random()));
+            && (app.wave.enemiesOnScreen < 30)) {
+            var temp = moveInDirection(app.player.position, 200, toRadians(90 * Math.floor(Math.random() * 4) + 45));
             
-            while((collidingWithWall(temp)) || (getDistanceFrom(app.player.position, temp) < 200)) {
-                temp = moveInDirection(app.player.position, 300, toRadians(360 * Math.random()));
+            while(collidingWithWall(temp)) {
+                var temp = moveInDirection(app.player.position, 200, toRadians(90 * Math.floor(Math.random() * 4) + 45));
             }
             var xToSpawn = temp.x, yToSpawn = temp.y;
             
             app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(), 
-                app.power * app.wave.enemyFactor, 2, 1, xToSpawn, yToSpawn));
+                app.power * app.wave.enemyFactor, 2, 10, 1, xToSpawn, yToSpawn));
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
@@ -143,7 +164,5 @@ function init() {
     });
     
     app.ticker.add(updateUI);
-    
-    console.log(app.player);
     addEvents();
 }

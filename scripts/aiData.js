@@ -63,7 +63,8 @@ function PlayerAI() {
             }
         }
     
-        app.stage.setTransform(app.transform.x, app.transform.y);
+        app.players.setTransform(app.transform.x, app.transform.y);
+        app.particles.setTransform(app.transform.x, app.transform.y);
     }
     
     app.ticker.add(this.tick, this);

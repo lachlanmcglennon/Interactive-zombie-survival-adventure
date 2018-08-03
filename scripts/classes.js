@@ -32,7 +32,7 @@ function Moveable(speed) {
     app.ticker.add(this.update, this);
 }
 
-function Entity(texture, colour, power, speed, team, x, y) {
+function Entity(texture, colour, power, speed, size, team, x, y) {
     //An entity is any kind of controlled character on stage, player or enemy.
     PIXI.Sprite.call(this, texture);
     
@@ -51,6 +51,8 @@ function Entity(texture, colour, power, speed, team, x, y) {
     this.anchor.set(0.5, 0.5);
     
     Moveable.call(this, speed);
+    
+    this.size = size;
     
     this.moveTarget = new PIXI.Point();
     this.weaponTarget = new PIXI.Point();
@@ -136,14 +138,14 @@ function Entity(texture, colour, power, speed, team, x, y) {
     }
     
     this.delete = function () {
-        app.stage.removeChild(this);
+        app.players.removeChild(this);
         app.ticker.remove(this.tick, this);
+        app.ticker.remove(this.update, this);
+        app.ticker.remove(this.testWallCollision, this);
     };
         
-    app.stage.addChild(this);
-    app.ticker.add(function () {
-        this.hitArea.x = this.position.x - 5;
-        this.hitArea.y = this.position.y - 5;
+    app.players.addChild(this);
+    this.testWallCollision = function () {
         
         if (this.position.x > app.wall.position.x + app.wall.width) {
             this.position.x = app.wall.position.x + app.wall.width;
@@ -160,14 +162,16 @@ function Entity(texture, colour, power, speed, team, x, y) {
         if (this.position.y < app.wall.position.y) {
             this.position.y = app.wall.position.y;
         }
-    },this);
+    }
+    
+    app.ticker.add(this.testWallCollision, this);
 }
 
 function Weapon(entity, power) {
     //A weapon is what creates bullets.
     
-    this.type = weaponTypes[Math.floor(Math.random() * weaponTypes.length)];
-    this.bulletTexture = app.renderer.generateTexture(this.type.image);
+    this.type = app.weaponTypes[Math.floor(Math.random() * app.weaponTypes.length)];
+    this.bulletTexture = this.type.image;
     this.entity = entity;
     
     this.damage = power * this.type.damageMod;
@@ -207,7 +211,7 @@ function Armour(entity, power) {
     this.curRegen = 1;
     
     app.ticker.add(function() {
-        if (app.tick % 6 == 0) {
+        if (app.tick % 20 == 0) {
             if (this.curHP < this.maxHP) {
                 this.curHP *= this.curRegen;
                 if (this.curHP > this.maxHP) {
@@ -252,6 +256,15 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
     //this.accel.x += this.entity.accel.x;
     //this.accel.y += this.entity.accel.y;
     
+    //Cleanup function for when this bullet gets deleted.
+    this.delete = function(bullets, i) {
+        app.ticker.remove(this.update);
+        app.ticker.remove(this.tick);
+        bullets.splice(i, 1);
+        app.particles.removeChild(this);
+        return;
+    }
+    
     this.tick = function(bullets, i) {
         this.curLifetime -= 1;
         
@@ -260,14 +273,14 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
         }
         
         if ((this.curLifetime == 0) || collidingWithWall(this.position)) {
-            bullets.splice(i, 1);
-            app.particles.removeChild(this);
+            this.delete(bullets, i);
             return;
         }
         
         if(this.weapon.entity.team == 0) {
             for (var n = 0; n < app.enemies.length; n += 1) {
-                if (app.enemies[n].hitArea.contains(this.position.x, this.position.y)) {
+                if ((this.weapon.type.collisionType === "circle") 
+                    && (circularCollision(this.weapon.type.size, app.enemies[n].size, this.position, app.enemies[n].position))) {
                     app.enemies[n].armour.curHP -= this.damage;
                     if (app.enemies[n].armour.curHP <= 0) {
                         app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] += app.enemies[n].power / app.wave.enemyFactor;
@@ -276,12 +289,12 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
                         app.enemies.splice(n, 1);
                         n -= 1;
                     }
-                    bullets.splice(i, 1);
-                    app.particles.removeChild(this);
+                    this.delete(bullets, i);
                 }
             }
         } else {
-            if (app.player.hitArea.contains(this.position.x, this.position.y)) {
+            if ((this.weapon.type.collisionType === "circle") 
+                && (circularCollision(this.weapon.type.size, app.player.size, this.position, app.player.position))) {
                     app.player.armour.curHP -= this.damage;
                     if (app.player.armour.curHP <= 0) {
                         app.wave.number = 0;
@@ -295,12 +308,10 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
                         app.power = 1;
                         app.player.armour.curHP = app.player.armour.maxHP;
                     }
-                    bullets.splice(i, 1);
-                    app.particles.removeChild(this);
+                    this.delete(bullets, i);
                 }
         }
     }
-    
     app.particles.addChild(this);
 }
 
