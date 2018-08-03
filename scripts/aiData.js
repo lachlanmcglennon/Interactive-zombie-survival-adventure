@@ -1,15 +1,15 @@
 function PlayerAI() {
-    this.tick = function() {
+    this.tick = function () {
         if (app.keys.mouseLeft == true || app.keys.autofire === true) {
-            for(var i = 0; i < this.weapons.length; i += 1) {
-                this.weapons[i].fire();   
+            for (var i = 0; i < this.weapon.weapons.length; i += 1) {
+                this.weapon.weapons[i].fire();
             }
         }
-        
+
         this.rotation = getAngleInRadians(this.position, app.mouse.position);
-        
+
         this.weaponTarget = app.mouse.position;
-        
+
         if (app.keys.d == true || app.keys.a == true) {
             if (app.keys.d == true && app.keys.a == true) {
                 this.accel.x = 0;
@@ -39,66 +39,68 @@ function PlayerAI() {
         } else {
             this.accel.y -= this.accel.y / 10;
         }
-        
+
         var moveBorderX = app.renderer.width / 4;
         var moveBorderY = app.renderer.height / 4;
-        
+
         if (!collidingWithWallX(this.position)) {
             if (((this.position.x + app.transform.x) - app.renderer.width / 2 > moveBorderX) && (this.accel.x > 0)) {
                 app.transform.x -= this.accel.x;
             }
-            
+
             if (((this.position.x + app.transform.x) - app.renderer.width / 2 < -moveBorderX) && (this.accel.x < 0)) {
                 app.transform.x -= this.accel.x;
             }
         }
-        
+
         if (!collidingWithWallY(this.position)) {
             if (((this.position.y + app.transform.y) - app.renderer.height / 2 > moveBorderY) && (this.accel.y > 0)) {
                 app.transform.y -= this.accel.y;
             }
-            
+
             if (((this.position.y + app.transform.y) - app.renderer.height / 2 < -moveBorderY) && (this.accel.y < 0)) {
                 app.transform.y -= this.accel.y;
             }
         }
-    
+
         app.players.setTransform(app.transform.x, app.transform.y);
         app.particles.setTransform(app.transform.x, app.transform.y);
     }
-    
+
     app.ticker.add(this.tick, this);
 }
 
 function SniperAi() {
-    this.tick = function() {
+    this.tick = function () {
         if (getDistanceFrom(this.position, app.player.position) > 150) {
             this.moveTarget = moveToPoint(app.player.position, this.position, 150);
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         } else {
-            this.accel.set(0, 0);
+            this.moveTarget = moveInDirection(app.player.position, getDistanceFrom(app.player.position, this.position), getAngleInRadians(app.player.position, this.position) + toRadians(10));
+            this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
         this.weaponTarget = app.player.position;
         this.rotation = getAngleInRadians(this.position, app.player.position);
-        for(var i = 0; i < this.weapons.length; i += 1) {
-            this.weapons[i].fire();   
+        for (var i = 0; i < this.weapon.weapons.length; i += 1) {
+            this.weapon.weapons[i].fire();
         }
     }
     app.ticker.add(this.tick, this);
 }
 
 function CloseAi() {
-    this.tick = function() {
-        if (getDistanceFrom(this.position, app.player.position) > 30) {
+    this.tick = function () {
+        if (getDistanceFrom(this.position, app.player.position) > 50) {
             this.moveTarget = moveToPoint(app.player.position, this.position, 30);
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         } else {
-            this.accel.set(0, 0);
+            this.moveTarget = moveInDirection(app.player.position, getDistanceFrom(app.player.position, this.position), getAngleInRadians(app.player.position, this.position) + toRadians(10));
+            this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
         this.weaponTarget = app.player.position;
         this.rotation = getAngleInRadians(this.position, app.player.position);
-        for(var i = 0; i < this.weapons.length; i += 1) {
-            this.weapons[i].fire();   
+        for (var i = 0; i < this.weapon.weapons.length; i += 1) {
+            this.weapon.weapons[i].fire();
         }
     }
     app.ticker.add(this.tick, this);

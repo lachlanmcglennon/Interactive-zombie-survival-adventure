@@ -38,7 +38,7 @@ function setAccelInDirection(direction, speed) {
 }
 
 function toRadians(degrees) {
-    return (degrees * Math.PI)/180;
+    return (degrees * Math.PI) / 180;
 }
 
 function getDistanceFrom(p1, p2) {
@@ -53,15 +53,23 @@ function circularCollision(eSize1, eSize2, ePos1, ePos2) {
     }
 }
 
+function genBoxSprite(width, height, lineWidth, lineColour, fillColour) {
+    var box = new PIXI.Graphics();
+    box.lineStyle(lineWidth, lineColour);
+    box.beginFill(fillColour);
+    box.drawRect(0, 0, width, height);
+    box.endFill();
+    box = new PIXI.Sprite(app.renderer.generateTexture(box));
+    return box;
+}
+
 function getPlayerColour() {
     var colour = document.getElementById("playerCol");
     return colour.value.replace("#", "0x");
 }
 
-function decimalToHexString(number)
-{
-    if (number < 0)
-    {
+function decimalToHexString(number) {
+    if (number < 0) {
         number = 0xFFFFFFFF + number + 1;
     }
 
@@ -69,12 +77,12 @@ function decimalToHexString(number)
 }
 
 function genRandomColour() {
-    return "0x" + decimalToHexString(Math.floor(255 * Math.random())) + 
-    decimalToHexString(Math.floor(255 * Math.random())) + 
-    decimalToHexString(Math.floor(255 * Math.random()));
+    return "0x" + decimalToHexString(Math.floor(255 * Math.random())) +
+        decimalToHexString(Math.floor(255 * Math.random())) +
+        decimalToHexString(Math.floor(255 * Math.random()));
 }
 
-function collidingWithWallX (pos, size) {
+function collidingWithWallX(pos, size) {
     if (pos.x > app.wall.position.x + app.wall.width) {
         return true;
     }
@@ -85,7 +93,7 @@ function collidingWithWallX (pos, size) {
     return false;
 }
 
-function collidingWithWallY (pos) {
+function collidingWithWallY(pos) {
     if (pos.y > app.wall.position.y + app.wall.height) {
         return true;
     }
@@ -96,27 +104,36 @@ function collidingWithWallY (pos) {
     return false;
 }
 
-function collidingWithWall (pos) {
+function collidingWithWall(pos) {
     return (collidingWithWallX(pos) || collidingWithWallY(pos));
 }
 
-function updateUI () {
+function updateUI() {
     var enemyHP = document.getElementById("curEnemyHP");
     if (app.enemies.length > 0) {
         enemyHP.innerHTML = "Current enemy HP:" + app.enemies[0].armour.curHP.toFixed(2);
     }
     document.getElementById("curPlayerHP").innerHTML = "Current player HP: " + app.player.armour.curHP.toFixed(2);
-    document.getElementById("curPlayerWeapon").innerHTML = "Current Weapon: " + app.player.weaponName;
+    document.getElementById("curPlayerWeapon").innerHTML = "Current Weapon: " + app.player.weapon.weaponName;
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
     document.getElementById("curPower").innerHTML = "Enemy Power: " + app.power.toFixed(2);
     document.getElementById("curMoney").innerHTML = "Money: " + app.money.curMoney.toFixed(2);
     document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + app.money.highestMoneyGainRate.toFixed(2);
-    
-    
+
+
 }
 
 function newWeapon() {
-    app.player.newWeapon(app.money.curMoney);
+    var newPos = 0;
+    for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
+        if (app.inventory.slotAreas[newPos].slot === null) {
+            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player, app.power, 0);
+            break;
+        }
+    }
+    app.inventory.slotAreas[newPos].addChild(new PIXI.Sprite(app.inventory.slotAreas[newPos].slot.weaponProto.bulletTexture));
+    app.inventory.slotAreas[newPos].getChildAt(1).tint = getPlayerColour();
+    app.inventory.slotAreas[newPos].getChildAt(1).position.set(32, 32);
     app.money.curMoney = 0;
 }
 
@@ -124,40 +141,38 @@ function getWeaponName(entity) {
     var temp = "";
     if (entity.weaponPlaceType != 1) {
         switch (entity.numbarrels) {
-            default:
-                temp += "";
-                break;
+            default: temp += "";
+            break;
             case 2:
-                temp += "Dual";
+                    temp += "Dual";
                 break;
             case 3:
-                temp += "Triple";
+                    temp += "Triple";
                 break;
             case 4:
-                temp += "Quad";
+                    temp += "Quad";
                 break;
             case 5:
-                temp += "Penta";
+                    temp += "Penta";
                 break;
             case 6:
-                temp += "Sexta";
+                    temp += "Sexta";
                 break;
             case 7:
-                temp += "Septa";
+                    temp += "Septa";
                 break;
             case 8:
-                temp += "Octo";
+                    temp += "Octo";
                 break;
         }
         switch (entity.weaponPlaceType) {
-            default:
-                temp += "";
-                break;
+            default: temp += "";
+            break;
             case 2:
-                temp += "Spread";
+                    temp += "Spread";
                 break;
             case 3:
-                temp += "Scatter";
+                    temp += "Scatter";
                 break;
         }
     }
