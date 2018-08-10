@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 	<title>Idle Bullet Game</title>
-    <head>
-        <link rel="stylesheet" href="normalize.css" />
-        <link rel="stylesheet" href="styles.css">
-        <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" />
-        <meta charset="utf8" />
-        <meta name="description" content="Made by iblobtouch on Github." />
-        <meta name="keywords" content="" />
-        <meta name="author" content="iblobtouch" />
-    </head>
-	<body onload="init()">
-		<noscript>
+
+<head>
+    <link rel="stylesheet" href="normalize.css" />
+    <link rel="stylesheet" href="styles.css">
+    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" />
+    <meta charset="utf8" />
+    <meta name="description" content="Made by iblobtouch on Github." />
+    <meta name="keywords" content="" />
+    <meta name="author" content="iblobtouch" />
+</head>
+
+<body onload="onload()">
+    <noscript>
 			<div id="noscript">
 				<h1>
 					This game requires Javascript to run. You can learn how to re-enable JavaScript <a href="//enable-javascript.com/">here</a>.
 				</h1>
 			</div>
 		</noscript>
-        
-        <div id="mainArea">
-            <div id="content">
-                <div id="game">
-                </div>
+
+    <div id="mainArea">
+        <div id="content">
+            <div id="game">
             </div>
-            <form id = "interface">
-                    <input type="color" name="favcolor" value="#ff0000" id = "playerCol" class = "ui">
-                    <label id = "curWave" class = "ui">0</label>
-                    <label id = "curPower" class = "ui">0</label>
-                    <label id = "curMoney" class = "ui">0</label>
-                    <label id = "curMoneyGainRate" class = "ui">0</label>
-                    <label id = "curPlayerHP" class = "ui">0</label>
-                    <label id = "curPlayerWeapon" class = "ui">0</label>
-                    <label id = "curEnemyHP" class = "ui">0</label>
-            </form>
-            <button id = "newWeapon" class = "ui" onclick = "newWeapon()">Buy New Weapon (N)</button>
-            <button id = "newWeapon" class = "ui" onclick="newArmour()">Buy New Armour (M)</button>
         </div>
-        
-        <script src="scripts/pixi.js"></script>
-        <script src="scripts/functions.js"></script>
-        <script src="scripts/classes.js"></script>
-        <script src="data/weaponData.js"></script>
-        <script src="scripts/init.js"></script>
-        <script src="scripts/aiData.js"></script>
-        <script src="scripts/events.js"></script>
-    </body>
+        <form id="interface">
+            <input type="color" name="favcolor" value="#ff0000" id="playerCol" class="ui">
+            <label id="curWave" class="ui">0</label>
+            <label id="curPower" class="ui">0</label>
+            <label id="curMoney" class="ui">0</label>
+            <label id="curMoneyGainRate" class="ui">0</label>
+            <label id="curPlayerHP" class="ui">0</label>
+            <label id="curPlayerWeapon" class="ui">0</label>
+            <label id="curEnemyHP" class="ui">0</label>
+        </form>
+        <button id="newWeapon" class="ui" onclick="newWeapon()">Buy New Weapon (N)</button>
+        <button id="newWeapon" class="ui" onclick="newArmour()">Buy New Armour (M)</button>
+    </div>
+
+    <script src="scripts/pixi.js"></script>
+    <script src="scripts/functions.js"></script>
+    <script src="scripts/classes.js"></script>
+    <script src="data/weaponData.js"></script>
+    <script src="scripts/init.js"></script>
+    <script src="scripts/aiData.js"></script>
+    <script src="scripts/events.js"></script>
+</body>
 </html>

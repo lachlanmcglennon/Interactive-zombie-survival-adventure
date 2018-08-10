@@ -2,7 +2,7 @@
 
 var app = {};
 
-function init() {
+function onload() {
     app = new PIXI.Application(window.innerWidth, window.innerHeight, {
         //backgroundColor: 0xcccccc,
         transparent: true,
@@ -11,6 +11,11 @@ function init() {
         height: 540
 
     });
+
+    app.ticker.addOnce(init);
+}
+
+function init() {
     var gameDiv = document.getElementById("game");
     gameDiv.appendChild(app.view);
 
@@ -105,12 +110,27 @@ function init() {
     app.player = new Entity(new PIXI.Texture(base), getPlayerColour(), app.power * 10, 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
 
     app.inventory = {};
-    app.inventory.backgroundImage = genBoxSprite(522, app.stage.width, 2, 0x000000, 0xFFFFFF);
+    app.inventory.backgroundImage = genBoxSprite(522, app.renderer.width, 2, 0x000000, 0xFFFFFF);
 
     app.inventory.inventoryArea = new PIXI.Container();
     app.inventory.inventoryArea.addChild(app.inventory.backgroundImage);
-    app.inventory.inventoryArea.position.set(0, 0);
+    app.inventory.inventoryArea.position.set(app.renderer.width + app.inventory.inventoryArea.width - 100, 0);
+
+    app.inventory.inventoryArea.enabled = true;
+    app.inventory.inventoryArea.interactive = true;
+    app.inventory.inventoryArea.interactiveChildren = true;
+    app.inventory.inventoryArea.click = function (e) {
+        if (app.inventory.inventoryArea.enabled) {
+            app.inventory.inventoryArea.position.x += app.inventory.inventoryArea.width;
+        } else {
+            app.inventory.inventoryArea.position.x -= app.inventory.inventoryArea.width;
+        }
+        app.inventory.inventoryArea.enabled = !app.inventory.inventoryArea.enabled;
+    }
+
     app.stage.addChild(app.inventory.inventoryArea);
+
+    app.stage.swapChildren(app.inventory.inventoryArea, app.mouse.displayBox);
 
     app.inventory.slotAreas = [];
     app.inventory.slot = [];
@@ -135,6 +155,24 @@ function init() {
     app.inventory.inventoryArea.addChild(app.inventory.slotAreas[1]);
     app.inventory.slotAreas[1].position.set(301, 5);
 
+    app.inventory.slotAreas[0].mouseout = function (e) {
+        app.mouse.showBox = false;
+    };
+
+    app.inventory.slotAreas[0].mouseover = function (e) {
+        console.log("over");
+        e.stopPropagation();
+        if (this.slot === null) {
+            app.mouse.showBox = false;
+        } else {
+            app.mouse.showBox = true;
+            if (app.mouse.displayBox.children.length > 0) {
+                app.mouse.displayBox.removeChildAt(0);
+            }
+            app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
+        }
+    };
+
     for (var y = 0; y < 10; y += 1) {
         for (var x = 0; x < 8; x += 1) {
             app.inventory.slotAreas[2 + x + (y * 8)] = new PIXI.Container();
@@ -143,31 +181,33 @@ function init() {
             app.inventory.slotAreas[2 + x + (y * 8)].interactive = true;
 
             app.inventory.slotAreas[2 + x + (y * 8)].slot = null;
-            app.inventory.slotAreas[2 + x + (y * 8)].click = function () {
+            app.inventory.slotAreas[2 + x + (y * 8)].click = function (e) {
+                e.stopPropagation();
                 if (this.slot === null) {
                     console.log("null");
                 } else {
-                    var temp = new PIXI.Sprite(this.getChildAt(1).texture)
-                    this.removeChildAt(1);
-                    this.addChild(new PIXI.Sprite(app.inventory.slotAreas[0].getChildAt(1).texture));
-                    app.inventory.slotAreas[0].removeChildAt(1);
-                    app.inventory.slotAreas[0].addChild(temp);
-
-                    temp = {};
-
-                    Object.assign(temp, app.inventory.slotAreas[0].slot);
-                    Object.assign(app.inventory.slotAreas[0].slot, this.slot);
-                    Object.assign(this.slot, temp);
-
-                    app.inventory.slotAreas[0].getChildAt(1).tint = getPlayerColour();
-                    app.inventory.slotAreas[0].getChildAt(1).position.set(32, 32);
-
-                    this.getChildAt(1).tint = getPlayerColour();
-                    this.getChildAt(1).position.set(32, 32);
-
-                    Object.assign(app.player.weapon, app.inventory.slotAreas[0].slot);
+                    swapItems(this, app.inventory.slotAreas[0]);
                 }
-            }
+            };
+
+
+            app.inventory.slotAreas[2 + x + (y * 8)].mouseout = function (e) {
+                app.mouse.showBox = false;
+            };
+
+            app.inventory.slotAreas[2 + x + (y * 8)].mouseover = function (e) {
+                console.log("over");
+                e.stopPropagation();
+                if (this.slot === null) {
+                    app.mouse.showBox = false;
+                } else {
+                    app.mouse.showBox = true;
+                    if (app.mouse.displayBox.children.length > 0) {
+                        app.mouse.displayBox.removeChildAt(0);
+                    }
+                    app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
+                }
+            };
 
             app.inventory.inventoryArea.addChild(app.inventory.slotAreas[2 + x + (y * 8)]);
             app.inventory.slotAreas[2 + x + (y * 8)].position.set(x * 64 + 5, y * 64 + 80);

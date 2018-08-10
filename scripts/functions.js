@@ -108,6 +108,28 @@ function collidingWithWall(pos) {
     return (collidingWithWallX(pos) || collidingWithWallY(pos));
 }
 
+function swapItems(item1, item2) {
+    var temp = new PIXI.Sprite(item1.getChildAt(1).texture)
+    item1.removeChildAt(1);
+    item1.addChild(new PIXI.Sprite(item2.getChildAt(1).texture));
+    item2.removeChildAt(1);
+    item2.addChild(temp);
+
+    temp = {};
+
+    Object.assign(temp, item2.slot);
+    Object.assign(item2.slot, item1.slot);
+    Object.assign(item1.slot, temp);
+
+    item2.getChildAt(1).tint = getPlayerColour();
+    item2.getChildAt(1).position.set(32, 32);
+
+    item1.getChildAt(1).tint = getPlayerColour();
+    item1.getChildAt(1).position.set(32, 32);
+
+    Object.assign(app.player.weapon, item2.slot);
+}
+
 function updateUI() {
     var enemyHP = document.getElementById("curEnemyHP");
     if (app.enemies.length > 0) {
@@ -144,40 +166,76 @@ function getWeaponName(entity) {
             default: temp += "";
             break;
             case 2:
-                    temp += "Dual";
+                    temp += "Dual ";
                 break;
             case 3:
-                    temp += "Triple";
+                    temp += "Triple ";
                 break;
             case 4:
-                    temp += "Quad";
+                    temp += "Quad ";
                 break;
             case 5:
-                    temp += "Penta";
+                    temp += "Penta ";
                 break;
             case 6:
-                    temp += "Sexta";
+                    temp += "Sexta ";
                 break;
             case 7:
-                    temp += "Septa";
+                    temp += "Septa ";
                 break;
             case 8:
-                    temp += "Octo";
+                    temp += "Octo ";
                 break;
         }
         switch (entity.weaponPlaceType) {
             default: temp += "";
             break;
             case 2:
-                    temp += "Spread";
+                    temp += "Spread ";
                 break;
             case 3:
-                    temp += "Scatter";
+                    temp += "Scatter ";
                 break;
         }
     }
     temp += entity.weaponProto.type.name;
     return temp;
+}
+
+function genWeaponBox(weapon) {
+    var weaponBox = new PIXI.Container;
+
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 12,
+        fill: "black",
+        wordWrap: true,
+        wordWrapWidth: 200,
+    };
+
+    var weaponName = new PIXI.Text(weapon.weaponName, style);
+
+    weaponName.position.set(5, 5);
+
+    weaponBox.addChild(weaponName);
+
+    var weaponDamage = new PIXI.Text(weapon.weaponProto.damage.toFixed(2) + " damage", style);
+
+    if ((weapon.numbarrels > 1) && (weapon.weaponPlaceType != 1)) {
+        weaponDamage.text = weapon.weaponProto.damage.toFixed(2) + " damage x" + weapon.numbarrels;
+    }
+
+    weaponDamage.position.set(5, weaponBox.height + 5);
+
+    weaponBox.addChild(weaponDamage);
+
+    var background = genBoxSprite(weaponBox.width + 5, weaponBox.height + 5, 2, 0x000000, 0xFFFFFF);
+
+    weaponBox.addChild(background);
+
+    weaponBox.swapChildren(weaponName, background)
+
+    return weaponBox;
 }
 
 function newArmour() {

@@ -19,6 +19,25 @@ function Keys() {
 
 function Mouse() {
     this.position = new PIXI.Point(0, 0);
+    this.displayBox = new PIXI.Container();
+    this.showBox = false;
+
+    app.stage.addChild(this.displayBox);
+
+    this.moveBox = function () {
+        if (this.showBox === true) {
+            if (this.displayBox === null) {
+                this.displayBox.visible = false;
+            } else {
+                this.displayBox.visible = true;
+                this.displayBox.position.set(this.position.x - this.displayBox.width, this.position.y);
+            }
+        } else {
+            this.displayBox.visible = false;
+        }
+    }
+
+    app.ticker.add(this.moveBox, this);
 }
 
 function Moveable(speed) {
