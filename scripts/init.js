@@ -24,8 +24,22 @@ function init() {
         var width = window.innerWidth;
         var height = window.innerHeight - 5;
 
+        if (width > 1920) {
+            width = 1920;
+        }
+
+        if (height > 1080) {
+            height = 1080;
+        }
+
         app.renderer.resize(width, height);
         app.inventory.backgroundImage.height = app.renderer.height;
+
+        if (app.inventory.inventoryArea.enabled) {
+            app.inventory.inventoryArea.position.set(width - app.inventory.inventoryArea.width - 10, 0);
+        } else {
+            app.inventory.inventoryArea.position.set(width - 10, 0);
+        }
     }
 
     app = loadBulletImages(app);
@@ -114,7 +128,6 @@ function init() {
 
     app.inventory.inventoryArea = new PIXI.Container();
     app.inventory.inventoryArea.addChild(app.inventory.backgroundImage);
-    app.inventory.inventoryArea.position.set(app.renderer.width + app.inventory.inventoryArea.width - 100, 0);
 
     app.inventory.inventoryArea.enabled = true;
     app.inventory.inventoryArea.interactive = true;
