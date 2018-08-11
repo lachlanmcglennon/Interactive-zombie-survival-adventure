@@ -149,7 +149,7 @@ function newWeapon() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player, app.power, 0);
+            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player, app.money.curMoney, 0);
             break;
         }
     }
