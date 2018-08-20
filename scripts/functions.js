@@ -109,13 +109,32 @@ function collidingWithWall(pos) {
 }
 
 function swapItems(item1, item2) {
+    temp = {};
+
+    if (item1.slot == null) {
+        item1.slot = {};
+
+        Object.assign(item1.slot, item2.slot);
+
+        item2.slot = null;
+        item1.addChild(new PIXI.Sprite(item2.getChildAt(1).texture));
+        item2.removeChildAt(1);
+
+        item1.getChildAt(1).tint = getPlayerColour();
+        item1.getChildAt(1).position.set(32, 32);
+
+        return;
+    }
+
+    if (item2.slot == null) {
+
+    }
+
     var temp = new PIXI.Sprite(item1.getChildAt(1).texture)
     item1.removeChildAt(1);
     item1.addChild(new PIXI.Sprite(item2.getChildAt(1).texture));
     item2.removeChildAt(1);
     item2.addChild(temp);
-
-    temp = {};
 
     Object.assign(temp, item2.slot);
     Object.assign(item2.slot, item1.slot);
@@ -127,7 +146,11 @@ function swapItems(item1, item2) {
     item1.getChildAt(1).tint = getPlayerColour();
     item1.getChildAt(1).position.set(32, 32);
 
-    Object.assign(app.player.weapon, item2.slot);
+    if (item2.pos = 0) {
+        Object.assign(app.player.weapon, item2.slot);
+    }
+
+    return;
 }
 
 function updateUI() {
@@ -153,6 +176,11 @@ function newWeapon() {
             break;
         }
     }
+
+    if (newPos >= app.inventory.slotAreas.length) {
+        return;
+    }
+
     app.inventory.slotAreas[newPos].addChild(new PIXI.Sprite(app.inventory.slotAreas[newPos].slot.weaponProto.bulletTexture));
     app.inventory.slotAreas[newPos].getChildAt(1).tint = getPlayerColour();
     app.inventory.slotAreas[newPos].getChildAt(1).position.set(32, 32);
@@ -187,15 +215,17 @@ function getWeaponName(entity) {
                     temp += "Octo ";
                 break;
         }
-        switch (entity.weaponPlaceType) {
-            default: temp += "";
-            break;
-            case 2:
-                    temp += "Spread ";
+        if (entity.numbarrels > 1) {
+            switch (entity.weaponPlaceType) {
+                default: temp += "";
                 break;
-            case 3:
-                    temp += "Scatter ";
-                break;
+                case 2:
+                        temp += "Spread ";
+                    break;
+                case 3:
+                        temp += "Scatter ";
+                    break;
+            }
         }
     }
     temp += entity.weaponProto.type.name;

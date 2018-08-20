@@ -170,11 +170,16 @@ function init() {
 
     app.inventory.slotAreas[0].mouseout = function (e) {
         app.mouse.showBox = false;
+
+        app.mouse.curSlot = null;
     };
 
     app.inventory.slotAreas[0].mouseover = function (e) {
         console.log("over");
         e.stopPropagation();
+
+        app.mouse.curSlot = this;
+
         if (this.slot === null) {
             app.mouse.showBox = false;
         } else {
@@ -185,6 +190,8 @@ function init() {
             app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
         }
     };
+
+    app.keys = new Keys();
 
     for (var y = 0; y < 10; y += 1) {
         for (var x = 0; x < 8; x += 1) {
@@ -206,11 +213,16 @@ function init() {
 
             app.inventory.slotAreas[2 + x + (y * 8)].mouseout = function (e) {
                 app.mouse.showBox = false;
+
+                app.mouse.curSlot = null;
             };
 
             app.inventory.slotAreas[2 + x + (y * 8)].mouseover = function (e) {
                 console.log("over");
                 e.stopPropagation();
+
+                app.mouse.curSlot = this;
+
                 if (this.slot === null) {
                     app.mouse.showBox = false;
                 } else {
@@ -219,6 +231,10 @@ function init() {
                         app.mouse.displayBox.removeChildAt(0);
                     }
                     app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
+
+                    console.log(app.keys.sell);
+
+                    if (app.keys.sell == true) {}
                 }
             };
 
@@ -230,8 +246,6 @@ function init() {
     app.stage.on("mousemove", function (event) {
         app.mouse.position = event.data.getLocalPosition(app.players);
     }, false);
-
-    app.keys = new Keys();
 
     app.ticker.add(function () {
         app.tick += 1;

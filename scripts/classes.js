@@ -15,12 +15,15 @@ function Keys() {
     this.mouseLeft = false;
     this.autofire = false;
     this.pause = false;
+    this.sell = false;
 }
 
 function Mouse() {
     this.position = new PIXI.Point(0, 0);
     this.displayBox = new PIXI.Container();
     this.showBox = false;
+
+    this.curSlot = null;
 
     app.stage.addChild(this.displayBox);
 
