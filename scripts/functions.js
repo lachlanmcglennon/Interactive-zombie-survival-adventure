@@ -116,35 +116,32 @@ function swapItems(item1, item2) {
 
         Object.assign(item1.slot, item2.slot);
 
-        item2.slot = null;
-        item1.addChild(new PIXI.Sprite(item2.getChildAt(1).texture));
+        item1.addChild(item2.getChildAt(1));
+        item1.getChildAt(1).tint = item2.slot.rarity.colour;
         item2.removeChildAt(1);
-
-        item1.getChildAt(1).tint = getPlayerColour();
+        item2.slot = null;
         item1.getChildAt(1).position.set(32, 32);
 
         return;
     }
 
     if (item2.slot == null) {
-
+        return;
     }
 
-    var temp = new PIXI.Sprite(item1.getChildAt(1).texture)
-    item1.removeChildAt(1);
-    item1.addChild(new PIXI.Sprite(item2.getChildAt(1).texture));
-    item2.removeChildAt(1);
-    item2.addChild(temp);
+    var temp = new PIXI.Container();
+
+    item1.addChild(item2.getChildAt(1));
+    item2.addChild(item1.getChildAt(1));
+
+    temp = {};
 
     Object.assign(temp, item2.slot);
     Object.assign(item2.slot, item1.slot);
     Object.assign(item1.slot, temp);
 
-    item2.getChildAt(1).tint = getPlayerColour();
-    item2.getChildAt(1).position.set(32, 32);
-
-    item1.getChildAt(1).tint = getPlayerColour();
-    item1.getChildAt(1).position.set(32, 32);
+    item2.getChildAt(1).tint = item2.slot.rarity.colour;
+    item1.getChildAt(1).tint = item1.slot.rarity.colour;
 
     if (item2.pos = 0) {
         Object.assign(app.player.weapon, item2.slot);
@@ -180,17 +177,32 @@ function newWeapon() {
     if (newPos >= app.inventory.slotAreas.length) {
         return;
     }
+    var weaponImage = new PIXI.Container();
+    var size = 3;
 
-    app.inventory.slotAreas[newPos].addChild(new PIXI.Sprite(app.inventory.slotAreas[newPos].slot.weaponProto.bulletTexture));
-    app.inventory.slotAreas[newPos].getChildAt(1).tint = getPlayerColour();
-    app.inventory.slotAreas[newPos].getChildAt(1).position.set(32, 32);
+    weaponImage.anchor = new PIXI.Point(32, 32);
+
+    for (var i = 0; i < app.inventory.slotAreas[newPos].slot.numbarrels; i += 1) {
+        weaponImage.addChild(new PIXI.Sprite(app.inventory.slotAreas[newPos].slot.weaponProto.bulletTexture));
+
+        //console.log(app.inventory.slotAreas[newPos].slot.weapons[i].direction);
+        size = app.inventory.slotAreas[newPos].slot.weaponProto.type.size;
+
+        weaponImage.getChildAt(i).position.copy(moveInDirection(new PIXI.Point(32 - (size / 2), 32 - (size / 2)), 4, app.inventory.slotAreas[newPos].slot.weapons[i].direction));
+        weaponImage.getChildAt(i).rotation = app.inventory.slotAreas[newPos].slot.weapons[i].direction;
+        weaponImage.getChildAt(i).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
+    }
+
+
+
+    app.inventory.slotAreas[newPos].addChild(weaponImage);
     app.money.curMoney = 0;
 }
 
-function getWeaponName(entity) {
+function getWeaponName(weaponGroup) {
     var temp = "";
-    if (entity.weaponPlaceType != 1) {
-        switch (entity.numbarrels) {
+    if (weaponGroup.weaponPlaceType != 1) {
+        switch (weaponGroup.numbarrels) {
             default: temp += "";
             break;
             case 2:
@@ -215,8 +227,8 @@ function getWeaponName(entity) {
                     temp += "Octo ";
                 break;
         }
-        if (entity.numbarrels > 1) {
-            switch (entity.weaponPlaceType) {
+        if (weaponGroup.numbarrels > 1) {
+            switch (weaponGroup.weaponPlaceType) {
                 default: temp += "";
                 break;
                 case 2:
@@ -228,7 +240,7 @@ function getWeaponName(entity) {
             }
         }
     }
-    temp += entity.weaponProto.type.name;
+    temp += weaponGroup.weaponProto.type.name;
     return temp;
 }
 
@@ -244,10 +256,15 @@ function genWeaponBox(weapon) {
     };
 
     var weaponName = new PIXI.Text(weapon.weaponName, style);
-
     weaponName.position.set(5, 5);
-
     weaponBox.addChild(weaponName);
+
+    style.fill = weapon.rarity.colour;
+    var weaponRarity = new PIXI.Text(weapon.rarity.name, style);
+    weaponRarity.position.set(5, weaponBox.height + 5);
+    weaponBox.addChild(weaponRarity);
+
+    style.fill = "black";
 
     var weaponDamage = new PIXI.Text(weapon.weaponProto.damage.toFixed(2) + " damage", style);
 

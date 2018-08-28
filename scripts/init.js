@@ -43,6 +43,7 @@ function init() {
     }
 
     app = loadBulletImages(app);
+    app = loadRarities(app);
 
     app.particles = new PIXI.particles.ParticleContainer(
         1000
@@ -72,7 +73,7 @@ function init() {
     app.bullets = [];
     app.enemies = [];
     app.money = {
-        curMoney: 0,
+        curMoney: 10,
         highestMoneyGainRate: 0.1,
         moneyGainedIn5Sec: [],
         moneyGainedSec: 0
@@ -156,10 +157,11 @@ function init() {
     app.inventory.slotAreas[1].addChild(genBoxSprite(64, 64, 2, 0x000000, 0xFFFFFF));
     app.inventory.slotAreas[1].interactive = true;
 
-    app.inventory.slotAreas[0].slot = app.player.weapon;
-    app.inventory.slotAreas[0].addChild(new PIXI.Sprite(app.inventory.slotAreas[0].slot.weaponProto.bulletTexture));
-    app.inventory.slotAreas[0].getChildAt(1).tint = getPlayerColour();
-    app.inventory.slotAreas[0].getChildAt(1).position.set(32, 32);
+    app.inventory.slotAreas[0].slot = null;
+    newWeapon();
+
+    app.player.weapon = app.inventory.slotAreas[0].slot;
+
     app.inventory.slotAreas[1].slot = app.player.armour;
     //app.inventory.slotAreas[1].addChild(app.inventory.slot[1].weaponProto.bulletTexture);
 

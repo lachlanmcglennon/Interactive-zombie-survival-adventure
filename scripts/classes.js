@@ -131,11 +131,25 @@ function WeaponGroup(entity, power, team) {
     this.weaponPlaceType = Math.ceil(Math.random() * 3);
     //this.weaponPlaceType = 2;
 
-    this.weaponProto = new Weapon(entity, power / this.numbarrels);
+    var raritySeed = Math.random();
+
+    if (raritySeed > 0.99) {
+        this.rarity = app.rarities[3];
+    } else if (raritySeed > 0.9) {
+        this.rarity = app.rarities[2];
+    } else if (raritySeed > 0.6) {
+        this.rarity = app.rarities[1];
+    } else {
+        this.rarity = app.rarities[0];
+    }
+
+
+    this.weaponProto = new Weapon(entity, power / this.numbarrels, this);
     this.weapons[0] = Object.create(this.weaponProto);
 
     switch (this.weaponPlaceType) {
-        default: app.ticker.add(this.weapons[0].reload, this.weapons[0]);
+        default: this.numbarrels = 1;
+        app.ticker.add(this.weapons[0].reload, this.weapons[0]);
         break;
         case 2:
                 var angleBetween = toRadians(10);
@@ -186,14 +200,15 @@ function WeaponGroup(entity, power, team) {
     this.weaponName = getWeaponName(this);
 }
 
-function Weapon(entity, power) {
+function Weapon(entity, power, weaponGroup) {
     //A weapon is what creates bullets.
 
     this.type = app.weaponTypes[Math.floor(Math.random() * app.weaponTypes.length)];
     this.bulletTexture = this.type.image;
     this.entity = entity;
+    this.group = weaponGroup;
 
-    this.damage = power * this.type.damageMod;
+    this.damage = power * this.type.damageMod * this.group.rarity.statMod;
     this.direction = 0;
 
     this.setDirection = function (direction) {

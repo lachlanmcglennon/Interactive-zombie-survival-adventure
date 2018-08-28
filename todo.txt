@@ -3,5 +3,5 @@
 3. More stuff to do with money like upgrades.
 4. Implement a camera system, and arena boundries. Done
 5. Save system.
-6. Ability to sell items.
+6. Ability to sell items. Done
 7. Inventory slots and differing types for armours.
