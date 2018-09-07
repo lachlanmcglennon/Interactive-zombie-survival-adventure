@@ -59,7 +59,7 @@ function init() {
 
     var img = new Image();
     img.src = "images/player.png";
-    var base = new PIXI.BaseTexture(img);
+    app.playerImage = PIXI.Texture.fromImage(img.src);
 
     app.ticker.speed = 1;
 
@@ -122,7 +122,7 @@ function init() {
 
     app.power = 1;
 
-    app.player = new Entity(new PIXI.Texture(base), getPlayerColour(), app.power * 10, 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
+    app.player = new Entity(new PIXI.Texture(app.playerImage), getPlayerColour(), app.power * 10, 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
 
     app.inventory = {};
     app.inventory.backgroundImage = genBoxSprite(522, app.renderer.width, 2, 0x000000, 0xFFFFFF);
@@ -162,8 +162,12 @@ function init() {
 
     app.player.weapon = app.inventory.slotAreas[0].slot;
 
-    app.inventory.slotAreas[1].slot = app.player.armour;
-    //app.inventory.slotAreas[1].addChild(app.inventory.slot[1].weaponProto.bulletTexture);
+    app.money.curMoney = 10;
+
+    app.inventory.slotAreas[1].slot = null;
+    newArmour();
+
+    app.player.armour = app.inventory.slotAreas[1].slot;
 
     app.inventory.inventoryArea.addChild(app.inventory.slotAreas[0]);
     app.inventory.slotAreas[0].position.set(135, 5);
@@ -189,7 +193,33 @@ function init() {
             if (app.mouse.displayBox.children.length > 0) {
                 app.mouse.displayBox.removeChildAt(0);
             }
+
             app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
+        }
+    };
+
+
+    app.inventory.slotAreas[1].mouseout = function (e) {
+        app.mouse.showBox = false;
+
+        app.mouse.curSlot = null;
+    };
+
+    app.inventory.slotAreas[1].mouseover = function (e) {
+        console.log("over");
+        e.stopPropagation();
+
+        app.mouse.curSlot = this;
+
+        if (this.slot === null) {
+            app.mouse.showBox = false;
+        } else {
+            app.mouse.showBox = true;
+            if (app.mouse.displayBox.children.length > 0) {
+                app.mouse.displayBox.removeChildAt(0);
+            }
+
+            app.mouse.displayBox.addChildAt(genArmourBox(this.slot), 0);
         }
     };
 
@@ -207,8 +237,10 @@ function init() {
                 e.stopPropagation();
                 if (this.slot === null) {
                     console.log("null");
-                } else {
+                } else if (this.slot.className == "Weapon") {
                     swapItems(this, app.inventory.slotAreas[0]);
+                } else {
+                    swapItems(this, app.inventory.slotAreas[1]);
                 }
             };
 
@@ -221,7 +253,7 @@ function init() {
 
             app.inventory.slotAreas[2 + x + (y * 8)].mouseover = function (e) {
                 console.log("over");
-                e.stopPropagation();
+                //e.stopPropagation();
 
                 app.mouse.curSlot = this;
 
@@ -232,7 +264,14 @@ function init() {
                     if (app.mouse.displayBox.children.length > 0) {
                         app.mouse.displayBox.removeChildAt(0);
                     }
-                    app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
+
+                    console.log(this.slot.className);
+
+                    if (this.slot.className == "Weapon") {
+                        app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
+                    } else {
+                        app.mouse.displayBox.addChildAt(genArmourBox(this.slot), 0);
+                    }
 
                     console.log(app.keys.sell);
 
@@ -262,7 +301,7 @@ function init() {
             var xToSpawn = temp.x,
                 yToSpawn = temp.y;
 
-            app.enemies.push(new Entity(new PIXI.Texture(base), genRandomColour(),
+            app.enemies.push(new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
                 app.power * app.wave.enemyFactor, 2, 10, 1, xToSpawn, yToSpawn));
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;

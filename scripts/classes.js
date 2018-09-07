@@ -126,6 +126,10 @@ function WeaponGroup(entity, power, team) {
     this.team = team;
     this.weapons = [];
 
+    this.className = "Weapon";
+
+    this.power = power;
+
     var maxDeviation = toRadians(90);
     this.numbarrels = Math.ceil(Math.random() * 8);
     this.weaponPlaceType = Math.ceil(Math.random() * 3);
@@ -144,7 +148,7 @@ function WeaponGroup(entity, power, team) {
     }
 
 
-    this.weaponProto = new Weapon(entity, power / this.numbarrels, this);
+    this.weaponProto = new Weapon(entity, this.power / this.numbarrels, this);
     this.weapons[0] = Object.create(this.weaponProto);
 
     switch (this.weaponPlaceType) {
@@ -238,7 +242,23 @@ function Weapon(entity, power, weaponGroup) {
 function Armour(entity, power) {
     this.entity = entity;
 
-    this.maxHP = power * 10;
+    this.className = "Armour";
+
+    this.power = power;
+
+    var raritySeed = Math.random();
+
+    if (raritySeed > 0.99) {
+        this.rarity = app.rarities[3];
+    } else if (raritySeed > 0.9) {
+        this.rarity = app.rarities[2];
+    } else if (raritySeed > 0.6) {
+        this.rarity = app.rarities[1];
+    } else {
+        this.rarity = app.rarities[0];
+    }
+
+    this.maxHP = this.power * 10 * this.rarity.statMod;
     this.curHP = this.maxHP;
 
     this.maxRegen = 1.2;

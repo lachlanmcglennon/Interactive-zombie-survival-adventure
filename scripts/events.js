@@ -40,8 +40,8 @@ function addEvents() {
             }
 
             if (event.key == "x") {
-                if (app.mouse.curSlot != null) {
-                    app.money.curMoney += app.mouse.curSlot.slot.weaponProto.damage / app.mouse.curSlot.slot.weaponProto.type.damageMod;
+                if (app.mouse.curSlot.slot != null) {
+                    app.money.curMoney += app.mouse.curSlot.slot.power;
                     app.mouse.curSlot.slot = null;
                     var i = app.mouse.curSlot.pos;
 
@@ -51,6 +51,9 @@ function addEvents() {
                         swapItems(app.inventory.slotAreas[i], app.inventory.slotAreas[i + 1]);
                         i += 1;
                     }
+
+                    app.inventory.slotAreas[i].mouseout();
+                    app.inventory.slotAreas[i].mouseover();
                 }
             }
 

@@ -76,7 +76,7 @@ function SniperAi() {
             this.moveTarget = moveToPoint(app.player.position, this.position, 150);
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         } else {
-            this.moveTarget = moveInDirection(app.player.position, getDistanceFrom(app.player.position, this.position), getAngleInRadians(app.player.position, this.position) + toRadians(10));
+            this.moveTarget = moveInDirection(app.player.position, 150, getAngleInRadians(app.player.position, this.position) + toRadians(10));
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
         this.weaponTarget = app.player.position;
@@ -94,7 +94,7 @@ function CloseAi() {
             this.moveTarget = moveToPoint(app.player.position, this.position, 30);
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         } else {
-            this.moveTarget = moveInDirection(app.player.position, getDistanceFrom(app.player.position, this.position), getAngleInRadians(app.player.position, this.position) + toRadians(10));
+            this.moveTarget = moveInDirection(app.player.position, 50, getAngleInRadians(app.player.position, this.position) + toRadians(10));
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
         this.weaponTarget = app.player.position;

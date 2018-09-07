@@ -118,9 +118,11 @@ function swapItems(item1, item2) {
 
         item1.addChild(item2.getChildAt(1));
         item1.getChildAt(1).tint = item2.slot.rarity.colour;
-        item2.removeChildAt(1);
+        if (item2.children.length > 1) {
+            item2.removeChildAt(1);
+        }
         item2.slot = null;
-        item1.getChildAt(1).position.set(32, 32);
+        //item1.getChildAt(1).position.set(32, 32);
 
         return;
     }
@@ -145,6 +147,8 @@ function swapItems(item1, item2) {
 
     if (item2.pos = 0) {
         Object.assign(app.player.weapon, item2.slot);
+    } else if (item2.pos = 1) {
+        Object.assign(app.player.armour, item2.slot);
     }
 
     return;
@@ -196,6 +200,34 @@ function newWeapon() {
 
 
     app.inventory.slotAreas[newPos].addChild(weaponImage);
+    app.money.curMoney = 0;
+}
+
+function newArmour() {
+    var newPos = 0;
+    for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
+        if (app.inventory.slotAreas[newPos].slot === null) {
+            app.inventory.slotAreas[newPos].slot = new Armour(app.player, app.money.curMoney);
+            break;
+        }
+    }
+
+    console.log(app.inventory.slotAreas[1].slot);
+
+    if (newPos >= app.inventory.slotAreas.length) {
+        return;
+    }
+    var armourImage = new PIXI.Container();
+    var size = 3;
+
+    armourImage.anchor = new PIXI.Point(32, 32);
+
+    armourImage.addChild(new PIXI.Sprite(app.playerImage));
+
+    armourImage.getChildAt(0).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
+
+    app.inventory.slotAreas[newPos].addChild(armourImage);
+
     app.money.curMoney = 0;
 }
 
@@ -285,7 +317,39 @@ function genWeaponBox(weapon) {
     return weaponBox;
 }
 
-function newArmour() {
-    app.player.armour = new Armour(app.player, app.money.curMoney);
-    app.money.curMoney = 0;
+function genArmourBox(armour) {
+    var armourBox = new PIXI.Container;
+
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 12,
+        fill: "black",
+        wordWrap: true,
+        wordWrapWidth: 200,
+    };
+
+    var armourName = new PIXI.Text("Armour", style);
+    armourName.position.set(5, 5);
+    armourBox.addChild(armourName);
+
+    style.fill = armour.rarity.colour;
+    var armourRarity = new PIXI.Text(armour.rarity.name, style);
+    armourRarity.position.set(5, armourBox.height + 5);
+    armourBox.addChild(armourRarity);
+
+    style.fill = "black";
+
+    var armourHP = new PIXI.Text(armour.maxHP.toFixed(2) + " HP", style);
+
+    armourHP.position.set(5, armourBox.height + 5);
+
+    armourBox.addChild(armourHP);
+
+    var background = genBoxSprite(armourBox.width + 5, armourBox.height + 5, 2, 0x000000, 0xFFFFFF);
+
+    armourBox.addChild(background);
+
+    armourBox.swapChildren(armourName, background)
+
+    return armourBox;
 }
