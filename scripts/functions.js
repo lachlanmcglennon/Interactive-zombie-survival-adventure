@@ -157,14 +157,13 @@ function swapItems(item1, item2) {
 function updateUI() {
     var enemyHP = document.getElementById("curEnemyHP");
     if (app.enemies.length > 0) {
-        enemyHP.innerHTML = "Current enemy HP:" + app.enemies[0].armour.curHP.toFixed(2);
+        enemyHP.innerHTML = "Current enemy HP:" + formatNumber(app.players[1].armour.curHP);
     }
-    document.getElementById("curPlayerHP").innerHTML = "Current player HP: " + app.player.armour.curHP.toFixed(2);
-    document.getElementById("curPlayerWeapon").innerHTML = "Current Weapon: " + app.player.weapon.weaponName;
+    document.getElementById("curPlayerHP").innerHTML = "Current player HP: " + formatNumber(app.player.armour.curHP);
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
-    document.getElementById("curPower").innerHTML = "Enemy Power: " + app.power.toFixed(2);
-    document.getElementById("curMoney").innerHTML = "Money: " + app.money.curMoney.toFixed(2);
-    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + app.money.highestMoneyGainRate.toFixed(2);
+    document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.power);
+    document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
+    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate);
 
 
 }
@@ -301,12 +300,33 @@ function genWeaponBox(weapon) {
     var weaponDamage = new PIXI.Text(weapon.weaponProto.damage.toFixed(2) + " damage", style);
 
     if ((weapon.numbarrels > 1) && (weapon.weaponPlaceType != 1)) {
-        weaponDamage.text = weapon.weaponProto.damage.toFixed(2) + " damage x" + weapon.numbarrels;
+        weaponDamage.text = formatNumber(weapon.weaponProto.damage) + " damage x" + weapon.numbarrels;
     }
 
     weaponDamage.position.set(5, weaponBox.height + 5);
 
     weaponBox.addChild(weaponDamage);
+    
+    var effectName = [];
+    
+    var critText = {};
+    
+    for (var i = 0; i < weapon.effects.length; i += 1) {
+        effectName[i] = new PIXI.Text(weapon.effects[i].name, style);
+        effectName[i].position.set(5, weaponBox.height + 5);
+        weaponBox.addChild(effectName[i]);
+        
+        if (weapon.effects[i].name === "Critical") {
+            var rate = Math.abs(Math.log10(weapon.power) * 5)
+            if (rate > 100) {
+                rate = 100
+            }
+            critText = new PIXI.Text(rate + "% chance to do x" + 
+            formatNumber(Math.log2(weapon.power)) + " more damage.", style);
+            critText.position.set(5, weaponBox.height + 5);
+            weaponBox.addChild(critText);
+        }
+    }
 
     var background = genBoxSprite(weaponBox.width + 5, weaponBox.height + 5, 2, 0x000000, 0xFFFFFF);
 
@@ -318,7 +338,7 @@ function genWeaponBox(weapon) {
 }
 
 function genArmourBox(armour) {
-    var armourBox = new PIXI.Container;
+    var armourBox = new PIXI.Container();
 
     var style = {
         fontFamily: "Arial",
@@ -339,7 +359,7 @@ function genArmourBox(armour) {
 
     style.fill = "black";
 
-    var armourHP = new PIXI.Text(armour.maxHP.toFixed(2) + " HP", style);
+    var armourHP = new PIXI.Text(formatNumber(armour.maxHP) + " HP", style);
 
     armourHP.position.set(5, armourBox.height + 5);
 
@@ -352,4 +372,34 @@ function genArmourBox(armour) {
     armourBox.swapChildren(armourName, background)
 
     return armourBox;
+}
+
+function formatNumber(num) {
+    var str = "" + num;
+    var temp = "";
+    if (app.settings.format == "normal") {
+        if (str.length < 4) {
+            temp = str;
+        } else {
+            if (str.length % 3 > 0) {
+                temp = str.slice(0, str.length % 3);
+            } else {
+                temp = str.slice(0, 3);
+            }
+            for (var i = str.length % 3 + 3; i <= str.length; i += 3) {
+                if (i > 3) {
+                    temp += ", " + str.slice(i - 3, i);
+                }
+            }
+        }
+        str = temp;
+    } else if (app.settings.format == "sci") {
+        str = num.toPrecision(3);
+    } else if (app.settings.format == "eng") {
+        var exp = Math.floor(Math.log10(num));
+        var base = (num / Math.pow(10, exp)).toFixed(2);
+        str = (base * Math.pow(10, exp % 3)).toFixed(2) + "E" + (exp - exp % 3);
+    }
+    
+    return str;
 }

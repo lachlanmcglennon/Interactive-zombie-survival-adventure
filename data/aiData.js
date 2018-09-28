@@ -5,6 +5,32 @@ function PlayerAI() {
                 this.weapon.weapons[i].fire();
             }
         }
+        
+        var moveBorderX = app.renderer.width / 4;
+        var moveBorderY = app.renderer.height / 4;
+
+        if (!collidingWithWallX(this.position)) {
+            if (((this.position.x + app.transform.x) - app.renderer.width / 2 > moveBorderX) && (this.accel.x > 0)) {
+                app.transform.x -= this.accel.x;
+            }
+
+            if (((this.position.x + app.transform.x) - app.renderer.width / 2 < -moveBorderX) && (this.accel.x < 0)) {
+                app.transform.x -= this.accel.x;
+            }
+        }
+
+        if (!collidingWithWallY(this.position)) {
+            if (((this.position.y + app.transform.y) - app.renderer.height / 2 > moveBorderY) && (this.accel.y > 0)) {
+                app.transform.y -= this.accel.y;
+            }
+
+            if (((this.position.y + app.transform.y) - app.renderer.height / 2 < -moveBorderY) && (this.accel.y < 0)) {
+                app.transform.y -= this.accel.y;
+            }
+        }
+
+        app.players.setTransform(app.transform.x, app.transform.y);
+        app.particles.setTransform(app.transform.x, app.transform.y);
 
         this.rotation = getAngleInRadians(this.position, app.mouse.position);
 
@@ -40,31 +66,6 @@ function PlayerAI() {
             this.accel.y -= this.accel.y / 10;
         }
 
-        var moveBorderX = app.renderer.width / 4;
-        var moveBorderY = app.renderer.height / 4;
-
-        if (!collidingWithWallX(this.position)) {
-            if (((this.position.x + app.transform.x) - app.renderer.width / 2 > moveBorderX) && (this.accel.x > 0)) {
-                app.transform.x -= this.accel.x;
-            }
-
-            if (((this.position.x + app.transform.x) - app.renderer.width / 2 < -moveBorderX) && (this.accel.x < 0)) {
-                app.transform.x -= this.accel.x;
-            }
-        }
-
-        if (!collidingWithWallY(this.position)) {
-            if (((this.position.y + app.transform.y) - app.renderer.height / 2 > moveBorderY) && (this.accel.y > 0)) {
-                app.transform.y -= this.accel.y;
-            }
-
-            if (((this.position.y + app.transform.y) - app.renderer.height / 2 < -moveBorderY) && (this.accel.y < 0)) {
-                app.transform.y -= this.accel.y;
-            }
-        }
-
-        app.players.setTransform(app.transform.x, app.transform.y);
-        app.particles.setTransform(app.transform.x, app.transform.y);
     }
 
     app.ticker.add(this.tick, this);

@@ -70,10 +70,9 @@ function init() {
     app.stage.interactive = true;
 
     app.mouse = new Mouse();
-    app.bullets = [];
     app.enemies = [];
     app.money = {
-        curMoney: 10,
+        curMoney: 100,
         highestMoneyGainRate: 0.1,
         moneyGainedIn5Sec: [],
         moneyGainedSec: 0
@@ -115,9 +114,13 @@ function init() {
 
     app.wave = {
         number: 0,
-        enemiesInWave: 10,
+        enemiesInWave: 1,
         enemiesOnScreen: 0,
         enemyFactor: 0.1
+    };
+    
+    app.settings = {
+        format: "sci"
     };
 
     app.power = 1;
@@ -130,7 +133,7 @@ function init() {
     app.inventory.inventoryArea = new PIXI.Container();
     app.inventory.inventoryArea.addChild(app.inventory.backgroundImage);
 
-    app.inventory.inventoryArea.enabled = true;
+    app.inventory.inventoryArea.enabled = false;
     app.inventory.inventoryArea.interactive = true;
     app.inventory.inventoryArea.interactiveChildren = true;
     app.inventory.inventoryArea.click = function (e) {
@@ -272,9 +275,7 @@ function init() {
                     } else {
                         app.mouse.displayBox.addChildAt(genArmourBox(this.slot), 0);
                     }
-
-                    console.log(app.keys.sell);
-
+                    
                     if (app.keys.sell == true) {}
                 }
             };
@@ -283,10 +284,6 @@ function init() {
             app.inventory.slotAreas[2 + x + (y * 8)].position.set(x * 64 + 5, y * 64 + 80);
         }
     }
-
-    app.stage.on("mousemove", function (event) {
-        app.mouse.position = event.data.getLocalPosition(app.players);
-    }, false);
 
     app.ticker.add(function () {
         app.tick += 1;
@@ -301,8 +298,8 @@ function init() {
             var xToSpawn = temp.x,
                 yToSpawn = temp.y;
 
-            app.enemies.push(new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
-                app.power * app.wave.enemyFactor, 2, 10, 1, xToSpawn, yToSpawn));
+            new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
+                app.power * app.wave.enemyFactor, 2, 10, 1, xToSpawn, yToSpawn);
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
@@ -311,13 +308,6 @@ function init() {
             app.wave.number += 1;
             app.power *= 1.2;
             app.wave.enemyFactor *= 1.01;
-        }
-    });
-
-    app.ticker.add(function () {
-        for (var i = 0; i < app.bullets.length; i += 1) {
-            app.bullets[i].move();
-            app.bullets[i].tick(app.bullets, i);
         }
     });
 
