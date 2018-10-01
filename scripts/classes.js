@@ -47,6 +47,9 @@ function Moveable(speed) {
     this.speed = speed;
     this.accel = new PIXI.Point(0, 0);
     this.update = function () {
+        if (app.keys.pause === true) {
+            return;
+        }
         this.position.x += this.accel.x;
         this.position.y += this.accel.y;
     };
@@ -56,11 +59,26 @@ function Moveable(speed) {
 
 function Entity(texture, colour, power, speed, size, team, x, y) {
     //An entity is any kind of controlled character on stage, player or enemy.
-    PIXI.Sprite.call(this, texture);
+    PIXI.Container.call(this);
+    
+    this.image = new PIXI.Sprite(texture);
+    
+    this.addChild(this.image);
 
     this.colour = colour;
 
-    this.tint = this.colour;
+    this.image.tint = this.colour;
+    
+    this.healthBarArea = new PIXI.Container();
+    
+    this.healthBarArea.addChild(genBoxSprite(50, 10, 2, 0x000000, 0x222222));
+    this.healthBarArea.addChild(genBoxSprite(46, 6, 1, 0x000000, 0x00FC00));
+    
+    this.healthBarArea.getChildAt(1).position.set(2, 2);
+    
+    this.healthBarArea.position.set(this.position.x - 25, this.position.y - 40);
+    
+    this.addChild(this.healthBarArea);
 
     //Power of this entity based on the current wave.
     this.power = power;
@@ -69,12 +87,12 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
 
     this.weapon = new WeaponGroup(this, power, team);
 
-    this.interactive = true;
+    //this.interactive = true;
     this.hitArea = new PIXI.Circle(0, 0, 10);
 
     this.position.set(x, y);
 
-    this.anchor.set(0.5, 0.5);
+    this.image.anchor.set(0.5, 0.5);
 
     Moveable.call(this, speed);
 
@@ -96,11 +114,16 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
         app.ticker.remove(this.tick, this);
         app.ticker.remove(this.update, this);
         app.ticker.remove(this.testWallCollision, this);
-        
+
         this.destroy();
     };
 
     app.players.addChild(this);
+    
+    this.updateHealthBar = function () {
+        this.healthBarArea.getChildAt(1).width = 46 * (this.armour.curHP / this.armour.maxHP);
+    }
+    
     this.testWallCollision = function () {
 
         if (this.position.x > app.wall.position.x + app.wall.width) {
@@ -119,7 +142,7 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
             this.position.y = app.wall.position.y;
         }
     }
-
+    app.ticker.add(this.updateHealthBar, this);
     app.ticker.add(this.testWallCollision, this);
 }
 
@@ -158,8 +181,8 @@ function WeaponGroup(entity, power, team) {
     for (var i = 0; i < effectTypes.length; i += 1) {
         this.effects.push(effectTypes[i]);
     }
-    
-    
+
+
     while (this.effects.length > this.maxNumEffects) {
         this.effects.splice(Math.floor(raritySeed * this.effects.length), 1);
         raritySeed = Math.random();
@@ -301,7 +324,7 @@ function Armour(entity, power) {
 }
 
 function PopUpEntity(bullet, text) {
-    
+
     var style = {
         fontFamily: "Arial",
         fontSize: 12,
@@ -309,13 +332,13 @@ function PopUpEntity(bullet, text) {
         wordWrap: true,
         wordWrapWidth: 200,
     };
-    
+
     PIXI.Text.call(this, formatNumber(text), style);
-    
+
     this.style = style;
-    
+
     this.team = -1;
-    
+
     this.tint = "000000";
 
     Moveable.call(this, 2);
@@ -324,29 +347,29 @@ function PopUpEntity(bullet, text) {
     this.anchor.set(0.5, 0.5);
 
     this.position.copy(bullet.position);
-    
+
     this.accel = setAccelInDirection(toRadians(270), 2);
 
     //Cleanup function for when this bullet gets deleted.
     this.delete = function () {
-        
+
         app.ticker.remove(this.update, this);
         app.ticker.remove(this.tick, this);
         app.players.removeChild(this);
-        
+
         this.destroy();
-        
+
         return;
     }
 
     this.tick = function () {
-        
+
         this.curLifetime -= 1;
 
         if (this.curLifetime <= 10) {
             this.alpha = this.curLifetime * 0.1;
         }
-        
+
         if (this.curLifetime <= 0) {
             this.delete();
         }
@@ -364,8 +387,11 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
     this.tint = this.weapon.entity.colour;
 
     this.damage = this.weapon.damage;
-    
+
     this.critMult = 1;
+    
+    this.numPierce = 1;
+    this.lastEnemyHit = {};
 
     Moveable.call(this, this.weapon.type.speed);
     this.move = moveFunction;
@@ -385,20 +411,39 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
     //this.accel.x += this.entity.accel.x;
     //this.accel.y += this.entity.accel.y;
 
+    this.homing = false;
+    this.crit = false;
+    this.pierce = false;
+
+    for (var i = 0; i < this.weapon.group.effects.length; i += 1) {
+        if (this.weapon.group.effects[i] === "Homing") {
+            this.homing = true;
+        }
+        if (this.weapon.group.effects[i] === "Critical") {
+            this.crit = true;
+        }
+        if (this.weapon.group.effects[i] === "Pierce") {
+            this.pierce = true;
+        }
+    }
+
     //Cleanup function for when this bullet gets deleted.
     this.delete = function () {
-        
+
         app.ticker.remove(this.update, this);
         app.ticker.remove(this.tick, this);
         app.particles.removeChild(this);
-        
+
         this.destroy();
-        
+
         return;
     }
 
     this.tick = function () {
-        
+        if (app.keys.pause === true) {
+            return;
+        }
+
         this.curLifetime -= 1;
 
         if (this.curLifetime <= 10) {
@@ -410,18 +455,57 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
             return;
         }
 
-        for (var i = 0; i < this.weapon.group.effects.length; i += 1) {
-            if (this.weapon.group.effects[i].moveFunction !== null) {
-                this.weapon.group.effects[i].moveFunction(this);
+        if (this.homing === true) {
+            var target = this.weapon.entity.weaponTarget,
+                closestDistance = 1000000000000000;
+            if (this.weapon.entity.team === 0) {
+                for (var i = 2; i < app.players.children.length; i += 1) {
+                    if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < closestDistance)) {
+                        closestDistance = getDistanceFrom(this.position, app.players.getChildAt(i).position);
+                        target = app.players.getChildAt(i).position;
+                    }
+                }
+            } else if (this.weapon.entity.team === 1) {
+                target = app.player.position;
             }
+
+
+
+            var maxRotation = toRadians(5);
+
+            var angleToRotate = getAngleInRadians(this.position, target);
+
+            if (Math.abs(angleToRotate - this.direction) > maxRotation) {
+                if (angleIsLeft(this.direction, angleToRotate)) {
+                    this.direction -= maxRotation;
+                } else {
+                    this.direction += maxRotation;
+                }
+            } else {
+                this.direction = angleToRotate;
+            }
+            this.rotation = this.direction;
+
+            //this.position.copy(moveToPoint(this.weapon.entity.position, target, 10));
+
+            this.accel = setAccelInDirection(this.direction, this.speed);
         }
+
         if (this.weapon.entity.team == 0) {
             //Player bullet hit enemy
             for (var n = 0; n < app.players.children.length; n += 1) {
                 if ((this.weapon.type.collisionType === "circle") && (circularCollision(this.weapon.type.size, app.players.getChildAt(n).size, this.position, app.players.getChildAt(n).position)) && (app.players.getChildAt(n).team != this.weapon.entity.team)) {
-                    for (var i = 0; i < this.weapon.group.effects.length; i += 1) {
-                        if (this.weapon.group.effects[i].onHitFunction !== null) {
-                            this.weapon.group.effects[i].onHitFunction(this);
+                    if (this.crit === true) {
+                        var power = this.weapon.group.power,
+                            critRate = Math.abs(Math.log10(power) * 5) / 100,
+                            critMult = Math.log2(power),
+                            randomSeed = Math.random();
+                        if (critRate > 1) {
+                            critRate = 1;
+                        }
+
+                        if (randomSeed < critRate) {
+                            this.critMult = critMult;
                         }
                     }
                     new PopUpEntity(this, (this.damage * this.critMult));
@@ -438,12 +522,20 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
             }
         } else {
             //Enemy bullet hit player
-            
+
             if ((this.weapon.type.collisionType === "circle") &&
                 (circularCollision(this.weapon.type.size, app.player.size, this.position, app.player.position))) {
-                for (var i = 0; i < this.weapon.group.effects.length; i += 1) {
-                    if (this.weapon.group.effects[i].onHitFunction !== null) {
-                        this.weapon.group.effects[i].onHitFunction(this);
+                if (this.crit === true) {
+                    var power = this.weapon.group.power,
+                        critRate = Math.abs(Math.log10(power) * 5) / 100,
+                        critMult = Math.log2(power),
+                        randomSeed = Math.random();
+                    if (critRate > 1) {
+                        critRate = 1;
+                    }
+
+                    if (randomSeed < critRate) {
+                        this.critMult = critMult;
                     }
                 }
                 new PopUpEntity(this, this.damage * this.critMult);
@@ -469,6 +561,6 @@ function Bullet(weapon, texture, moveFunction, moveConsts, direction) {
     app.particles.addChild(this);
 }
 
-Entity.prototype = Object.create(PIXI.Sprite.prototype);
+Entity.prototype = Object.create(PIXI.Container.prototype);
 Bullet.prototype = Object.create(PIXI.Sprite.prototype);
 PopUpEntity.prototype = Object.create(PIXI.Text.prototype);

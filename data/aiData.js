@@ -1,5 +1,8 @@
 function PlayerAI() {
     this.tick = function () {
+        if (app.keys.pause === true) {
+            return;
+        }
         if (app.keys.mouseLeft == true || app.keys.autofire === true) {
             for (var i = 0; i < this.weapon.weapons.length; i += 1) {
                 this.weapon.weapons[i].fire();
@@ -32,7 +35,7 @@ function PlayerAI() {
         app.players.setTransform(app.transform.x, app.transform.y);
         app.particles.setTransform(app.transform.x, app.transform.y);
 
-        this.rotation = getAngleInRadians(this.position, app.mouse.position);
+        this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
 
         this.weaponTarget = app.mouse.position;
 
@@ -73,6 +76,9 @@ function PlayerAI() {
 
 function SniperAi() {
     this.tick = function () {
+        if (app.keys.pause === true) {
+            return;
+        }
         if (getDistanceFrom(this.position, app.player.position) > 150) {
             this.moveTarget = moveToPoint(app.player.position, this.position, 150);
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
@@ -81,7 +87,7 @@ function SniperAi() {
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
         this.weaponTarget = app.player.position;
-        this.rotation = getAngleInRadians(this.position, app.player.position);
+        this.image.rotation = getAngleInRadians(this.position, app.player.position);
         for (var i = 0; i < this.weapon.weapons.length; i += 1) {
             this.weapon.weapons[i].fire();
         }
@@ -91,6 +97,9 @@ function SniperAi() {
 
 function CloseAi() {
     this.tick = function () {
+        if (app.keys.pause === true) {
+            return;
+        }
         if (getDistanceFrom(this.position, app.player.position) > 50) {
             this.moveTarget = moveToPoint(app.player.position, this.position, 30);
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
@@ -99,7 +108,7 @@ function CloseAi() {
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
         this.weaponTarget = app.player.position;
-        this.rotation = getAngleInRadians(this.position, app.player.position);
+        this.image.rotation = getAngleInRadians(this.position, app.player.position);
         for (var i = 0; i < this.weapon.weapons.length; i += 1) {
             this.weapon.weapons[i].fire();
         }

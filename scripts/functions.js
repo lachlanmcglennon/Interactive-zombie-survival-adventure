@@ -2,7 +2,9 @@
 
 function getAngleInRadians(p1, p2) {
     //Gets the angle between 2 PIXI.Point values, and returns it, in radians.
-    return Math.atan2(p2.y - p1.y, p2.x - p1.x)
+    var theta = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+    if (theta < 0) {theta = toRadians(360) + theta}
+    return theta;
 }
 
 function setAccelToPoint(source, target, speed) {
@@ -43,6 +45,16 @@ function toRadians(degrees) {
 
 function getDistanceFrom(p1, p2) {
     return Math.sqrt(Math.pow(Math.abs(p1.x - p2.x), 2) + Math.pow(Math.abs(p1.y - p2.y), 2));
+}
+
+function angleIsLeft(a1, a2) {
+    //Takes 2 angles and determines if angle 2 is to the left of angle one.
+    
+    if (a1 < toRadians(180)) {
+        return !((a2 < a1 + toRadians(180)) && (a2 > a1));
+    } else {
+        return ((a2 < a1) && (a2 > (a1 - toRadians(180))));
+    }
 }
 
 function circularCollision(eSize1, eSize2, ePos1, ePos2) {
@@ -312,11 +324,11 @@ function genWeaponBox(weapon) {
     var critText = {};
     
     for (var i = 0; i < weapon.effects.length; i += 1) {
-        effectName[i] = new PIXI.Text(weapon.effects[i].name, style);
+        effectName[i] = new PIXI.Text(weapon.effects[i], style);
         effectName[i].position.set(5, weaponBox.height + 5);
         weaponBox.addChild(effectName[i]);
         
-        if (weapon.effects[i].name === "Critical") {
+        if (weapon.effects[i] === "Critical") {
             var rate = Math.abs(Math.log10(weapon.power) * 5)
             if (rate > 100) {
                 rate = 100
@@ -327,13 +339,11 @@ function genWeaponBox(weapon) {
             weaponBox.addChild(critText);
         }
     }
-
     var background = genBoxSprite(weaponBox.width + 5, weaponBox.height + 5, 2, 0x000000, 0xFFFFFF);
 
     weaponBox.addChild(background);
 
     weaponBox.swapChildren(weaponName, background)
-
     return weaponBox;
 }
 

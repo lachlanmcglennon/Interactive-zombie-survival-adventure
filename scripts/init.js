@@ -92,6 +92,9 @@ function init() {
     app.players.addChild(app.wall);
 
     app.ticker.add(function () {
+        if (app.keys.pause === true) {
+            return;
+        }
         if (app.tick % 60 === 0) {
             app.money.curMoney += app.money.highestMoneyGainRate;
             var average = 0;
@@ -139,8 +142,10 @@ function init() {
     app.inventory.inventoryArea.click = function (e) {
         if (app.inventory.inventoryArea.enabled) {
             app.inventory.inventoryArea.position.x += app.inventory.inventoryArea.width;
+            app.keys.pause = false;
         } else {
             app.inventory.inventoryArea.position.x -= app.inventory.inventoryArea.width;
+            app.keys.pause = true;
         }
         app.inventory.inventoryArea.enabled = !app.inventory.inventoryArea.enabled;
     }
@@ -286,6 +291,9 @@ function init() {
     }
 
     app.ticker.add(function () {
+        if (app.keys.pause === true) {
+            return;
+        }
         app.tick += 1;
 
         if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) &&
@@ -314,6 +322,8 @@ function init() {
     resize();
 
     window.onresize = resize;
+    
+    console.log(getAngleInRadians(new PIXI.Point(0, 1), new PIXI.Point(0, 0)));
 
     app.ticker.add(updateUI);
     addEvents();
