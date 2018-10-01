@@ -171,7 +171,7 @@ function WeaponGroup(entity, power, team) {
     } else if (raritySeed > 0.6) {
         this.rarity = app.rarities[1];
     } else {
-        this.rarity = app.rarities[1];
+        this.rarity = app.rarities[0];
     }
 
     this.maxNumEffects = this.rarity.effectSlots;
