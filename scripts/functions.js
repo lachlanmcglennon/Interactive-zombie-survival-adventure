@@ -57,6 +57,12 @@ function angleIsLeft(a1, a2) {
     }
 }
 
+function offsetPoint(point, width, height) {
+    //Takes a point and offsets it to be in the middle of a given width/height.
+    
+    return new PIXI.Point(point.x + width / 2, point.y + height / 2);
+}
+
 function circularCollision(eSize1, eSize2, ePos1, ePos2) {
     if (getDistanceFrom(ePos1, ePos2) < eSize1 + eSize2) {
         return true;
@@ -76,8 +82,29 @@ function genBoxSprite(width, height, lineWidth, lineColour, fillColour) {
 }
 
 function getPlayerColour() {
-    var colour = document.getElementById("playerCol");
-    return colour.value.replace("#", "0x");
+    if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
+        var colour = localStorage.getItem("PlayerCol");
+    } else {
+        var colour = document.getElementById("playerCol").value;
+    }
+    if (storageAvailable('localStorage')) {
+        localStorage.setItem("PlayerCol", document.getElementById("playerCol").value);    
+    }
+    return colour.replace("#", "0x");
+}
+
+function setPlayerColour() {
+    console.log(getPlayerColour());
+    app.player.changeColour(getPlayerColour());
+}
+
+function getEntity(id) {
+    for (var i = 0; i < app.players.children.length; i += 1) {
+        if (app.players.children[i].id === id) {
+            return app.players.children[i];
+        }
+    }
+    return null;
 }
 
 function decimalToHexString(number) {
@@ -184,7 +211,7 @@ function newWeapon() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player, app.money.curMoney, 0);
+            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney, 0);
             break;
         }
     }
@@ -198,7 +225,55 @@ function newWeapon() {
     weaponImage.anchor = new PIXI.Point(32, 32);
 
     for (var i = 0; i < app.inventory.slotAreas[newPos].slot.numbarrels; i += 1) {
-        weaponImage.addChild(new PIXI.Sprite(app.inventory.slotAreas[newPos].slot.weaponProto.bulletTexture));
+        weaponImage.addChild(new PIXI.Sprite(app.bulletImages[app.inventory.slotAreas[newPos].slot.weapons[0].type.image]));
+
+        //console.log(app.inventory.slotAreas[newPos].slot.weapons[i].direction);
+        size = app.inventory.slotAreas[newPos].slot.weaponProto.type.size;
+
+        weaponImage.getChildAt(i).position.copy(moveInDirection(new PIXI.Point(32 - (size / 2), 32 - (size / 2)), 4, app.inventory.slotAreas[newPos].slot.weapons[i].direction));
+        weaponImage.getChildAt(i).rotation = app.inventory.slotAreas[newPos].slot.weapons[i].direction;
+        weaponImage.getChildAt(i).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
+    }
+
+
+
+    app.inventory.slotAreas[newPos].addChild(weaponImage);
+    app.money.curMoney = 0;
+}
+
+function storeWeapon(weapon) {
+    var storedWeapon = {
+        className: "Weapon",
+        power: weapon.power, 
+        effects: weapon.effects, 
+        rarity: weapon.rarity.id, 
+        numBarrels: weapon.numbarrels + 0, 
+        placeType: weapon.weaponPlaceType + 0
+    }
+    return storedWeapon;
+}
+
+function loadWeapon(storedWeapon, slot) {
+    console.log(storedWeapon);
+    if (storedWeapon === null) {
+        return;
+    }
+    if (newPos >= app.inventory.slotAreas.length) {
+        return;
+    }
+    
+    var newPos = slot;
+    app.inventory.slotAreas[newPos].slot = new LoadedWeaponGroup(storedWeapon);
+
+    var weaponImage = new PIXI.Container();
+    var size = 3;
+
+    weaponImage.anchor = new PIXI.Point(32, 32);
+
+    for (var i = 0; i < app.inventory.slotAreas[newPos].slot.numbarrels; i += 1) {
+        console.log(app.inventory.slotAreas[newPos].slot);
+        return;
+        weaponImage.addChild(new PIXI.Sprite(app.bulletImages[app.inventory.slotAreas[newPos].slot.type.image]));
 
         //console.log(app.inventory.slotAreas[newPos].slot.weapons[i].direction);
         size = app.inventory.slotAreas[newPos].slot.weaponProto.type.size;
@@ -218,16 +293,52 @@ function newArmour() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new Armour(app.player, app.money.curMoney);
+            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney);
             break;
         }
     }
 
-    console.log(app.inventory.slotAreas[1].slot);
+    //console.log(app.inventory.slotAreas[1].slot);
 
     if (newPos >= app.inventory.slotAreas.length) {
         return;
     }
+    var armourImage = new PIXI.Container();
+    var size = 3;
+
+    armourImage.anchor = new PIXI.Point(32, 32);
+
+    armourImage.addChild(new PIXI.Sprite(app.playerImage));
+
+    armourImage.getChildAt(0).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
+
+    app.inventory.slotAreas[newPos].addChild(armourImage);
+
+    app.money.curMoney = 0;
+}
+
+function storeArmour(armour) {
+    var storedArmour = {
+        power: armour.power,
+        rarity: armour.rarity.id
+    }
+    return storedArmour;
+}
+
+function loadArmour(armour, slot) {
+    if (armour === null) {
+        return;
+    }
+    
+    if (newPos >= app.inventory.slotAreas.length) {
+        return;
+    }
+    
+    var newPos = slot;
+    app.inventory.slotAreas[newPos].slot = new LoadArmour(armour);
+
+    //console.log(app.inventory.slotAreas[1].slot);
+
     var armourImage = new PIXI.Container();
     var size = 3;
 
@@ -321,7 +432,7 @@ function genWeaponBox(weapon) {
     
     var effectName = [];
     
-    var critText = {};
+    var critText = {}, pierceText = {};
     
     for (var i = 0; i < weapon.effects.length; i += 1) {
         effectName[i] = new PIXI.Text(weapon.effects[i], style);
@@ -337,6 +448,13 @@ function genWeaponBox(weapon) {
             formatNumber(Math.log2(weapon.power)) + " more damage.", style);
             critText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(critText);
+        }
+        
+        if (weapon.effects[i] === "Pierce") {
+            pierceText = new PIXI.Text("Bullets pierce " + 
+            formatNumber(Math.ceil(Math.log10(weapon.power))) + " enemies.", style);
+            pierceText.position.set(5, weaponBox.height + 5);
+            weaponBox.addChild(pierceText);
         }
     }
     var background = genBoxSprite(weaponBox.width + 5, weaponBox.height + 5, 2, 0x000000, 0xFFFFFF);
@@ -385,6 +503,7 @@ function genArmourBox(armour) {
 }
 
 function formatNumber(num) {
+    //console.log(num);
     var str = "" + num;
     var temp = "";
     if (app.settings.format == "normal") {
@@ -412,4 +531,28 @@ function formatNumber(num) {
     }
     
     return str;
+}
+
+function storageAvailable(type) {
+    try {
+        var storage = window[type],
+            x = '__storage_test__';
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    }
+    catch(e) {
+        return e instanceof DOMException && (
+            // everything except Firefox
+            e.code === 22 ||
+            // Firefox
+            e.code === 1014 ||
+            // test name field too, because code might not be present
+            // everything except Firefox
+            e.name === 'QuotaExceededError' ||
+            // Firefox
+            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+            // acknowledge QuotaExceededError only if there's something already stored
+            storage.length !== 0;
+    }
 }

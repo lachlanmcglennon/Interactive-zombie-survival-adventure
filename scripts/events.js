@@ -60,10 +60,10 @@ function addEvents() {
             if (event.key == "p") {
                 if (app.keys.pause == false) {
                     app.keys.pause = true;
-                    //app.ticker.stop();
+                    app.stage.addChild(app.pauseText);
                 } else {
                     app.keys.pause = false;
-                    //app.ticker.start();
+                    app.stage.removeChild(app.pauseText);
                 }
             }
 

@@ -6,23 +6,20 @@ function loadBulletImages(app) {
     sniperImage.beginFill(0xFFFFFF, 1);
     sniperImage.drawCircle(0, 0, 4);
 
-    app.bulletImages.push(sniperImage);
+    app.bulletImages.push(app.renderer.generateTexture(sniperImage));
 
     var laserImage = new PIXI.Graphics();
     laserImage.beginFill(0xFFFFFF, 1);
     laserImage.drawRect(0, 0, 25, 4);
 
-    app.bulletImages.push(laserImage);
+    app.bulletImages.push(app.renderer.generateTexture(laserImage));
 
     var destroyerImage = new PIXI.Graphics();
     destroyerImage.beginFill(0xFFFFFF, 1);
     destroyerImage.drawCircle(0, 0, 10);
+    destroyerImage.endFill();
 
-    app.bulletImages.push(destroyerImage);
-
-    for (var i = 0; i < app.bulletImages.length; i += 1) {
-        app.bulletImages[i] = app.renderer.generateTexture(app.bulletImages[i]);
-    }
+    app.bulletImages.push(app.renderer.generateTexture(destroyerImage));
 
     app.weaponTypes = [
         {
@@ -31,7 +28,7 @@ function loadBulletImages(app) {
             useTime: 30,
             damageMod: 5,
             lifetime: 120,
-            image: app.bulletImages[0],
+            image: 0,
             collisionType: "circle",
             size: 4,
             ai: SniperAi
@@ -42,7 +39,7 @@ function loadBulletImages(app) {
             useTime: 5,
             damageMod: 5 / 6,
             lifetime: 30,
-            image: app.bulletImages[1],
+            image: 1,
             collisionType: "circle",
             size: 6,
             ai: CloseAi
@@ -53,7 +50,7 @@ function loadBulletImages(app) {
             useTime: 60,
             damageMod: 10,
             lifetime: 240,
-            image: app.bulletImages[2],
+            image: 2,
             collisionType: "circle",
             size: 10,
             ai: SniperAi
@@ -64,7 +61,7 @@ function loadBulletImages(app) {
             useTime: 10,
             damageMod: 5 / 3,
             lifetime: 60,
-            image: app.bulletImages[0],
+            image: 0,
             collisionType: "circle",
             size: 4,
             ai: CloseAi

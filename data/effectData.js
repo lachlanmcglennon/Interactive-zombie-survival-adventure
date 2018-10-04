@@ -1,1 +1,1 @@
-var effectTypes = ["Homing", "Critical"];
+var effectTypes = ["Homing", "Critical", "Pierce"];

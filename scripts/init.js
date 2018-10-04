@@ -19,6 +19,9 @@ function init() {
     var gameDiv = document.getElementById("game");
     gameDiv.appendChild(app.view);
 
+    app.id = 0;
+    //Unique id assigned to each entity, increases each time one is created.
+
     function resize() {
         var container = document.getElementById("content");
         var width = window.innerWidth;
@@ -40,10 +43,16 @@ function init() {
         } else {
             app.inventory.inventoryArea.position.set(width - 10, 0);
         }
+        app.pauseText.position.set((app.renderer.width / 2) - (app.pauseText.width / 2), app.renderer.height / 2);
     }
 
     app = loadBulletImages(app);
     app = loadRarities(app);
+
+    if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
+        document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
+        //localStorage.clear();
+    }
 
     app.particles = new PIXI.particles.ParticleContainer(
         1000
@@ -72,11 +81,17 @@ function init() {
     app.mouse = new Mouse();
     app.enemies = [];
     app.money = {
-        curMoney: 100,
+        curMoney: 100000000,
         highestMoneyGainRate: 0.1,
         moneyGainedIn5Sec: [],
         moneyGainedSec: 0
     };
+    
+    if ((storageAvailable('localStorage')) && (localStorage.getItem("money")) && false) {
+        console.log(localStorage.getItem("moneyGain"));
+        app.money.curMoney = localStorage.getItem("money");
+        app.money.highestMoneyGainRate = localStorage.getItem('moneyGain');
+    }
 
     app.transform = new PIXI.Point(0, 0);
 
@@ -91,10 +106,17 @@ function init() {
 
     app.players.addChild(app.wall);
 
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 36,
+        fill: "black",
+        wordWrap: false,
+        wordWrapWidth: 200,
+    };
+
+    app.pauseText = new PIXI.Text("Game paused press P to unpause", style);
+
     app.ticker.add(function () {
-        if (app.keys.pause === true) {
-            return;
-        }
         if (app.tick % 60 === 0) {
             app.money.curMoney += app.money.highestMoneyGainRate;
             var average = 0;
@@ -122,11 +144,20 @@ function init() {
         enemyFactor: 0.1
     };
     
+    app.power = 1;
+    
+    if ((storageAvailable('localStorage')) && (localStorage.getItem("wave"))) {
+        if (localStorage.getItem('wave') > 0) {
+            app.wave.number = Math.round(localStorage.getItem('wave'));
+            app.power = Math.pow(app.wave.number, 1.2);
+            app.wave.enemyFactor = Math.pow(app.wave.number * 0.1, 1.01);
+            app.wave.enemiesInWave = 10;
+        }
+    }
+
     app.settings = {
         format: "sci"
     };
-
-    app.power = 1;
 
     app.player = new Entity(new PIXI.Texture(app.playerImage), getPlayerColour(), app.power * 10, 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
 
@@ -143,9 +174,11 @@ function init() {
         if (app.inventory.inventoryArea.enabled) {
             app.inventory.inventoryArea.position.x += app.inventory.inventoryArea.width;
             app.keys.pause = false;
+            app.stage.removeChild(app.pauseText);
         } else {
             app.inventory.inventoryArea.position.x -= app.inventory.inventoryArea.width;
             app.keys.pause = true;
+            app.stage.removeChild(app.pauseText);
         }
         app.inventory.inventoryArea.enabled = !app.inventory.inventoryArea.enabled;
     }
@@ -166,16 +199,8 @@ function init() {
     app.inventory.slotAreas[1].interactive = true;
 
     app.inventory.slotAreas[0].slot = null;
-    newWeapon();
-
-    app.player.weapon = app.inventory.slotAreas[0].slot;
-
-    app.money.curMoney = 10;
 
     app.inventory.slotAreas[1].slot = null;
-    newArmour();
-
-    app.player.armour = app.inventory.slotAreas[1].slot;
 
     app.inventory.inventoryArea.addChild(app.inventory.slotAreas[0]);
     app.inventory.slotAreas[0].position.set(135, 5);
@@ -189,7 +214,7 @@ function init() {
     };
 
     app.inventory.slotAreas[0].mouseover = function (e) {
-        console.log("over");
+        //console.log("over");
         e.stopPropagation();
 
         app.mouse.curSlot = this;
@@ -280,7 +305,7 @@ function init() {
                     } else {
                         app.mouse.displayBox.addChildAt(genArmourBox(this.slot), 0);
                     }
-                    
+
                     if (app.keys.sell == true) {}
                 }
             };
@@ -289,12 +314,36 @@ function init() {
             app.inventory.slotAreas[2 + x + (y * 8)].position.set(x * 64 + 5, y * 64 + 80);
         }
     }
+    
+    if ((storageAvailable('localStorage')) && (localStorage.getItem('inventoryItems'))) {
+        var item = {};
+        for (var i = 0; i < localStorage.getItem('inventoryItems'); i += 1) {
+            if (localStorage.getItem('inventoryItem' + i)) {
+                item = JSON.parse(localStorage.getItem('inventoryItem' + i));
+                console.log(item);
+                if (item.className === "Weapon") {
+                    loadWeapon(item, i);
+                } else {
+                    loadArmour(item, i);
+                }
+            }
+        }
+        app.player.weapon = app.inventory.slotAreas[0].slot;
+        app.player.armour = app.inventory.slotAreas[1].slot;
+    } else {
+        newWeapon();
+        app.player.weapon = app.inventory.slotAreas[0].slot;
+        app.money.curMoney = 10;
+        app.inventory.slotAreas[1].slot = null;
+        newArmour();
+        app.player.armour = app.inventory.slotAreas[1].slot;
+    }
 
     app.ticker.add(function () {
+        app.tick += 1;
         if (app.keys.pause === true) {
             return;
         }
-        app.tick += 1;
 
         if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) &&
             (app.wave.enemiesOnScreen < 30)) {
@@ -311,18 +360,38 @@ function init() {
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
-        if ((app.wave.enemiesOnScreen == 0) && app.wave.enemiesInWave === 0) {
+        if ((app.wave.enemiesOnScreen <= 2 && app.wave.enemiesInWave <= 0 && app.wave.number > 0) ||
+            (app.wave.enemiesOnScreen <= 0 && app.wave.number === 0)) {
             app.wave.enemiesInWave = 10;
             app.wave.number += 1;
             app.power *= 1.2;
             app.wave.enemyFactor *= 1.01;
+        }
+
+        if ((app.tick % 360 === 0) && (storageAvailable('localStorage'))) {
+            console.log("saved");
+            var numItems = 0;
+            for (var i = 0; i < app.inventory.slotAreas.length; i += 1) {
+                if (app.inventory.slotAreas[i].slot != null) {
+                    if (app.inventory.slotAreas[i].slot.className === "Weapon") {
+                        localStorage.setItem('inventoryItem' + i, JSON.stringify(storeWeapon(app.inventory.slotAreas[i].slot)));
+                    } else {
+                        localStorage.setItem('inventoryItem' + i, JSON.stringify(storeArmour(app.inventory.slotAreas[i].slot)));
+                    }
+                    numItems += 1;
+                }
+            }
+            localStorage.setItem('inventoryItems', numItems);
+            localStorage.setItem('money', app.money.curMoney);
+            localStorage.setItem('moneyGain', app.money.highestMoneyGainRate);
+            localStorage.setItem('wave', app.wave.number);
         }
     });
 
     resize();
 
     window.onresize = resize;
-    
+
     console.log(getAngleInRadians(new PIXI.Point(0, 1), new PIXI.Point(0, 0)));
 
     app.ticker.add(updateUI);
