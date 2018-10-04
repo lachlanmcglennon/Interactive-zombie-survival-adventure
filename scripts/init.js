@@ -48,6 +48,7 @@ function init() {
 
     app = loadBulletImages(app);
     app = loadRarities(app);
+    app.keys = new Keys();
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
         document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
@@ -87,10 +88,10 @@ function init() {
         moneyGainedSec: 0
     };
     
-    if ((storageAvailable('localStorage')) && (localStorage.getItem("money")) && false) {
-        console.log(localStorage.getItem("moneyGain"));
-        app.money.curMoney = localStorage.getItem("money");
-        app.money.highestMoneyGainRate = localStorage.getItem('moneyGain');
+    if ((storageAvailable('localStorage')) && (localStorage.getItem("money"))) {
+        app.money.curMoney = Math.round(localStorage.getItem("money"));
+        console.log(app.money.curMoney);
+        app.money.highestMoneyGainRate = Math.round(localStorage.getItem('moneyGain'));
     }
 
     app.transform = new PIXI.Point(0, 0);
@@ -256,8 +257,6 @@ function init() {
         }
     };
 
-    app.keys = new Keys();
-
     for (var y = 0; y < 10; y += 1) {
         for (var x = 0; x < 8; x += 1) {
             app.inventory.slotAreas[2 + x + (y * 8)] = new PIXI.Container();
@@ -285,7 +284,7 @@ function init() {
             };
 
             app.inventory.slotAreas[2 + x + (y * 8)].mouseover = function (e) {
-                console.log("over");
+                //console.log("over");
                 //e.stopPropagation();
 
                 app.mouse.curSlot = this;
@@ -320,7 +319,7 @@ function init() {
         for (var i = 0; i < localStorage.getItem('inventoryItems'); i += 1) {
             if (localStorage.getItem('inventoryItem' + i)) {
                 item = JSON.parse(localStorage.getItem('inventoryItem' + i));
-                console.log(item);
+                //console.log(item);
                 if (item.className === "Weapon") {
                     loadWeapon(item, i);
                 } else {
@@ -391,8 +390,6 @@ function init() {
     resize();
 
     window.onresize = resize;
-
-    console.log(getAngleInRadians(new PIXI.Point(0, 1), new PIXI.Point(0, 0)));
 
     app.ticker.add(updateUI);
     addEvents();

@@ -177,6 +177,7 @@ function WeaponGroup(id, power, team) {
 
     var maxDeviation = toRadians(90);
     this.numbarrels = Math.ceil(Math.random() * 8) + 0;
+    this.weaponType = Math.floor(Math.random() * app.weaponTypes.length);
     this.weaponPlaceType = Math.ceil(Math.random() * 3) + 0;
     //this.weaponPlaceType = 2;
 
@@ -208,7 +209,7 @@ function WeaponGroup(id, power, team) {
     }
 
 
-    this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity);
+    this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);
 
     switch (this.weaponPlaceType) {
@@ -266,7 +267,6 @@ function WeaponGroup(id, power, team) {
 
 function LoadedWeaponGroup(storedWeapon) {
     //0 for player, 1 for enemy.
-    console.log(storedWeapon);
     this.team = 0;
     this.weapons = [];
 
@@ -280,12 +280,13 @@ function LoadedWeaponGroup(storedWeapon) {
 
     var maxDeviation = toRadians(90);
     this.numbarrels = storedWeapon.numBarrels;
+    this.weaponType = storedWeapon.weaponType;
     this.weaponPlaceType = storedWeapon.placeType;
     //this.weaponPlaceType = 2;
 
     this.rarity = app.rarities[storedWeapon.rarity];
 
-    this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity);
+    this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);
 
     switch (this.weaponPlaceType) {
@@ -342,10 +343,10 @@ function LoadedWeaponGroup(storedWeapon) {
     console.log(this);
 }
 
-function Weapon(id, power, rarity) {
+function Weapon(id, power, rarity, type) {
     //A weapon is what creates bullets.
 
-    this.type = app.weaponTypes[Math.floor(Math.random() * app.weaponTypes.length)];
+    this.type = app.weaponTypes[type];
 
     this.rarity = rarity;
 
@@ -696,17 +697,19 @@ function Bullet(weapon, entity, texture, moveFunction, moveConsts, direction) {
                     app.keys.deathPaused = true;
                     app.keys.pause = true;
                 } else if (app.player.armour.curHP <= 0) {
+                    for (var n = 0; n < app.players.children.length; n += 1) {
+                        if (app.players.children[n].team === 1) {
+                            app.players.children[n].delete();
+                            n = 1;
+                        }
+                    }
                     app.wave.number = 0;
                     app.wave.playersInWave = 1;
                     app.wave.playersOnScreen = 0;
-                    for (var n = 0; n < app.players.length; n += 1) {
-                        app.players.getChildAt(n).delete();
-                        app.players.splice(n, 1);
-                        n -= 1;
-                    }
                     app.power = 1;
                     app.player.armour.curHP = app.player.armour.maxHP;
                     app.keys.deathPaused = false;
+                    return;
                 }
                 this.numPierce -= 1;
                 this.lastEnemyHit = app.player;

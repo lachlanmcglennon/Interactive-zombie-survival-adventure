@@ -39,6 +39,14 @@ function addEvents() {
                 }
             }
 
+            if (event.key == "i") {
+                if (app.keys.autofire == false) {
+                    app.keys.autofire = true;
+                } else {
+                    app.keys.autofire = false;
+                }
+            }
+
             if (event.key == "x") {
                 if (app.mouse.curSlot.slot != null) {
                     app.money.curMoney += app.mouse.curSlot.slot.power;
@@ -65,6 +73,18 @@ function addEvents() {
                     app.keys.pause = false;
                     app.stage.removeChild(app.pauseText);
                 }
+            }
+            if (event.key == "i") {
+                if (app.inventory.inventoryArea.enabled) {
+                    app.inventory.inventoryArea.position.x += app.inventory.inventoryArea.width;
+                    app.keys.pause = false;
+                    app.stage.removeChild(app.pauseText);
+                } else {
+                    app.inventory.inventoryArea.position.x -= app.inventory.inventoryArea.width;
+                    app.keys.pause = true;
+                    app.stage.removeChild(app.pauseText);
+                }
+                app.inventory.inventoryArea.enabled = !app.inventory.inventoryArea.enabled;
             }
 
             if (event.key == "n") {
@@ -128,25 +148,25 @@ function addEvents() {
 }
 
 document.onmousemove = function (event) {
-        var dot, eventDoc, doc, body, pageX, pageY;
+    var dot, eventDoc, doc, body, pageX, pageY;
 
-        event = event || window.event; // IE-ism
+    event = event || window.event; // IE-ism
 
-        // If pageX/Y aren't available and clientX/Y are,
-        // calculate pageX/Y - logic taken from jQuery.
-        // (This is to support old IE)
-        if (event.pageX == null && event.clientX != null) {
-            eventDoc = (event.target && event.target.ownerDocument) || document;
-            doc = eventDoc.documentElement;
-            body = eventDoc.body;
+    // If pageX/Y aren't available and clientX/Y are,
+    // calculate pageX/Y - logic taken from jQuery.
+    // (This is to support old IE)
+    if (event.pageX == null && event.clientX != null) {
+        eventDoc = (event.target && event.target.ownerDocument) || document;
+        doc = eventDoc.documentElement;
+        body = eventDoc.body;
 
-            event.pageX = event.clientX +
-              (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
-              (doc && doc.clientLeft || body && body.clientLeft || 0);
-            event.pageY = event.clientY +
-              (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
-              (doc && doc.clientTop  || body && body.clientTop  || 0 );
-        }
-
-        app.mouse.position.set(event.pageX - app.transform.x, event.pageY - app.transform.y);
+        event.pageX = event.clientX +
+            (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+            (doc && doc.clientLeft || body && body.clientLeft || 0);
+        event.pageY = event.clientY +
+            (doc && doc.scrollTop || body && body.scrollTop || 0) -
+            (doc && doc.clientTop || body && body.clientTop || 0);
     }
+
+    app.mouse.position.set(event.pageX - app.transform.x, event.pageY - app.transform.y);
+}
