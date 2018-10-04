@@ -81,7 +81,7 @@ function init() {
     app.mouse = new Mouse();
     app.enemies = [];
     app.money = {
-        curMoney: 100000000,
+        curMoney: 10,
         highestMoneyGainRate: 0.1,
         moneyGainedIn5Sec: [],
         moneyGainedSec: 0

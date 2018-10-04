@@ -194,11 +194,6 @@ function swapItems(item1, item2) {
 }
 
 function updateUI() {
-    var enemyHP = document.getElementById("curEnemyHP");
-    if (app.enemies.length > 0) {
-        enemyHP.innerHTML = "Current enemy HP:" + formatNumber(app.players[1].armour.curHP);
-    }
-    document.getElementById("curPlayerHP").innerHTML = "Current player HP: " + formatNumber(app.player.armour.curHP);
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
     document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.power);
     document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
