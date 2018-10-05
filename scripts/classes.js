@@ -692,25 +692,6 @@ function Bullet(weapon, entity, texture, moveFunction, moveConsts, direction) {
                 }
                 new PopUpEntity(this, this.damage * this.critMult);
                 app.player.armour.curHP -= this.damage * this.critMult;
-                if ((app.player.armour.curHP / app.player.armour.maxHP <= 0.2) && (app.keys.deathPaused === false)) {
-                    app.stage.addChild(app.pauseText);
-                    app.keys.deathPaused = true;
-                    app.keys.pause = true;
-                } else if (app.player.armour.curHP <= 0) {
-                    for (var n = 0; n < app.players.children.length; n += 1) {
-                        if (app.players.children[n].team === 1) {
-                            app.players.children[n].delete();
-                            n = 1;
-                        }
-                    }
-                    app.wave.number = 0;
-                    app.wave.playersInWave = 1;
-                    app.wave.playersOnScreen = 0;
-                    app.power = 1;
-                    app.player.armour.curHP = app.player.armour.maxHP;
-                    app.keys.deathPaused = false;
-                    return;
-                }
                 this.numPierce -= 1;
                 this.lastEnemyHit = app.player;
                 if (this.numPierce <= 0) {

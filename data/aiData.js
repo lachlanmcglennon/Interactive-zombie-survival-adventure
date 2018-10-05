@@ -8,7 +8,7 @@ function PlayerAI() {
                 this.weapon.weapons[i].fire();
             }
         }
-        
+
         var moveBorderX = app.renderer.width / 4;
         var moveBorderY = app.renderer.height / 4;
 
@@ -67,6 +67,30 @@ function PlayerAI() {
             }
         } else {
             this.accel.y -= this.accel.y / 10;
+        }
+
+        if ((this.armour.curHP / this.armour.maxHP <= 0.2) && (app.keys.deathPaused === false)) {
+            app.stage.addChild(app.pauseText);
+            app.keys.deathPaused = true;
+            app.keys.pause = true;
+        } else if (this.armour.curHP <= 0) {
+            for (var n = 0; n < app.players.children.length; n += 1) {
+                if (app.players.children[n].team === 1) {
+                    app.players.children[n].delete();
+                    n = 1;
+                }
+            }
+            app.wave = {
+                number: 0,
+                enemiesInWave: 1,
+                enemiesOnScreen: 0,
+                enemyFactor: 0.1
+            };
+
+            app.power = 1;
+            this.armour.curHP = this.armour.maxHP;
+            app.keys.deathPaused = false;
+            return;
         }
 
     }

@@ -242,15 +242,14 @@ function storeWeapon(weapon) {
         power: weapon.power, 
         effects: weapon.effects, 
         rarity: weapon.rarity.id, 
-        numBarrels: weapon.numbarrels + 0,
+        numBarrels: weapon.numbarrels,
         weaponType: weapon.weaponType,
-        placeType: weapon.weaponPlaceType + 0
+        placeType: weapon.weaponPlaceType
     }
     return storedWeapon;
 }
 
 function loadWeapon(storedWeapon, slot) {
-    console.log(storedWeapon);
     if (storedWeapon === null) {
         return;
     }
@@ -267,7 +266,6 @@ function loadWeapon(storedWeapon, slot) {
     weaponImage.anchor = new PIXI.Point(32, 32);
 
     for (var i = 0; i < app.inventory.slotAreas[newPos].slot.numbarrels; i += 1) {
-        console.log(app.inventory.slotAreas[newPos].slot);
         weaponImage.addChild(new PIXI.Sprite(app.bulletImages[app.inventory.slotAreas[newPos].slot.weapons[0].type.image]));
 
         //console.log(app.inventory.slotAreas[newPos].slot.weapons[i].direction);
@@ -313,6 +311,7 @@ function newArmour() {
 
 function storeArmour(armour) {
     var storedArmour = {
+        className: "Armour",
         power: armour.power,
         rarity: armour.rarity.id
     }
