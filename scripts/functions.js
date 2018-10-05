@@ -268,7 +268,6 @@ function loadWeapon(storedWeapon, slot) {
 
     for (var i = 0; i < app.inventory.slotAreas[newPos].slot.numbarrels; i += 1) {
         console.log(app.inventory.slotAreas[newPos].slot);
-        return;
         weaponImage.addChild(new PIXI.Sprite(app.bulletImages[app.inventory.slotAreas[newPos].slot.weapons[0].type.image]));
 
         //console.log(app.inventory.slotAreas[newPos].slot.weapons[i].direction);
