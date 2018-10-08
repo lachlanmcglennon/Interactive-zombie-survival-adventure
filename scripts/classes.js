@@ -129,7 +129,9 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
     app.players.addChild(this);
 
     this.updateHealthBar = function () {
-        this.healthBarArea.getChildAt(1).width = 46 * (this.armour.curHP / this.armour.maxHP);
+        if (this.armour.curHP > 0) {
+            this.healthBarArea.getChildAt(1).width = 46 * (this.armour.curHP / this.armour.maxHP);
+        }
 
         if (this.armour.curHP / this.armour.maxHP > 0.5) {
             this.healthBarArea.getChildAt(1).tint = 0x00FF00;
@@ -402,8 +404,8 @@ function Armour(power) {
     //console.log(this.maxHP);
     this.curHP = this.maxHP;
 
-    this.maxRegen = 1.2;
-    this.curRegen = 1;
+    this.maxRegen = 0.2;
+    this.curRegen = 0.01;
 
     app.ticker.add(function () {
         if (app.keys.pause === true) {
@@ -411,13 +413,13 @@ function Armour(power) {
         }
         if (app.tick % 20 == 0) {
             if (this.curHP < this.maxHP) {
-                this.curHP *= this.curRegen;
+                this.curHP += this.curHP * this.curRegen;
                 if (this.curHP > this.maxHP) {
                     this.curHP = this.maxHP;
                 }
             }
             if (this.curRegen < this.maxRegen) {
-                this.curRegen *= 1.0001;
+                this.curRegen *= 1.001;
                 if (this.curRegen > this.maxRegen) {
                     this.curRegen = this.maxRegen;
                 }
@@ -436,8 +438,8 @@ function LoadArmour(storedArmour) {
     //console.log(this.maxHP);
     this.curHP = this.maxHP;
 
-    this.maxRegen = 1.2;
-    this.curRegen = 1;
+    this.maxRegen = 0.2;
+    this.curRegen = 0.01;
 
     app.ticker.add(function () {
         if (app.keys.pause === true) {
@@ -445,13 +447,13 @@ function LoadArmour(storedArmour) {
         }
         if (app.tick % 20 == 0) {
             if (this.curHP < this.maxHP) {
-                this.curHP *= this.curRegen;
+                this.curHP += this.curHP * this.curRegen;
                 if (this.curHP > this.maxHP) {
                     this.curHP = this.maxHP;
                 }
             }
             if (this.curRegen < this.maxRegen) {
-                this.curRegen *= 1.0001;
+                this.curRegen *= 1.001;
                 if (this.curRegen > this.maxRegen) {
                     this.curRegen = this.maxRegen;
                 }
@@ -656,7 +658,7 @@ function Bullet(weapon, entity, texture, moveFunction, moveConsts, direction) {
                     new PopUpEntity(this, (this.damage * this.critMult));
                     app.players.getChildAt(n).armour.curHP -= this.damage * this.critMult;
                     if (app.players.getChildAt(n).armour.curHP <= 0) {
-                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] += app.players.getChildAt(n).power / app.wave.enemyFactor;
+                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] += app.power * 10;
                         app.wave.playersOnScreen -= 1;
                         app.players.getChildAt(n).delete();
                         app.wave.enemiesOnScreen -= 1;

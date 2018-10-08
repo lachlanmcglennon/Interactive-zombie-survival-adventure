@@ -91,6 +91,8 @@ function PlayerAI() {
             this.armour.curHP = this.armour.maxHP;
             app.keys.deathPaused = false;
             return;
+        } else if (this.armour.curHP / this.armour.maxHP > 0.2) {
+            app.keys.deathPaused = false;
         }
 
     }

@@ -49,7 +49,7 @@ function addEvents() {
 
             if (event.key == "x") {
                 if (app.mouse.curSlot.slot != null) {
-                    app.money.curMoney += app.mouse.curSlot.slot.power;
+                    app.money.curMoney += app.mouse.curSlot.slot.power * 0.9;
                     app.mouse.curSlot.slot = null;
                     var i = app.mouse.curSlot.pos;
 

@@ -39,9 +39,9 @@ function init() {
         app.inventory.backgroundImage.height = app.renderer.height;
 
         if (app.inventory.inventoryArea.enabled) {
-            app.inventory.inventoryArea.position.set(width - app.inventory.inventoryArea.width - 10, 0);
+            app.inventory.inventoryArea.position.set(width - app.inventory.inventoryArea.width, 0);
         } else {
-            app.inventory.inventoryArea.position.set(width - 10, 0);
+            app.inventory.inventoryArea.position.set(width, 0);
         }
         app.pauseText.position.set((app.renderer.width / 2) - (app.pauseText.width / 2), app.renderer.height / 2);
     }
@@ -87,10 +87,9 @@ function init() {
         moneyGainedIn5Sec: [],
         moneyGainedSec: 0
     };
-    
+
     if ((storageAvailable('localStorage')) && (localStorage.getItem("money"))) {
         app.money.curMoney = Math.round(localStorage.getItem("money"));
-        console.log(app.money.curMoney);
         app.money.highestMoneyGainRate = Math.round(localStorage.getItem('moneyGain'));
     }
 
@@ -120,21 +119,23 @@ function init() {
     app.ticker.add(function () {
         if (app.tick % 60 === 0) {
             app.money.curMoney += app.money.highestMoneyGainRate;
-            var average = 0;
-            for (var i = 0; i < 5; i += 1) {
-                average += app.money.moneyGainedIn5Sec[i];
-            }
-            average /= 5;
-            if (average > app.money.highestMoneyGainRate) {
-                app.money.highestMoneyGainRate = average;
-            }
+            if (app.keys.pause === false) {
+                var average = 0;
+                for (var i = 0; i < 5; i += 1) {
+                    average += app.money.moneyGainedIn5Sec[i];
+                }
+                average /= 5;
+                if (average > app.money.highestMoneyGainRate) {
+                    app.money.highestMoneyGainRate = average;
+                }
 
-            app.money.moneyGainedSec += 1;
-            if (app.money.moneyGainedSec >= 6) {
-                app.money.moneyGainedSec = 0;
-            }
+                app.money.moneyGainedSec += 1;
+                if (app.money.moneyGainedSec >= 6) {
+                    app.money.moneyGainedSec = 0;
+                }
 
-            app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = 0;
+                app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = 0;
+            }
         }
     });
 
@@ -142,16 +143,16 @@ function init() {
         number: 0,
         enemiesInWave: 1,
         enemiesOnScreen: 0,
-        enemyFactor: 0.1
+        enemyFactor: 1
     };
-    
+
     app.power = 1;
-    
+
     if ((storageAvailable('localStorage')) && (localStorage.getItem("wave"))) {
         if (localStorage.getItem('wave') > 0) {
             app.wave.number = Math.round(localStorage.getItem('wave'));
-            app.power = Math.pow(app.wave.number, 1.2);
-            app.wave.enemyFactor = Math.pow(app.wave.number * 0.1, 1.01);
+            app.power = Math.pow(1.28, app.wave.number);
+            app.wave.enemyFactor = Math.pow(1.3, app.wave.number);
             app.wave.enemiesInWave = 10;
         }
     }
@@ -164,14 +165,28 @@ function init() {
 
     app.inventory = {};
     app.inventory.backgroundImage = genBoxSprite(522, app.renderer.width, 2, 0x000000, 0xFFFFFF);
+    app.inventory.clickTab = genBoxSprite(50, 100, 2, 0x000000, 0xFFFFFF);
 
     app.inventory.inventoryArea = new PIXI.Container();
     app.inventory.inventoryArea.addChild(app.inventory.backgroundImage);
+    app.inventory.inventoryArea.addChild(app.inventory.clickTab);
 
     app.inventory.inventoryArea.enabled = false;
-    app.inventory.inventoryArea.interactive = true;
     app.inventory.inventoryArea.interactiveChildren = true;
-    app.inventory.inventoryArea.click = function (e) {
+    app.inventory.clickTab.interactive = true;
+    app.inventory.clickTab.buttonMode = true;
+
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 36,
+        fill: "black",
+    };
+
+    app.inventory.clickText = new PIXI.Text("Items", style);
+    app.inventory.clickText.rotation = toRadians(90);
+    app.inventory.inventoryArea.addChild(app.inventory.clickText);
+
+    app.inventory.clickTab.click = function (e) {
         if (app.inventory.inventoryArea.enabled) {
             app.inventory.inventoryArea.position.x += app.inventory.inventoryArea.width;
             app.keys.pause = false;
@@ -183,6 +198,8 @@ function init() {
         }
         app.inventory.inventoryArea.enabled = !app.inventory.inventoryArea.enabled;
     }
+    app.inventory.clickTab.position.set(-50, (app.renderer.height / 2) - 50);
+    app.inventory.clickText.position.set(0, (app.renderer.height / 2) - 45);
 
     app.stage.addChild(app.inventory.inventoryArea);
 
@@ -193,11 +210,13 @@ function init() {
 
     app.inventory.slotAreas[0] = new PIXI.Container();
     app.inventory.slotAreas[0].interactive = true;
+    app.inventory.slotAreas[0].buttonMode = true;
     app.inventory.slotAreas[0].addChild(genBoxSprite(64, 64, 2, 0x000000, 0xFFFFFF));
 
     app.inventory.slotAreas[1] = new PIXI.Container();
     app.inventory.slotAreas[1].addChild(genBoxSprite(64, 64, 2, 0x000000, 0xFFFFFF));
     app.inventory.slotAreas[1].interactive = true;
+    app.inventory.slotAreas[1].buttonMode = true;
 
     app.inventory.slotAreas[0].slot = null;
 
@@ -240,7 +259,6 @@ function init() {
     };
 
     app.inventory.slotAreas[1].mouseover = function (e) {
-        console.log("over");
         e.stopPropagation();
 
         app.mouse.curSlot = this;
@@ -257,21 +275,20 @@ function init() {
         }
     };
 
-    for (var y = 0; y < 10; y += 1) {
+    for (var y = 0; y < 5; y += 1) {
         for (var x = 0; x < 8; x += 1) {
             app.inventory.slotAreas[2 + x + (y * 8)] = new PIXI.Container();
             app.inventory.slotAreas[2 + x + (y * 8)].addChild(genBoxSprite(64, 64, 2, 0x000000, 0xFFFFFF));
             app.inventory.slotAreas[2 + x + (y * 8)].pos = 2 + x + (y * 8);
             app.inventory.slotAreas[2 + x + (y * 8)].interactive = true;
+            app.inventory.slotAreas[2 + x + (y * 8)].buttonMode = true;
 
             app.inventory.slotAreas[2 + x + (y * 8)].slot = null;
             app.inventory.slotAreas[2 + x + (y * 8)].click = function (e) {
                 e.stopPropagation();
-                if (this.slot === null) {
-                    console.log("null");
-                } else if (this.slot.className == "Weapon") {
+                if (this.slot !== null && this.slot.className === "Weapon") {
                     swapItems(this, app.inventory.slotAreas[0]);
-                } else {
+                } else if (this.slot !== null && this.slot.className === "Armour") {
                     swapItems(this, app.inventory.slotAreas[1]);
                 }
             };
@@ -313,7 +330,7 @@ function init() {
             app.inventory.slotAreas[2 + x + (y * 8)].position.set(x * 64 + 5, y * 64 + 80);
         }
     }
-    
+
     if ((storageAvailable('localStorage')) && (localStorage.getItem('inventoryItems'))) {
         var item = {};
         for (var i = 0; i < localStorage.getItem('inventoryItems'); i += 1) {
@@ -337,6 +354,8 @@ function init() {
         newArmour();
         app.player.armour = app.inventory.slotAreas[1].slot;
     }
+    
+    
 
     app.ticker.add(function () {
         app.tick += 1;
@@ -363,12 +382,11 @@ function init() {
             (app.wave.enemiesOnScreen <= 0 && app.wave.number === 0)) {
             app.wave.enemiesInWave = 10;
             app.wave.number += 1;
-            app.power *= 1.2;
-            app.wave.enemyFactor *= 1.01;
+            app.power *= 1.28;
+            app.wave.enemyFactor *= 1.3;
         }
 
-        if ((app.tick % 360 === 0) && (storageAvailable('localStorage'))) {
-            console.log("saved");
+        if ((app.tick % 600 === 0) && (storageAvailable('localStorage'))) {
             var numItems = 0;
             for (var i = 0; i < app.inventory.slotAreas.length; i += 1) {
                 if (app.inventory.slotAreas[i].slot != null) {

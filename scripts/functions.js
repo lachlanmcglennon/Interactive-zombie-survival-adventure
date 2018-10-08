@@ -184,9 +184,9 @@ function swapItems(item1, item2) {
     item2.getChildAt(1).tint = item2.slot.rarity.colour;
     item1.getChildAt(1).tint = item1.slot.rarity.colour;
 
-    if (item2.pos = 0) {
+    if (item2.slot.className === "Weapon") {
         Object.assign(app.player.weapon, item2.slot);
-    } else if (item2.pos = 1) {
+    } else {
         Object.assign(app.player.armour, item2.slot);
     }
 
@@ -195,7 +195,7 @@ function swapItems(item1, item2) {
 
 function updateUI() {
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
-    document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.power);
+    document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.wave.enemyFactor);
     document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
     document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate);
 
@@ -206,7 +206,7 @@ function newWeapon() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney, 0);
+            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney * 10, 0);
             break;
         }
     }
@@ -233,7 +233,7 @@ function newWeapon() {
 
 
     app.inventory.slotAreas[newPos].addChild(weaponImage);
-    app.money.curMoney = 0;
+    app.money.curMoney *= 0.5;
 }
 
 function storeWeapon(weapon) {
@@ -285,7 +285,7 @@ function newArmour() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney);
+            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney * 10);
             break;
         }
     }
@@ -306,7 +306,7 @@ function newArmour() {
 
     app.inventory.slotAreas[newPos].addChild(armourImage);
 
-    app.money.curMoney = 0;
+    app.money.curMoney *= 0.5;
 }
 
 function storeArmour(armour) {
@@ -515,6 +515,7 @@ function formatNumber(num) {
         str = temp;
     } else if (app.settings.format == "sci") {
         str = num.toPrecision(3);
+        str.replace("+", "");
     } else if (app.settings.format == "eng") {
         var exp = Math.floor(Math.log10(num));
         var base = (num / Math.pow(10, exp)).toFixed(2);
