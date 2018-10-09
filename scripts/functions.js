@@ -71,6 +71,22 @@ function circularCollision(eSize1, eSize2, ePos1, ePos2) {
     }
 }
 
+function getMaxReload(maxUse, team) {
+    if ((maxUse - app.upgrades.slots[3].power <= 1) && (team === 0)) {
+        return 1;
+    } else {
+        return maxUse;
+    }
+}
+
+function getBonusFromReload(maxUse, team) {
+    if ((maxUse - app.upgrades.slots[3].power <= 1) && (team === 0)) {
+        return app.upgrades.slots[3].power / maxUse;
+    } else {
+        return 1;
+    }
+}
+
 function genBoxSprite(width, height, lineWidth, lineColour, fillColour) {
     var box = new PIXI.Graphics();
     box.lineStyle(lineWidth, lineColour);
@@ -106,6 +122,10 @@ function getEntity(id) {
     }
     return null;
 }
+
+function logBase (n, base) {
+    return Math.log(n)/(base ? Math.log(base) : 1);
+  }
 
 function decimalToHexString(number) {
     if (number < 0) {
@@ -197,7 +217,7 @@ function updateUI() {
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
     document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.wave.enemyFactor);
     document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
-    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate);
+    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate * app.upgrades.slots[0].power);
 
 
 }
@@ -206,7 +226,7 @@ function newWeapon() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney * 10, 0);
+            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney, 0);
             break;
         }
     }
@@ -285,7 +305,7 @@ function newArmour() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney * 10);
+            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney * 10, 0);
             break;
         }
     }
@@ -342,6 +362,20 @@ function loadArmour(armour, slot) {
     armourImage.getChildAt(0).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
 
     app.inventory.slotAreas[newPos].addChild(armourImage);
+}
+
+function storeUpgrade(UpgradeArea) {
+    var storedUpgrade = {
+        text: UpgradeArea.upgradeText, 
+        x: UpgradeArea.x, 
+        y: UpgradeArea.y, 
+        startingPrice: UpgradeArea.price, 
+        costScaling: UpgradeArea.priceMult, 
+        startingPower: UpgradeArea.power, 
+        powerScaling: UpgradeArea.powerMult, 
+        startingLevel: UpgradeArea.level
+    }
+    return storedUpgrade;
 }
 
 function getWeaponName(weaponGroup) {
@@ -411,10 +445,10 @@ function genWeaponBox(weapon) {
 
     style.fill = "black";
 
-    var weaponDamage = new PIXI.Text(weapon.weaponProto.damage.toFixed(2) + " damage", style);
+    var weaponDamage = new PIXI.Text(formatNumber(weapon.weaponProto.damage * app.upgrades.slots[1].power) + " damage", style);
 
     if ((weapon.numbarrels > 1) && (weapon.weaponPlaceType != 1)) {
-        weaponDamage.text = formatNumber(weapon.weaponProto.damage) + " damage x" + weapon.numbarrels;
+        weaponDamage.text = formatNumber(weapon.weaponProto.damage * app.upgrades.slots[1].power) + " damage x" + weapon.numbarrels;
     }
 
     weaponDamage.position.set(5, weaponBox.height + 5);
@@ -478,7 +512,7 @@ function genArmourBox(armour) {
 
     style.fill = "black";
 
-    var armourHP = new PIXI.Text(formatNumber(armour.maxHP) + " HP", style);
+    var armourHP = new PIXI.Text(formatNumber(armour.maxHP * app.upgrades.slots[2].power) + " HP", style);
 
     armourHP.position.set(5, armourBox.height + 5);
 
@@ -515,13 +549,13 @@ function formatNumber(num) {
         str = temp;
     } else if (app.settings.format == "sci") {
         str = num.toPrecision(3);
-        str.replace("+", "");
+        str.replace("e+", "e");
     } else if (app.settings.format == "eng") {
         var exp = Math.floor(Math.log10(num));
         var base = (num / Math.pow(10, exp)).toFixed(2);
         str = (base * Math.pow(10, exp % 3)).toFixed(2) + "E" + (exp - exp % 3);
     }
-    
+    str = str.replace("+", "");
     return str;
 }
 

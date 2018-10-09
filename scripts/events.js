@@ -39,14 +39,6 @@ function addEvents() {
                 }
             }
 
-            if (event.key == "i") {
-                if (app.keys.autofire == false) {
-                    app.keys.autofire = true;
-                } else {
-                    app.keys.autofire = false;
-                }
-            }
-
             if (event.key == "x") {
                 if (app.mouse.curSlot.slot != null) {
                     app.money.curMoney += app.mouse.curSlot.slot.power * 0.9;
@@ -79,12 +71,29 @@ function addEvents() {
                     app.inventory.inventoryArea.position.x += app.inventory.inventoryArea.width;
                     app.keys.pause = false;
                     app.stage.removeChild(app.pauseText);
+
                 } else {
                     app.inventory.inventoryArea.position.x -= app.inventory.inventoryArea.width;
                     app.keys.pause = true;
                     app.stage.removeChild(app.pauseText);
+                    app.upgrades.upgradesArea.close();
                 }
                 app.inventory.inventoryArea.enabled = !app.inventory.inventoryArea.enabled;
+            }
+
+            if (event.key === "u") {
+                if (app.upgrades.upgradesArea.enabled) {
+                    app.upgrades.upgradesArea.position.x += app.upgrades.upgradesArea.width;
+                    app.keys.pause = false;
+                    app.stage.removeChild(app.pauseText);
+
+                } else {
+                    app.upgrades.upgradesArea.position.x -= app.upgrades.upgradesArea.width;
+                    app.keys.pause = true;
+                    app.stage.removeChild(app.pauseText);
+                    app.inventory.inventoryArea.close();
+                }
+                app.upgrades.upgradesArea.enabled = !app.upgrades.upgradesArea.enabled;
             }
 
             if (event.key == "n") {
