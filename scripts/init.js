@@ -223,17 +223,16 @@ function init() {
     app.upgrades.slots = [];
     
     app.upgrades.slots = [
-        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, 1000, 5, 1, 1.2, 1, true, 0),
+        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, 1000, 1.8, 1, 1.5, 1, true, 0),
         new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, 100, 1.8, 1, 1.5, 1, true, 1),
         new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, 100, 1.8, 1, 1.5, 1, true, 2),
-        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, 10000, 10000, 1, 1, 1, false, 3)];
+        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, 100000, 100000, 1, 1, 1, false, 3)];
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('upgradeItems'))) {
         var upgradeItem = {};
         for (var i = 0; i < localStorage.getItem('upgradeItems'); i += 1) {
             upgradeItem = JSON.parse(localStorage.getItem('upgrade' + i));
-            console.log(upgradeItem);
-            app.upgrades.slots[i] = new UpgradeArea(upgradeItem.text, upgradeItem.x, upgradeItem.y, upgradeItem.startingPrice, upgradeItem.costScaling, upgradeItem.startingPower, upgradeItem.powerScaling, upgradeItem.startingLevel);
+            app.upgrades.slots[i].setLevel(upgradeItem.startingLevel);
         }
     }
     

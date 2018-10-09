@@ -771,7 +771,7 @@ function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powe
             if (app.upgrades.buyButton.buyType === "single") {
                 app.money.curMoney -= this.parent.price;
                 this.parent.price = this.parent.basePrice * Math.pow(this.parent.priceMult, this.parent.level);
-                if (this.percentBonus === true) {
+                if (this.parent.percentBonus === true) {
                     this.parent.power = Math.pow(this.parent.powerMult, this.parent.level);
                 } else {
                     this.parent.power += this.parent.powerMult;
@@ -779,8 +779,9 @@ function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powe
                 this.parent.level += 1;
             } else if (app.upgrades.buyButton.buyType === "max") {
                 this.maxLevels = Math.floor(logBase(app.money.curMoney / this.parent.basePrice, this.parent.priceMult));
+                console.log(this.maxLevels);
                 this.parent.price = this.parent.basePrice * Math.pow(this.parent.priceMult, this.maxLevels);
-                if (this.percentBonus === true) {
+                if (this.parent.percentBonus === true) {
                     this.parent.power = Math.pow(this.parent.powerMult, this.maxLevels);
                 } else {
                     this.parent.power = this.parent.powerMult * this.maxLevels;
@@ -793,6 +794,18 @@ function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powe
                 app.player.armour.curHP = app.player.armour.getMaxHP(this.parent.power);
             }
         }
+    }
+    this.setLevel = function (level) {
+        console.log(level);
+        this.maxLevels = level;
+        this.price = this.basePrice * Math.pow(this.priceMult, this.maxLevels);
+        if (this.percentBonus === true) {
+            this.power = Math.pow(this.powerMult, this.maxLevels);
+        } else {
+            this.power = this.powerMult * this.maxLevels;
+        }
+        this.level = this.maxLevels;
+        this.text.text = this.getText();
     }
 }
 
