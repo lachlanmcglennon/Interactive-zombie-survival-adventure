@@ -157,8 +157,8 @@ function init() {
     if ((storageAvailable('localStorage')) && (localStorage.getItem("wave"))) {
         if (localStorage.getItem('wave') > 0) {
             app.wave.number = Math.round(localStorage.getItem('wave'));
-            app.power = Math.pow(1.28, app.wave.number);
-            app.wave.enemyFactor = Math.pow(1.3, app.wave.number);
+            app.power = Math.pow(1.4, app.wave.number);
+            app.wave.enemyFactor = Math.pow(1.9, app.wave.number);
             app.wave.enemiesInWave = 10;
         }
     }
@@ -223,9 +223,9 @@ function init() {
     app.upgrades.slots = [];
     
     app.upgrades.slots = [
-        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, 1000, 1.8, 1, 1.5, 1, true, 0),
-        new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, 100, 1.8, 1, 1.5, 1, true, 1),
-        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, 100, 1.8, 1, 1.5, 1, true, 2),
+        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, 1000, 1.6, 1, 1.2, 1, true, 0),
+        new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, 100, 1.6, 1, 1.2, 1, true, 1),
+        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, 100, 1.6, 1, 1.3, 1, true, 2),
         new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, 100000, 100000, 1, 1, 1, false, 3)];
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('upgradeItems'))) {
@@ -474,7 +474,7 @@ function init() {
             return;
         }
 
-        if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen == 0)) && (app.wave.enemiesInWave > 0) &&
+        if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen <= 1)) && (app.wave.enemiesInWave > 0) &&
             (app.wave.enemiesOnScreen < 30)) {
             var temp = moveInDirection(app.player.position, 200, toRadians(90 * Math.floor(Math.random() * 4) + 45));
 
@@ -493,8 +493,8 @@ function init() {
             (app.wave.enemiesOnScreen <= 0 && app.wave.number === 0)) {
             app.wave.enemiesInWave = 10;
             app.wave.number += 1;
-            app.power *= 1.28;
-            app.wave.enemyFactor *= 1.3;
+            app.power *= 1.4;
+            app.wave.enemyFactor *= 1.9;
         }
 
         if ((app.tick % 600 === 0) && (storageAvailable('localStorage'))) {

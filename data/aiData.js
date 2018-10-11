@@ -11,34 +11,7 @@ function PlayerAI() {
 
         var moveBorderX = app.renderer.width / 4;
         var moveBorderY = app.renderer.height / 4;
-
-        if (!collidingWithWallX(this.position)) {
-            if (((this.position.x + app.transform.x) - app.renderer.width / 2 > moveBorderX) && (this.accel.x > 0)) {
-                app.transform.x -= this.accel.x;
-            }
-
-            if (((this.position.x + app.transform.x) - app.renderer.width / 2 < -moveBorderX) && (this.accel.x < 0)) {
-                app.transform.x -= this.accel.x;
-            }
-        }
-
-        if (!collidingWithWallY(this.position)) {
-            if (((this.position.y + app.transform.y) - app.renderer.height / 2 > moveBorderY) && (this.accel.y > 0)) {
-                app.transform.y -= this.accel.y;
-            }
-
-            if (((this.position.y + app.transform.y) - app.renderer.height / 2 < -moveBorderY) && (this.accel.y < 0)) {
-                app.transform.y -= this.accel.y;
-            }
-        }
-
-        app.players.setTransform(app.transform.x, app.transform.y);
-        app.particles.setTransform(app.transform.x, app.transform.y);
-
-        this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
-
-        this.weaponTarget = app.mouse.position;
-
+        
         if (app.keys.d == true || app.keys.a == true) {
             if (app.keys.d == true && app.keys.a == true) {
                 this.accel.x = 0;
@@ -69,6 +42,35 @@ function PlayerAI() {
             this.accel.y -= this.accel.y / 10;
         }
 
+        if (!collidingWithWallX(this.position)) {
+            if (((this.position.x + app.transform.x) - app.renderer.width / 2 > moveBorderX) && (this.accel.x > 0)) {
+                app.transform.x -= this.accel.x;
+            }
+
+            if (((this.position.x + app.transform.x) - app.renderer.width / 2 < -moveBorderX) && (this.accel.x < 0)) {
+                app.transform.x -= this.accel.x;
+            }
+        }
+
+        if (!collidingWithWallY(this.position)) {
+            if (((this.position.y + app.transform.y) - app.renderer.height / 2 > moveBorderY) && (this.accel.y > 0)) {
+                app.transform.y -= this.accel.y;
+            }
+
+            if (((this.position.y + app.transform.y) - app.renderer.height / 2 < -moveBorderY) && (this.accel.y < 0)) {
+                app.transform.y -= this.accel.y;
+            }
+        }
+        
+        if (((this.accel.x !== 0) || (this.accel.y !== 0))) {
+            app.players.setTransform(app.transform.x, app.transform.y);
+            app.particles.setTransform(app.transform.x, app.transform.y);   
+        }
+
+        this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
+
+        this.weaponTarget = app.mouse.position;
+
         if ((this.armour.curHP / this.armour.maxHP <= 0.2) && (app.keys.deathPaused === false)) {
             app.stage.addChild(app.pauseText);
             app.keys.deathPaused = true;
@@ -84,12 +86,15 @@ function PlayerAI() {
                 number: 0,
                 enemiesInWave: 1,
                 enemiesOnScreen: 0,
-                enemyFactor: 0.1
+                enemyFactor: 1
             };
 
             app.power = 1;
             this.armour.curHP = this.armour.maxHP;
             app.keys.deathPaused = false;
+            for (var i = 0; i < app.particles.children.length; i += 1) {
+                app.particles.children[i].delete();
+            }
             return;
         } else if (this.armour.curHP / this.armour.maxHP > 0.2) {
             app.keys.deathPaused = false;

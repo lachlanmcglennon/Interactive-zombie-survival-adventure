@@ -556,6 +556,8 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
 
     this.position.copy(this.entity.position);
 
+    this.target = null;
+
     this.direction = getAngleInRadians(this.position, this.entity.weaponTarget) + direction;
     this.rotation = this.direction;
 
@@ -611,31 +613,38 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
         }
 
         if (this.homing === true) {
-            var target = null,
-                closestDistance = 1000000000000000;
+            this.target = null;
+            var closestDistance = 1000000000000000;
             if (this.entity.team === 0) {
                 for (var i = 2; i < app.players.children.length; i += 1) {
                     if ((getDistanceFrom(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position) < closestDistance) &&
-                        (Math.abs(this.direction - getAngleInRadians(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position)) < 90)) {
+                        (Math.abs(this.direction - getAngleInRadians(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position)) < 90)
+                        && (app.players.getChildAt(i).team === 1)) {
                         closestDistance = getDistanceFrom(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position);
-                        target = app.players.getChildAt(i).position;
+                        this.target = app.players.getChildAt(i).position;
                     }
                 }
             } else if ((this.entity.team === 1) && (Math.abs(this.direction - getAngleInRadians(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.player.position)) < 90)) {
-                target = app.player.position;
+                this.target = app.player.position;
             }
 
-            if (target !== null) {
+            if (this.target !== null) {
 
                 var maxRotation = toRadians(5);
 
-                var angleToRotate = getAngleInRadians(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), target);
+                var angleToRotate = getAngleInRadians(this.position, this.target);
 
                 if (Math.abs(angleToRotate - this.direction) > maxRotation) {
                     if (angleIsLeft(this.direction, angleToRotate)) {
                         this.direction -= maxRotation;
                     } else {
                         this.direction += maxRotation;
+                    }
+                    if (this.direction < 0) {
+                        this.direction += toRadians(360);
+                    }
+                    if (this.direction > toRadians(360)) {
+                        this.direction -= toRadians(360);
                     }
                 } else {
                     this.direction = angleToRotate;
