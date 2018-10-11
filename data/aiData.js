@@ -71,15 +71,22 @@ function PlayerAI() {
 
         this.weaponTarget = app.mouse.position;
 
-        if ((this.armour.curHP / this.armour.maxHP <= 0.2) && (app.keys.deathPaused === false)) {
+        if ((this.armour.curHP / this.armour.getMaxHP() <= 0.2) && (app.keys.deathPaused === false)) {
             app.stage.addChild(app.pauseText);
             app.keys.deathPaused = true;
             app.keys.pause = true;
+            if (this.armour.curHP < 0) {
+                this.armour.curHP = this.armour.getMaxHP() * 0.1;   
+            }
         } else if (this.armour.curHP <= 0) {
             for (var n = 0; n < app.players.children.length; n += 1) {
                 if (app.players.children[n].team === 1) {
                     app.players.children[n].delete();
                     n = 1;
+                }
+                for (var i = 0; i < app.particles.children.length; i += 1) {
+                    app.particles.children[i].delete();
+                    i = 0;
                 }
             }
             app.wave = {
@@ -92,9 +99,6 @@ function PlayerAI() {
             app.power = 1;
             this.armour.curHP = this.armour.maxHP;
             app.keys.deathPaused = false;
-            for (var i = 0; i < app.particles.children.length; i += 1) {
-                app.particles.children[i].delete();
-            }
             return;
         } else if (this.armour.curHP / this.armour.maxHP > 0.2) {
             app.keys.deathPaused = false;

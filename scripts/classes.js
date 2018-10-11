@@ -15,6 +15,7 @@ function Keys() {
     this.mouseLeft = false;
     this.autofire = false;
     this.pause = false;
+    this.hideBullets = true;
     this.sell = false;
     this.deathPaused = false;
 }
@@ -122,7 +123,8 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
         app.ticker.remove(this.tick, this);
         app.ticker.remove(this.update, this);
         app.ticker.remove(this.testWallCollision, this);
-
+        
+        this.armour.delete;
         this.destroy();
     };
 
@@ -415,8 +417,8 @@ function Armour(power, team) {
 
     this.maxRegen = 0.2;
     this.curRegen = 0.01;
-
-    app.ticker.add(function () {
+    
+    this.regenFunction = function () {
         if (app.keys.pause === true) {
             return;
         }
@@ -434,7 +436,13 @@ function Armour(power, team) {
                 }
             }
         }
-    }, this);
+    }
+    
+    this.delete = function () {
+        app.ticker.remove(this.regenFunction, this);
+    }
+
+    app.ticker.add(this.regenFunction, this);
 }
 
 function LoadArmour(storedArmour) {
@@ -454,7 +462,7 @@ function LoadArmour(storedArmour) {
     this.maxRegen = 0.2;
     this.curRegen = 0.01;
 
-    app.ticker.add(function () {
+    this.regenFunction = function () {
         if (app.keys.pause === true) {
             return;
         }
@@ -472,7 +480,13 @@ function LoadArmour(storedArmour) {
                 }
             }
         }
-    }, this);
+    }
+    
+    this.delete = function () {
+        app.ticker.remove(this.regenFunction, this);
+    }
+
+    app.ticker.add(this.regenFunction, this);
 }
 
 function PopUpEntity(bullet, text) {
@@ -553,6 +567,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
     this.curLifetime = this.weapon.type.lifetime;
     //this.tint = "000000";
     this.anchor.set(0.5, 0.5);
+    this.visible = app.keys.hideBullets;
 
     this.position.copy(this.entity.position);
 
@@ -597,6 +612,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
     }
 
     this.tick = function () {
+        this.visible = app.keys.hideBullets;
         if (app.keys.pause === true) {
             return;
         }

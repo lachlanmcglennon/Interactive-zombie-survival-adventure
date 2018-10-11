@@ -72,15 +72,15 @@ function circularCollision(eSize1, eSize2, ePos1, ePos2) {
 }
 
 function getMaxReload(maxUse, team) {
-    if ((maxUse - app.upgrades.slots[3].power <= 1) && (team === 0)) {
-        return 1;
+    if ((maxUse - app.upgrades.slots[3].power <= 5) && (team === 0)) {
+        return 5;
     } else {
         return maxUse;
     }
 }
 
 function getBonusFromReload(maxUse, team) {
-    if ((maxUse - app.upgrades.slots[3].power <= 1) && (team === 0)) {
+    if ((maxUse - app.upgrades.slots[3].power <= 5) && (team === 0)) {
         return app.upgrades.slots[3].power / maxUse;
     } else {
         return 1;

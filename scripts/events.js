@@ -95,6 +95,10 @@ function addEvents() {
                 }
                 app.upgrades.upgradesArea.enabled = !app.upgrades.upgradesArea.enabled;
             }
+        
+            if (event.key == "b") {
+                app.keys.hideBullets = !app.keys.hideBullets;
+            }
 
             if (event.key == "n") {
                 newWeapon();
