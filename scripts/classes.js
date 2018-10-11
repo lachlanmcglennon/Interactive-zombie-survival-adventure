@@ -122,9 +122,10 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
         app.players.removeChild(this);
         app.ticker.remove(this.tick, this);
         app.ticker.remove(this.update, this);
+        app.ticker.remove(this.updateHealthBar, this);
         app.ticker.remove(this.testWallCollision, this);
-        
-        this.armour.delete;
+        this.weapon.delete();
+        this.armour.delete();
         this.destroy();
     };
 
@@ -211,7 +212,12 @@ function WeaponGroup(id, power, team) {
             raritySeed = Math.random();
         }
     }
-
+    
+    this.delete = function() {
+        for (var i = 0; i < this.weapons.length; i += 1) {
+            app.ticker.remove(this.weapons[i].reload, this.weapons[i]);
+        }
+    }
 
     this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);
@@ -289,6 +295,12 @@ function LoadedWeaponGroup(storedWeapon) {
     //this.weaponPlaceType = 2;
 
     this.rarity = app.rarities[storedWeapon.rarity];
+    
+    this.delete = function() {
+        for (var i = 0; i < this.weapons.length; i += 1) {
+            app.ticker.remove(this.weapons[i].reload, this.weapons[i]);
+        }
+    }
 
     this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);

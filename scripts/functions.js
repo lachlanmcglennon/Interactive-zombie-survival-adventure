@@ -218,7 +218,8 @@ function updateUI() {
     document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.wave.enemyFactor);
     document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
     document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate * app.upgrades.slots[0].power);
-
+    document.getElementById("curPlayerHP").innerHTML = "Player HP: " + formatNumber(app.player.armour.curHP);
+    document.getElementById("fps").innerHTML = "Fps: " + Math.ceil(1000 / app.ticker.elapsedMS);
 
 }
 

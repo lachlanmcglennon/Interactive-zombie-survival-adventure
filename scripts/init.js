@@ -169,7 +169,7 @@ function init() {
     
     app.upgrades = {};
     app.upgrades.backgroundImage = genBoxSprite(522, app.renderer.height, 2, 0x000000, 0xFFFFFF);
-    app.upgrades.clickTab = genBoxSprite(50, 150, 2, 0x000000, 0xFFFFFF);
+    app.upgrades.clickTab = genBoxSprite(50, 180, 2, 0x000000, 0xFFFFFF);
 
     app.upgrades.upgradesArea = new PIXI.Container();
     app.upgrades.upgradesArea.addChild(app.upgrades.backgroundImage);
@@ -186,7 +186,7 @@ function init() {
         fill: "black",
     };
 
-    app.upgrades.clickText = new PIXI.Text("Upgrades", style);
+    app.upgrades.clickText = new PIXI.Text("Upgrades (U)", style);
     app.upgrades.clickText.rotation = toRadians(90);
     app.upgrades.upgradesArea.addChild(app.upgrades.clickText);
 
@@ -267,7 +267,7 @@ function init() {
 
     app.inventory = {};
     app.inventory.backgroundImage = genBoxSprite(522, app.renderer.width, 2, 0x000000, 0xFFFFFF);
-    app.inventory.clickTab = genBoxSprite(50, 100, 2, 0x000000, 0xFFFFFF);
+    app.inventory.clickTab = genBoxSprite(50, 140, 2, 0x000000, 0xFFFFFF);
 
     app.inventory.inventoryArea = new PIXI.Container();
     app.inventory.inventoryArea.addChild(app.inventory.backgroundImage);
@@ -284,7 +284,7 @@ function init() {
         fill: "black",
     };
 
-    app.inventory.clickText = new PIXI.Text("Items", style);
+    app.inventory.clickText = new PIXI.Text("Items (I)", style);
     app.inventory.clickText.rotation = toRadians(90);
     app.inventory.inventoryArea.addChild(app.inventory.clickText);
 
@@ -311,8 +311,8 @@ function init() {
         }
     }
 
-    app.inventory.clickTab.position.set(-50, (app.renderer.height / 2) + 100);
-    app.inventory.clickText.position.set(0, (app.renderer.height / 2) + 105);
+    app.inventory.clickTab.position.set(-50, (app.renderer.height / 2) + 40);
+    app.inventory.clickText.position.set(0, (app.renderer.height / 2) + 45);
 
     app.stage.addChild(app.inventory.inventoryArea);
 
