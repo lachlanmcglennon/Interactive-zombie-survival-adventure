@@ -83,14 +83,14 @@ function PlayerAI() {
             }
         }
 
-        if ((this.armour.curHP / this.armour.getMaxHP() <= 0.2) && (app.keys.deathPaused === false)) {
+        if ((this.armour.curHP.div(this.armour.getMaxHP(app.upgrades.slots[2].power)).lte(0.2)) && (app.keys.deathPaused === false)) {
             app.stage.addChild(app.pauseText);
             app.keys.deathPaused = true;
             app.keys.pause = true;
-            if (this.armour.curHP < 0) {
-                this.armour.curHP = this.armour.getMaxHP() * 0.1;   
+            if (this.armour.curHP.lt(0)) {
+                this.armour.curHP = this.armour.getMaxHP().mul(0.1);   
             }
-        } else if (this.armour.curHP <= 0) {
+        } else if (this.armour.curHP.lte(0)) {
             for (var n = 0; n < app.players.children.length; n += 1) {
                 if (app.players.children[n].team === 1) {
                     app.players.children[n].delete();
@@ -102,17 +102,17 @@ function PlayerAI() {
                 }
             }
             app.wave = {
-                number: 0,
+                number: new Decimal(0),
                 enemiesInWave: 1,
                 enemiesOnScreen: 0,
                 enemyFactor: 1
             };
 
-            app.power = 1;
+            app.power = new Decimal(1);
             this.armour.curHP = this.armour.maxHP;
             app.keys.deathPaused = false;
             return;
-        } else if (this.armour.curHP / this.armour.maxHP > 0.2) {
+        } else if (this.armour.curHP.div(this.armour.maxHP).gt(0.2)) {
             app.keys.deathPaused = false;
         }
 

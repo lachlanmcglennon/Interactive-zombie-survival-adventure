@@ -133,13 +133,13 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
     app.players.addChild(this);
 
     this.updateHealthBar = function () {
-        if (this.armour.curHP > 0) {
-            this.healthBarArea.getChildAt(1).width = 46 * (this.armour.curHP / this.armour.getMaxHP(app.upgrades.slots[2].power));
+        if (this.armour.curHP.gt(0)) {
+            this.healthBarArea.getChildAt(1).width = 46 * (this.armour.curHP.div(this.armour.getMaxHP(app.upgrades.slots[2].power))).toNumber();
         }
 
-        if (this.armour.curHP / this.armour.getMaxHP(app.upgrades.slots[2].power) > 0.5) {
+        if ((this.armour.curHP.div(this.armour.getMaxHP(app.upgrades.slots[2].power))).toNumber() > 0.5) {
             this.healthBarArea.getChildAt(1).tint = 0x00FF00;
-        } else if (this.armour.curHP / this.armour.getMaxHP(app.upgrades.slots[2].power) > 0.2) {
+        } else if ((this.armour.curHP.div(this.armour.getMaxHP(app.upgrades.slots[2].power))).toNumber() > 0.2) {
             this.healthBarArea.getChildAt(1).tint = 0xFFFF00;
         } else {
             this.healthBarArea.getChildAt(1).tint = 0xFF0000;
@@ -213,14 +213,14 @@ function WeaponGroup(id, power, team) {
             raritySeed = Math.random();
         }
     }
-    
-    this.delete = function() {
+
+    this.delete = function () {
         for (var i = 0; i < this.weapons.length; i += 1) {
             app.ticker.remove(this.weapons[i].reload, this.weapons[i]);
         }
     }
 
-    this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity, this.weaponType);
+    this.weaponProto = new Weapon(this.entityID, new Decimal(this.power).div(this.numbarrels), this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);
 
     switch (this.weaponPlaceType) {
@@ -287,7 +287,7 @@ function LoadedWeaponGroup(storedWeapon) {
 
     this.effects = storedWeapon.effects;
 
-    this.power = storedWeapon.power;
+    this.power = new Decimal(storedWeapon.power);
 
     var maxDeviation = toRadians(90);
     this.numbarrels = storedWeapon.numBarrels;
@@ -296,14 +296,14 @@ function LoadedWeaponGroup(storedWeapon) {
     //this.weaponPlaceType = 2;
 
     this.rarity = app.rarities[storedWeapon.rarity];
-    
-    this.delete = function() {
+
+    this.delete = function () {
         for (var i = 0; i < this.weapons.length; i += 1) {
             app.ticker.remove(this.weapons[i].reload, this.weapons[i]);
         }
     }
 
-    this.weaponProto = new Weapon(this.entityID, this.power / this.numbarrels, this.rarity, this.weaponType);
+    this.weaponProto = new Weapon(this.entityID, new Decimal(this.power).div(this.numbarrels), this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);
 
     switch (this.weaponPlaceType) {
@@ -357,7 +357,6 @@ function LoadedWeaponGroup(storedWeapon) {
             break;
     }
     this.weaponName = getWeaponName(this);
-    console.log(this);
 }
 
 function Weapon(id, power, rarity, type) {
@@ -369,7 +368,7 @@ function Weapon(id, power, rarity, type) {
 
     this.entityID = id;
 
-    this.damage = power * this.type.damageMod * this.rarity.statMod;
+    this.damage = power.mul(this.type.damageMod).mul(this.rarity.statMod);
     this.direction = 0;
 
     this.setDirection = function (direction) {
@@ -418,27 +417,26 @@ function Armour(power, team) {
 
     this.getMaxHP = function (upgradePower) {
         if (this.team === 0) {
-            return this.power * 10 * this.rarity.statMod * upgradePower;
+            return this.power.mul(10).mul(this.rarity.statMod).mul(upgradePower);
         } else {
-            return this.power * this.rarity.statMod;
+            return this.power.mul(this.rarity.statMod);
         }
     }
 
     this.maxHP = this.getMaxHP(app.upgrades.slots[2].power);
-    //console.log(this.maxHP);
-    this.curHP = this.maxHP;
+    this.curHP = new Decimal(this.maxHP);
 
     this.maxRegen = 0.2;
     this.curRegen = 0.01;
-    
+
     this.regenFunction = function () {
         if (app.keys.pause === true) {
             return;
         }
         if (app.tick % 20 == 0) {
-            if (this.curHP < this.getMaxHP(app.upgrades.slots[2].power)) {
-                this.curHP += this.curHP * this.curRegen;
-                if (this.curHP > this.getMaxHP(app.upgrades.slots[2].power)) {
+            if (this.curHP.lt(this.getMaxHP(app.upgrades.slots[2].power))) {
+                this.curHP = this.curHP.add(this.curHP.mul(this.curRegen));
+                if (this.curHP.gt(this.getMaxHP(app.upgrades.slots[2].power))) {
                     this.curHP = this.getMaxHP(app.upgrades.slots[2].power);
                 }
             }
@@ -450,7 +448,7 @@ function Armour(power, team) {
             }
         }
     }
-    
+
     this.delete = function () {
         app.ticker.remove(this.regenFunction, this);
     }
@@ -461,16 +459,17 @@ function Armour(power, team) {
 function LoadArmour(storedArmour) {
     this.className = "Armour";
 
-    this.power = storedArmour.power;
+    this.power = new Decimal(storedArmour.power);
     this.rarity = app.rarities[storedArmour.rarity];
 
     this.getMaxHP = function (upgradePower) {
-        return this.power * 10 * this.rarity.statMod * upgradePower;
+        return new Decimal(this.power).mul(10).mul(this.rarity.statMod).mul(upgradePower);
     }
 
     this.maxHP = this.getMaxHP(app.upgrades.slots[2].power);
     //console.log(this.maxHP);
-    this.curHP = this.maxHP;
+    this.curHP = new Decimal(this.maxHP);
+    console.log(this.curHP);
 
     this.maxRegen = 0.2;
     this.curRegen = 0.01;
@@ -480,9 +479,9 @@ function LoadArmour(storedArmour) {
             return;
         }
         if (app.tick % 20 == 0) {
-            if (this.curHP < this.getMaxHP(app.upgrades.slots[2].power)) {
-                this.curHP += this.curHP * this.curRegen;
-                if (this.curHP > this.getMaxHP(app.upgrades.slots[2].power)) {
+            if (this.curHP.lt(this.getMaxHP(app.upgrades.slots[2].power))) {
+                this.curHP = this.curHP.add(this.curHP.mul(this.curRegen));
+                if (this.curHP.gt(this.getMaxHP(app.upgrades.slots[2].power))) {
                     this.curHP = this.getMaxHP(app.upgrades.slots[2].power);
                 }
             }
@@ -494,7 +493,7 @@ function LoadArmour(storedArmour) {
             }
         }
     }
-    
+
     this.delete = function () {
         app.ticker.remove(this.regenFunction, this);
     }
@@ -565,7 +564,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
 
     this.tint = entity.colour;
 
-    this.damage = this.weapon.damage * bonusDamage;
+    this.damage = new Decimal(this.weapon.damage).mul(bonusDamage);
 
     this.entity = entity;
 
@@ -647,8 +646,8 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
             if (this.entity.team === 0) {
                 for (var i = 2; i < app.players.children.length; i += 1) {
                     if ((getDistanceFrom(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position) < closestDistance) &&
-                        (Math.abs(this.direction - getAngleInRadians(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position)) < 90)
-                        && (app.players.getChildAt(i).team === 1)) {
+                        (Math.abs(this.direction - getAngleInRadians(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position)) < 90) &&
+                        (app.players.getChildAt(i).team === 1)) {
                         closestDistance = getDistanceFrom(offsetPoint(this.position, this.weapon.type.size, this.weapon.type.size), app.players.getChildAt(i).position);
                         this.target = app.players.getChildAt(i).position;
                     }
@@ -695,8 +694,8 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                     (this.lastEnemyHit != app.players.getChildAt(n))) {
                     if (this.crit === true) {
                         var power = this.entity.weapon.power,
-                            critRate = Math.abs(Math.log2(power) * 5) / 100,
-                            critMult = Math.ceil(Math.pow(1.2, Math.log2(power))),
+                            critRate = power.exponent * 5 / 100,
+                            critMult = new Decimal(1.2).pow(power.log2()),
                             randomSeed = Math.random();
                         if (critRate > 1) {
                             critRate = 1;
@@ -706,148 +705,148 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                             this.critMult = critMult;
                         }
                     }
-                    new PopUpEntity(this, (this.damage * this.critMult * app.upgrades.slots[1].power));
-                    app.players.getChildAt(n).armour.curHP -= this.damage * this.critMult * app.upgrades.slots[1].power;
-                    if (app.players.getChildAt(n).armour.curHP <= 0) {
-                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] += app.power * 10;
-                        app.wave.playersOnScreen -= 1;
-                        app.players.getChildAt(n).delete();
-                        app.wave.enemiesOnScreen -= 1;
+                    new PopUpEntity(this, this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
+                    app.players.getChildAt(n).armour.curHP = app.players.getChildAt(n).armour.curHP.sub(this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
+                        if (app.players.getChildAt(n).armour.curHP.lte(0)) {
+                            app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].add(app.power.mul(10));
+                            app.wave.playersOnScreen -= 1;
+                            app.players.getChildAt(n).delete();
+                            app.wave.enemiesOnScreen -= 1;
+                        }
+                        this.numPierce -= 1; this.lastEnemyHit = app.players.getChildAt(n);
+                        if (this.numPierce <= 0) {
+                            this.delete();
+                            return;
+                        }
                     }
+                    else if (this.lastEnemyHit === app.players.getChildAt(n)) {
+                        this.lastEnemyHit = {};
+                    }
+                }
+            } else {
+                //Enemy bullet hit player
+
+                if ((this.weapon.type.collisionType === "circle") &&
+                    (circularCollision(this.weapon.type.size, app.player.size, this.position, app.player.position)) &&
+                    (this.lastEnemyHit != app.player)) {
+                    if (this.crit === true) {
+                        var power = this.entity.weapon.power,
+                            critRate = power.exponent * 5 / 100,
+                            critMult = new Decimal(1.2).pow(power.log2()),
+                            randomSeed = Math.random();
+                        if (critRate > 1) {
+                            critRate = 1;
+                        }
+
+                        if (randomSeed < critRate) {
+                            this.critMult = critMult;
+                        }
+                    }
+                    new PopUpEntity(this, new Decimal(this.damage).mul(this.critMult));
+                    app.player.armour.curHP = app.player.armour.curHP.sub(this.damage.mul(this.critMult));
                     this.numPierce -= 1;
-                    this.lastEnemyHit = app.players.getChildAt(n);
+                    this.lastEnemyHit = app.player;
                     if (this.numPierce <= 0) {
                         this.delete();
                         return;
                     }
-                } else if (this.lastEnemyHit === app.players.getChildAt(n)) {
+                } else {
                     this.lastEnemyHit = {};
                 }
             }
-        } else {
-            //Enemy bullet hit player
+        }
+        app.ticker.add(this.tick, this);
+        app.particles.addChild(this);
+    }
 
-            if ((this.weapon.type.collisionType === "circle") &&
-                (circularCollision(this.weapon.type.size, app.player.size, this.position, app.player.position)) &&
-                (this.lastEnemyHit != app.player)) {
-                if (this.crit === true) {
-                    var power = this.entity.weapon.power,
-                        critRate = Math.abs(Math.log10(power) * 5) / 100,
-                        critMult = Math.log2(power),
-                        randomSeed = Math.random();
-                    if (critRate > 1) {
-                        critRate = 1;
-                    }
+    function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powerScaling, startingLevel, percentBonus, id) {
+        PIXI.Container.call(this);
+        this.position.set(x, y);
+        this.interactiveChildren = true;
+        this.percentBonus = percentBonus;
+        this.background = genBoxSprite(app.upgrades.backgroundImage.width / 2 - 10, 100, 2, 0x000000, 0xFFFFFF);
+        this.addChild(this.background);
+        this.basePrice = new Decimal(startingPrice);
+        this.price = new Decimal(startingPrice);
+        this.priceMult = new Decimal(costScaling);
+        this.power = new Decimal(startingPower);
+        this.powerMult = new Decimal(powerScaling);
+        this.level = startingLevel;
+        this.textStyle = {
+            fontFamily: "Arial",
+            fontSize: 12,
+            fill: "black",
+            wordWrap: false,
+            wordWrapWidth: this.background.width,
+            justify: "centre"
+        };
+        this.upgradeText = text;
+        this.id = id;
 
-                    if (randomSeed < critRate) {
-                        this.critMult = critMult;
-                    }
-                }
-                new PopUpEntity(this, this.damage * this.critMult);
-                app.player.armour.curHP -= this.damage * this.critMult;
-                this.numPierce -= 1;
-                this.lastEnemyHit = app.player;
-                if (this.numPierce <= 0) {
-                    this.delete();
-                    return;
-                }
+        this.getText = function () {
+            if (this.percentBonus === true) {
+                return this.upgradeText.replace("val1", formatNumber(this.power.mul(100))).replace("val2", formatNumber(this.price)).replace("val3", this.level);
             } else {
-                this.lastEnemyHit = {};
+                return this.upgradeText.replace("val1", this.power).replace("val2", formatNumber(this.price)).replace("val3", this.level);
             }
         }
-    }
-    app.ticker.add(this.tick, this);
-    app.particles.addChild(this);
-}
+        this.text = new PIXI.Text(this.getText(), this.textStyle);
+        this.addChild(this.text);
+        this.text.position.set(4, 4);
 
-function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powerScaling, startingLevel, percentBonus, id) {
-    PIXI.Container.call(this);
-    this.position.set(x, y);
-    this.interactiveChildren = true;
-    this.percentBonus = percentBonus;
-    this.background = genBoxSprite(app.upgrades.backgroundImage.width / 2 - 10, 100, 2, 0x000000, 0xFFFFFF);
-    this.addChild(this.background);
-    this.basePrice = startingPrice;
-    this.price = startingPrice;
-    this.priceMult = costScaling;
-    this.power = startingPower;
-    this.powerMult = powerScaling;
-    this.level = startingLevel;
-    this.textStyle = {
-        fontFamily: "Arial",
-        fontSize: 12,
-        fill: "black",
-        wordWrap: false,
-        wordWrapWidth: this.background.width,
-        justify: "centre"
-    };
-    this.upgradeText = text;
-    this.id = id;
-
-    this.getText = function () {
-        if (this.percentBonus === true) {
-            return this.upgradeText.replace("val1", formatNumber(this.power * 100)).replace("val2", formatNumber(this.price)).replace("val3", this.level);
-        } else {
-            return this.upgradeText.replace("val1", formatNumber(this.power)).replace("val2", formatNumber(this.price)).replace("val3", this.level);
-        }
-    }
-    this.text = new PIXI.Text(this.getText(), this.textStyle);
-    this.addChild(this.text);
-    this.text.position.set(4, 4);
-
-    this.button = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
-    this.addChild(this.button);
-    this.button.position.set(46, 50);
-    this.button.interactive = true;
-    this.button.buttonMode = true;
-    this.button.parent = this;
-    app.upgrades.upgradesArea.addChild(this);
-    this.button.click = function (e) {
-        if (app.money.curMoney < this.parent.price) {
-            return;
-        } else {
-            if (app.upgrades.buyButton.buyType === "single") {
-                app.money.curMoney -= this.parent.price;
-                this.parent.price = this.parent.basePrice * Math.pow(this.parent.priceMult, this.parent.level);
-                if (this.parent.percentBonus === true) {
-                    this.parent.power = Math.pow(this.parent.powerMult, this.parent.level);
-                } else {
-                    this.parent.power += this.parent.powerMult;
+        this.button = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
+        this.addChild(this.button);
+        this.button.position.set(46, 50);
+        this.button.interactive = true;
+        this.button.buttonMode = true;
+        this.button.parent = this;
+        app.upgrades.upgradesArea.addChild(this);
+        this.button.click = function (e) {
+            if (app.money.curMoney.lt(this.parent.price)) {
+                return;
+            } else {
+                if (app.upgrades.buyButton.buyType === "single") {
+                    app.money.curMoney.sub(this.parent.price);
+                    this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.parent.level));
+                    if (this.parent.percentBonus === true) {
+                        this.parent.power = this.parent.powerMult.pow(this.parent.level);
+                    } else {
+                        this.parent.power = this.parent.power.mul(this.parent.powerMult);
+                    }
+                    this.parent.level += 1;
+                } else if (app.upgrades.buyButton.buyType === "max") {
+                    this.maxLevels = Math.floor(app.money.curMoney.div(this.parent.basePrice).log(this.parent.priceMult));
+                    console.log(this.maxLevels);
+                    this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels));
+                    if (this.parent.percentBonus === true) {
+                        this.parent.power = this.parent.powerMult.pow(this.maxLevels);
+                    } else {
+                        this.parent.power = this.parent.powerMult.pow(this.maxLevels);
+                    }
+                    this.parent.level = this.maxLevels;
+                    app.money.curMoney = app.money.curMoney.sub(this.parent.price);
                 }
-                this.parent.level += 1;
-            } else if (app.upgrades.buyButton.buyType === "max") {
-                this.maxLevels = Math.floor(logBase(app.money.curMoney / this.parent.basePrice, this.parent.priceMult));
-                console.log(this.maxLevels);
-                this.parent.price = this.parent.basePrice * Math.pow(this.parent.priceMult, this.maxLevels);
-                if (this.parent.percentBonus === true) {
-                    this.parent.power = Math.pow(this.parent.powerMult, this.maxLevels);
-                } else {
-                    this.parent.power = this.parent.powerMult * this.maxLevels;
+                this.parent.text.text = this.parent.getText();
+                if (this.parent.id === 2) {
+                    app.player.armour.curHP = app.player.armour.getMaxHP(this.parent.power);
                 }
-                this.parent.level = this.maxLevels;
-                app.money.curMoney -= this.parent.price;
-            }
-            this.parent.text.text = this.parent.getText();
-            if (this.parent.id === 2) {
-                app.player.armour.curHP = app.player.armour.getMaxHP(this.parent.power);
             }
         }
-    }
-    this.setLevel = function (level) {
-        console.log(level);
-        this.maxLevels = level;
-        this.price = this.basePrice * Math.pow(this.priceMult, this.maxLevels);
-        if (this.percentBonus === true) {
-            this.power = Math.pow(this.powerMult, this.maxLevels);
-        } else {
-            this.power = this.powerMult * this.maxLevels;
+        this.setLevel = function (level) {
+            //console.log(level);
+            this.maxLevels = level;
+            this.price = this.basePrice.mul(this.priceMult.pow(this.maxLevels));
+            if (this.percentBonus === true) {
+                this.power = this.powerMult.pow(this.maxLevels);
+            } else {
+                this.power = this.powerMult.mul(this.maxLevels);
+            }
+            this.level = this.maxLevels;
+            this.text.text = this.getText();
         }
-        this.level = this.maxLevels;
-        this.text.text = this.getText();
     }
-}
 
-Entity.prototype = Object.create(PIXI.Container.prototype);
-Bullet.prototype = Object.create(PIXI.Sprite.prototype);
-PopUpEntity.prototype = Object.create(PIXI.Text.prototype);
-UpgradeArea.prototype = Object.create(PIXI.Container.prototype);
+    Entity.prototype = Object.create(PIXI.Container.prototype);
+    Bullet.prototype = Object.create(PIXI.Sprite.prototype);
+    PopUpEntity.prototype = Object.create(PIXI.Text.prototype);
+    UpgradeArea.prototype = Object.create(PIXI.Container.prototype);

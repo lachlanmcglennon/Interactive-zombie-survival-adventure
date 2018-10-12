@@ -84,15 +84,18 @@ function init() {
     app.mouse = new Mouse();
     app.enemies = [];
     app.money = {
-        curMoney: 10,
-        highestMoneyGainRate: 0.1,
-        moneyGainedIn5Sec: [],
+        curMoney: new Decimal(10),
+        highestMoneyGainRate: new Decimal(0.1),
+        moneyGainedIn5Sec: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
         moneyGainedSec: 0
     };
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("money"))) {
-        app.money.curMoney = Math.round(localStorage.getItem("money"));
-        app.money.highestMoneyGainRate = Math.round(localStorage.getItem('moneyGain'));
+        if (localStorage.getItem("money")) {
+            app.money.curMoney = new Decimal(localStorage.getItem("money"));
+            app.money.highestMoneyGainRate = new Decimal(localStorage.getItem('moneyGain'));
+        } else {
+        }
     }
 
     app.transform = new PIXI.Point(0, 0);
@@ -120,14 +123,14 @@ function init() {
 
     app.ticker.add(function () {
         if (app.tick % 60 === 0) {
-            app.money.curMoney += app.money.highestMoneyGainRate * app.upgrades.slots[0].power;
+            app.money.curMoney = app.money.curMoney.add(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power));
             if (app.keys.pause === false) {
-                var average = 0;
+                var average = new Decimal(0);
                 for (var i = 0; i < 5; i += 1) {
-                    average += app.money.moneyGainedIn5Sec[i];
+                    average = average.add(app.money.moneyGainedIn5Sec[i]);
                 }
-                average /= 5;
-                if (average > app.money.highestMoneyGainRate) {
+                average.div(5);
+                if (average.gt(app.money.highestMoneyGainRate)) {
                     app.money.highestMoneyGainRate = average;
                 }
 
@@ -136,25 +139,25 @@ function init() {
                     app.money.moneyGainedSec = 0;
                 }
 
-                app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = 0;
+                app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].mul(0);
             }
         }
     });
 
     app.wave = {
-        number: 0,
+        number: new Decimal(0),
         enemiesInWave: 1,
         enemiesOnScreen: 0,
-        enemyFactor: 1
+        enemyFactor: new Decimal(0.1)
     };
 
-    app.power = 1;
+    app.power = new Decimal(1);
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("wave"))) {
         if (localStorage.getItem('wave') > 0) {
-            app.wave.number = Math.round(localStorage.getItem('wave'));
-            app.power = Math.pow(1.4, app.wave.number);
-            app.wave.enemyFactor = Math.pow(1.9, app.wave.number);
+            app.wave.number = new Decimal(localStorage.getItem('wave'));
+            app.power = new Decimal(Math.pow(1.4, app.wave.number));
+            app.wave.enemyFactor = new Decimal(Math.pow(1.9, app.wave.number));
             app.wave.enemiesInWave = 10;
         }
     }
@@ -219,10 +222,10 @@ function init() {
     app.upgrades.slots = [];
 
     app.upgrades.slots = [
-        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, 1000, 1.6, 1, 1.2, 1, true, 0),
-        new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, 100, 1.6, 1, 1.2, 1, true, 1),
-        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, 100, 1.6, 1, 1.2, 1, true, 2),
-        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, 100000, 100000, 1, 1, 1, false, 3)];
+        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, new Decimal(1000), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 1, true, 0),
+        new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 1, true, 1),
+        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 1, true, 2),
+        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal(100000), new Decimal(100000), new Decimal(1), new Decimal(1), 1, false, 3)];
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('upgradeItems'))) {
         var upgradeItem = {};
@@ -259,7 +262,7 @@ function init() {
         }
     }
 
-    app.player = new Entity(new PIXI.Texture(app.playerImage), getPlayerColour(), app.power * 10, 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
+    app.player = new Entity(new PIXI.Texture(app.playerImage), getPlayerColour(), app.power.mul(10), 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
 
     app.inventory = {};
     app.inventory.backgroundImage = genBoxSprite(522, app.renderer.width, 2, 0x000000, 0xFFFFFF);
@@ -450,7 +453,7 @@ function init() {
     } else {
         newWeapon();
         app.player.weapon = app.inventory.slotAreas[0].slot;
-        app.money.curMoney = 10;
+        app.money.curMoney = new Decimal(10);
         app.inventory.slotAreas[1].slot = null;
         newArmour();
         app.player.armour = app.inventory.slotAreas[1].slot;
@@ -477,12 +480,12 @@ function init() {
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
-        if ((app.wave.enemiesOnScreen <= 2 && app.wave.enemiesInWave <= 0 && app.wave.number > 0) ||
-            (app.wave.enemiesOnScreen <= 0 && app.wave.number === 0)) {
+        if ((app.wave.enemiesOnScreen <= 2 && app.wave.enemiesInWave <= 0 && app.wave.number.gt(0)) ||
+            (app.wave.enemiesOnScreen <= 0 && app.wave.number.eq(0))) {
             app.wave.enemiesInWave = 10;
-            app.wave.number += 1;
-            app.power *= 1.4;
-            app.wave.enemyFactor *= 1.9;
+            app.wave.number = app.wave.number.add(1);
+            app.power = app.power.mul(1.4);
+            app.wave.enemyFactor = app.wave.enemyFactor.mul(1.9);
         }
 
         if ((app.tick % 600 === 0) && (storageAvailable('localStorage'))) {
@@ -507,8 +510,8 @@ function init() {
                 numItems += 1;
             }
             localStorage.setItem('upgradeItems', numItems);
-            localStorage.setItem('money', app.money.curMoney);
-            localStorage.setItem('moneyGain', app.money.highestMoneyGainRate);
+            localStorage.setItem('money', app.money.curMoney.toString());
+            localStorage.setItem('moneyGain', app.money.highestMoneyGainRate.toString());
             localStorage.setItem('wave', app.wave.number);
         }
     });

@@ -217,7 +217,7 @@ function updateUI() {
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
     document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.wave.enemyFactor);
     document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
-    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate * app.upgrades.slots[0].power);
+    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(new Decimal(app.money.highestMoneyGainRate).mul(app.upgrades.slots[0].power));
     document.getElementById("curPlayerHP").innerHTML = "Player HP: " + formatNumber(app.player.armour.curHP);
     document.getElementById("fps").innerHTML = "Fps: " + Math.ceil(1000 / app.ticker.elapsedMS);
 
@@ -254,7 +254,7 @@ function newWeapon() {
 
 
     app.inventory.slotAreas[newPos].addChild(weaponImage);
-    app.money.curMoney *= 0.5;
+    app.money.curMoney.mul(0.5);
 }
 
 function storeWeapon(weapon) {
@@ -306,7 +306,7 @@ function newArmour() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney * 10, 0);
+            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney.mul(10), 0);
             break;
         }
     }
@@ -327,7 +327,7 @@ function newArmour() {
 
     app.inventory.slotAreas[newPos].addChild(armourImage);
 
-    app.money.curMoney *= 0.5;
+    app.money.curMoney.mul(0.5);
 }
 
 function storeArmour(armour) {
@@ -446,10 +446,10 @@ function genWeaponBox(weapon) {
 
     style.fill = "black";
 
-    var weaponDamage = new PIXI.Text(formatNumber(weapon.weaponProto.damage * app.upgrades.slots[1].power) + " damage", style);
+    var weaponDamage = new PIXI.Text(formatNumber(weapon.weaponProto.damage.mul(app.upgrades.slots[1].power).mul(weapon.rarity.statMod)) + " damage", style);
 
     if ((weapon.numbarrels > 1) && (weapon.weaponPlaceType != 1)) {
-        weaponDamage.text = formatNumber(weapon.weaponProto.damage * app.upgrades.slots[1].power) + " damage x" + weapon.numbarrels;
+        weaponDamage.text = formatNumber(weapon.weaponProto.damage.mul(app.upgrades.slots[1].power)) + " damage x" + weapon.numbarrels;
     }
 
     weaponDamage.position.set(5, weaponBox.height + 5);
@@ -466,19 +466,20 @@ function genWeaponBox(weapon) {
         weaponBox.addChild(effectName[i]);
         
         if (weapon.effects[i] === "Critical") {
-            var rate = Math.abs(Math.log10(weapon.power) * 5)
+            var rate = weapon.power.exponent * 5;
             if (rate > 100) {
                 rate = 100
             }
             critText = new PIXI.Text(rate + "% chance to do x" + 
-            formatNumber(Math.pow(1.05, Math.log2(weapon.power))) + " more damage.", style);
+            formatNumber(new Decimal(new Decimal(1.05).pow(weapon.power).log(2))) + " more damage.", style);
             critText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(critText);
+            
         }
         
         if (weapon.effects[i] === "Pierce") {
             pierceText = new PIXI.Text("Bullets pierce " + 
-            formatNumber(Math.ceil(Math.log10(weapon.power))) + " enemies.", style);
+            weapon.power.exponent + " enemies.", style);
             pierceText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(pierceText);
         }
@@ -513,7 +514,7 @@ function genArmourBox(armour) {
 
     style.fill = "black";
 
-    var armourHP = new PIXI.Text(formatNumber(armour.maxHP * app.upgrades.slots[2].power) + " HP", style);
+    var armourHP = new PIXI.Text(formatNumber(armour.getMaxHP(app.upgrades.slots[2].power)) + " HP", style);
 
     armourHP.position.set(5, armourBox.height + 5);
 
@@ -530,7 +531,7 @@ function genArmourBox(armour) {
 
 function formatNumber(num) {
     //console.log(num);
-    var str = "" + num;
+    var str = "";
     var temp = "";
     if (app.settings.format == "normal") {
         if (str.length < 4) {
@@ -549,14 +550,12 @@ function formatNumber(num) {
         }
         str = temp;
     } else if (app.settings.format == "sci") {
-        str = num.toPrecision(3);
-        str.replace("e+", "e");
+        str = num.mantissaWithDecimalPlaces(2) + "e" + num.exponent;
     } else if (app.settings.format == "eng") {
         var exp = Math.floor(Math.log10(num));
         var base = (num / Math.pow(10, exp)).toFixed(2);
         str = (base * Math.pow(10, exp % 3)).toFixed(2) + "E" + (exp - exp % 3);
     }
-    str = str.replace("+", "");
     return str;
 }
 
