@@ -13,6 +13,7 @@ function Keys() {
     this.up = false;
 
     this.mouseLeft = false;
+    this.mouseLocked = false;
     this.autofire = false;
     this.pause = false;
     this.hideBullets = true;

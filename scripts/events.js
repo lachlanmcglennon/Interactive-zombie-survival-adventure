@@ -32,11 +32,12 @@ function addEvents() {
             }
 
             if (event.key == "e") {
-                if (app.keys.autofire == false) {
-                    app.keys.autofire = true;
-                } else {
-                    app.keys.autofire = false;
-                }
+                app.keys.autofire = !app.keys.autofire;
+            }
+        
+            if (event.key == "l") {
+                app.keys.mouseLocked = !app.keys.mouseLocked;
+                app.particles.visible = !app.particles.visible;
             }
 
             if (event.key == "x") {

@@ -77,10 +77,6 @@ function init() {
     img.src = "images/player.png";
     app.playerImage = PIXI.Texture.fromImage(img.src);
 
-    app.ticker.speed = 1;
-
-    app.ticker.start();
-
     app.tick = 0;
 
     app.stage.interactive = true;
@@ -523,4 +519,8 @@ function init() {
 
     app.ticker.add(updateUI);
     addEvents();
+    
+    app.ticker.speed = 1;
+
+    app.ticker.start();
 }

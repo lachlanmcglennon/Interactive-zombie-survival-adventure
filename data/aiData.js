@@ -67,9 +67,21 @@ function PlayerAI() {
             app.particles.setTransform(app.transform.x, app.transform.y);   
         }
 
-        this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
-
-        this.weaponTarget = app.mouse.position;
+        if (app.keys.mouseLocked === false) {
+            this.weaponTarget = app.mouse.position;
+            this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
+        } else {
+            if (app.players.children.length > 2) {
+                var closestDistance = 1000000000, closestEnemy = -1;
+                for (var i = 2; i < app.players.children.length; i += 1) {
+                    if (getDistanceFrom(this.position, app.players.children[i].position) < closestDistance) {
+                        closestEnemy = i;
+                    }
+                } 
+                this.weaponTarget = app.players.children[closestEnemy].position;
+                this.image.rotation = getAngleInRadians(this.position, app.players.children[closestEnemy].position);
+            }
+        }
 
         if ((this.armour.curHP / this.armour.getMaxHP() <= 0.2) && (app.keys.deathPaused === false)) {
             app.stage.addChild(app.pauseText);
