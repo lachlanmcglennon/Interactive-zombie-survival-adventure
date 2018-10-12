@@ -694,8 +694,8 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                     (this.lastEnemyHit != app.players.getChildAt(n))) {
                     if (this.crit === true) {
                         var power = this.entity.weapon.power,
-                            critRate = Math.abs(Math.log10(power) * 5) / 100,
-                            critMult = Math.log2(power),
+                            critRate = Math.abs(Math.log2(power) * 5) / 100,
+                            critMult = Math.ceil(Math.pow(1.2, Math.log2(power))),
                             randomSeed = Math.random();
                         if (critRate > 1) {
                             critRate = 1;

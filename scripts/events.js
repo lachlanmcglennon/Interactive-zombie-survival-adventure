@@ -40,18 +40,33 @@ function addEvents() {
             }
 
             if (event.key == "x") {
-                if (app.mouse.curSlot != null) {
-                    app.money.curMoney += app.mouse.curSlot.slot.power * 0.9;
-                    app.mouse.curSlot.slot = null;
-                    var i = app.mouse.curSlot.pos;
+                if (app.inventory.slotAreas[app.mouse.curSlot].slot != null) {
+                    app.money.curMoney += app.inventory.slotAreas[app.mouse.curSlot].slot.power * 0.9;
+                    app.inventory.slotAreas[app.mouse.curSlot].slot = null;
+                    var i = app.mouse.curSlot;
 
-                    app.mouse.curSlot.removeChildAt(1);
+                    app.inventory.slotAreas[app.mouse.curSlot].removeChildAt(1);
 
                     while (app.inventory.slotAreas[i + 1].slot != null) {
                         swapItems(app.inventory.slotAreas[i], app.inventory.slotAreas[i + 1]);
                         i += 1;
                     }
-                    app.mouse.curSlot = app.inventory.slotAreas[i];
+                    //app.inventory.slotAreas[app.mouse.curSlot] = app.inventory.slotAreas[i];
+
+                    if (app.inventory.slotAreas[app.mouse.curSlot].slot === null) {
+                        app.mouse.showBox = false;
+                    } else {
+                        app.mouse.showBox = true;
+                        if (app.mouse.displayBox.children.length > 0) {
+                            app.mouse.displayBox.removeChildAt(0);
+                        }
+
+                        if (app.inventory.slotAreas[app.mouse.curSlot].slot.className == "Weapon") {
+                            app.mouse.displayBox.addChildAt(genWeaponBox(app.inventory.slotAreas[app.mouse.curSlot].slot), 0);
+                        } else {
+                            app.mouse.displayBox.addChildAt(genArmourBox(app.inventory.slotAreas[app.mouse.curSlot].slot), 0);
+                        }
+                    }
                 }
             }
 
@@ -93,7 +108,7 @@ function addEvents() {
                 }
                 app.upgrades.upgradesArea.enabled = !app.upgrades.upgradesArea.enabled;
             }
-        
+
             if (event.key == "b") {
                 app.keys.hideBullets = !app.keys.hideBullets;
             }

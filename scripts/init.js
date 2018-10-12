@@ -166,7 +166,7 @@ function init() {
     app.settings = {
         format: "sci"
     };
-    
+
     app.upgrades = {};
     app.upgrades.backgroundImage = genBoxSprite(522, app.renderer.height, 2, 0x000000, 0xFFFFFF);
     app.upgrades.clickTab = genBoxSprite(50, 180, 2, 0x000000, 0xFFFFFF);
@@ -219,13 +219,13 @@ function init() {
     app.stage.addChild(app.upgrades.upgradesArea);
 
     app.stage.swapChildren(app.upgrades.upgradesArea, app.mouse.displayBox);
-    
+
     app.upgrades.slots = [];
-    
+
     app.upgrades.slots = [
         new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, 1000, 1.6, 1, 1.2, 1, true, 0),
         new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, 100, 1.6, 1, 1.2, 1, true, 1),
-        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, 100, 1.6, 1, 1.3, 1, true, 2),
+        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, 100, 1.6, 1, 1.2, 1, true, 2),
         new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, 100000, 100000, 1, 1, 1, false, 3)];
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('upgradeItems'))) {
@@ -235,7 +235,7 @@ function init() {
             app.upgrades.slots[i].setLevel(upgradeItem.startingLevel);
         }
     }
-    
+
     var style = {
         fontFamily: "Arial",
         fontSize: 12,
@@ -243,7 +243,7 @@ function init() {
         wordWrap: false,
         wordWrapWidth: 200,
     };
-    
+
     app.upgrades.buyButton = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
     app.upgrades.upgradesArea.addChild(app.upgrades.buyButton);
     app.upgrades.buyButton.position.set(5, 490);
@@ -252,7 +252,7 @@ function init() {
     app.upgrades.buyButton.text = new PIXI.Text("Buy one", style);
     app.upgrades.upgradesArea.addChild(app.upgrades.buyButton.text);
     app.upgrades.buyButton.text.position.set(35, 500);
-    app.upgrades.buyButton.buyType = "single";                               
+    app.upgrades.buyButton.buyType = "single";
     app.upgrades.buyButton.click = function (e) {
         if (this.buyType === "single") {
             this.buyType = "max";
@@ -275,6 +275,7 @@ function init() {
 
     app.inventory.inventoryArea.enabled = false;
     app.inventory.inventoryArea.interactiveChildren = true;
+    app.inventory.inventoryArea.interactive = true;
     app.inventory.clickTab.interactive = true;
     app.inventory.clickTab.buttonMode = true;
 
@@ -340,12 +341,6 @@ function init() {
     app.inventory.inventoryArea.addChild(app.inventory.slotAreas[1]);
     app.inventory.slotAreas[1].position.set(301, 5);
 
-    app.inventory.slotAreas[0].mouseout = function (e) {
-        app.mouse.showBox = false;
-
-        app.mouse.curSlot = null;
-    };
-
     app.inventory.slotAreas[0].mouseover = function (e) {
         //console.log("over");
         e.stopPropagation();
@@ -364,13 +359,6 @@ function init() {
         }
     };
 
-
-    app.inventory.slotAreas[1].mouseout = function (e) {
-        app.mouse.showBox = false;
-
-        app.mouse.curSlot = null;
-    };
-
     app.inventory.slotAreas[1].mouseover = function (e) {
         e.stopPropagation();
 
@@ -386,6 +374,12 @@ function init() {
 
             app.mouse.displayBox.addChildAt(genArmourBox(this.slot), 0);
         }
+    };
+
+    app.inventory.inventoryArea.mouseout = function (e) {
+        app.mouse.showBox = false;
+
+        app.mouse.curSlot = null;
     };
 
     for (var y = 0; y < 5; y += 1) {
@@ -406,18 +400,18 @@ function init() {
                 }
             };
 
-
             app.inventory.slotAreas[2 + x + (y * 8)].mouseout = function (e) {
-                app.mouse.showBox = false;
+                if (app.mouse.curSlot === this.pos) {
+                    app.mouse.showBox = false;
 
-                app.mouse.curSlot = null;
+                    app.mouse.curSlot = null;
+                }
+
             };
 
             app.inventory.slotAreas[2 + x + (y * 8)].mouseover = function (e) {
-                //console.log("over");
-                //e.stopPropagation();
 
-                app.mouse.curSlot = this;
+                app.mouse.curSlot = this.pos;
 
                 if (this.slot === null) {
                     app.mouse.showBox = false;
@@ -426,8 +420,6 @@ function init() {
                     if (app.mouse.displayBox.children.length > 0) {
                         app.mouse.displayBox.removeChildAt(0);
                     }
-
-                    console.log(this.slot.className);
 
                     if (this.slot.className == "Weapon") {
                         app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
@@ -485,7 +477,7 @@ function init() {
                 yToSpawn = temp.y;
 
             new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
-                app.power * app.wave.enemyFactor, 2, 10, 1, xToSpawn, yToSpawn);
+                app.wave.enemyFactor, 2, 10, 1, xToSpawn, yToSpawn);
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }

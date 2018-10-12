@@ -311,7 +311,7 @@ function newArmour() {
         }
     }
 
-    //console.log(app.inventory.slotAreas[1].slot);
+    //console.log(app.inventory.slotAreas[43].slot);
 
     if (newPos >= app.inventory.slotAreas.length) {
         return;
@@ -351,7 +351,7 @@ function loadArmour(armour, slot) {
     var newPos = slot;
     app.inventory.slotAreas[newPos].slot = new LoadArmour(armour);
 
-    //console.log(app.inventory.slotAreas[1].slot);
+    //console.log(app.inventory.slotAreas[43].slot);
 
     var armourImage = new PIXI.Container();
     var size = 3;
@@ -471,7 +471,7 @@ function genWeaponBox(weapon) {
                 rate = 100
             }
             critText = new PIXI.Text(rate + "% chance to do x" + 
-            formatNumber(Math.log2(weapon.power)) + " more damage.", style);
+            formatNumber(Math.pow(1.05, Math.log2(weapon.power))) + " more damage.", style);
             critText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(critText);
         }
