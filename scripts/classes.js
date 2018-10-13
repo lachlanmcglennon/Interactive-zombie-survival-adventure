@@ -816,7 +816,6 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                     this.parent.level += 1;
                 } else if (app.upgrades.buyButton.buyType === "max") {
                     this.maxLevels = Math.floor(app.money.curMoney.div(this.parent.basePrice).log(this.parent.priceMult));
-                    console.log(this.maxLevels);
                     this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels));
                     if (this.parent.percentBonus === true) {
                         this.parent.power = this.parent.powerMult.pow(this.maxLevels);
@@ -842,6 +841,9 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                 this.power = this.powerMult.mul(this.maxLevels);
             }
             this.level = this.maxLevels;
+            this.text.text = this.getText();
+        }
+        this.updateText = function () {
             this.text.text = this.getText();
         }
     }

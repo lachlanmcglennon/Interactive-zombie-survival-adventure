@@ -3,7 +3,9 @@
 function getAngleInRadians(p1, p2) {
     //Gets the angle between 2 PIXI.Point values, and returns it, in radians.
     var theta = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-    if (theta < 0) {theta = toRadians(360) + theta}
+    if (theta < 0) {
+        theta = toRadians(360) + theta
+    }
     return theta;
 }
 
@@ -49,7 +51,7 @@ function getDistanceFrom(p1, p2) {
 
 function angleIsLeft(a1, a2) {
     //Takes 2 angles and determines if angle 2 is to the left of angle one.
-    
+
     if (a1 < toRadians(180)) {
         return !((a2 < a1 + toRadians(180)) && (a2 > a1));
     } else {
@@ -59,7 +61,7 @@ function angleIsLeft(a1, a2) {
 
 function offsetPoint(point, width, height) {
     //Takes a point and offsets it to be in the middle of a given width/height.
-    
+
     return new PIXI.Point(point.x + width / 2, point.y + height / 2);
 }
 
@@ -104,7 +106,7 @@ function getPlayerColour() {
         var colour = document.getElementById("playerCol").value;
     }
     if (storageAvailable('localStorage')) {
-        localStorage.setItem("PlayerCol", document.getElementById("playerCol").value);    
+        localStorage.setItem("PlayerCol", document.getElementById("playerCol").value);
     }
     return colour.replace("#", "0x");
 }
@@ -123,9 +125,9 @@ function getEntity(id) {
     return null;
 }
 
-function logBase (n, base) {
-    return Math.log(n)/(base ? Math.log(base) : 1);
-  }
+function logBase(n, base) {
+    return Math.log(n) / (base ? Math.log(base) : 1);
+}
 
 function decimalToHexString(number) {
     if (number < 0) {
@@ -260,9 +262,9 @@ function newWeapon() {
 function storeWeapon(weapon) {
     var storedWeapon = {
         className: "Weapon",
-        power: weapon.power, 
-        effects: weapon.effects, 
-        rarity: weapon.rarity.id, 
+        power: weapon.power,
+        effects: weapon.effects,
+        rarity: weapon.rarity.id,
         numBarrels: weapon.numbarrels,
         weaponType: weapon.weaponType,
         placeType: weapon.weaponPlaceType
@@ -277,7 +279,7 @@ function loadWeapon(storedWeapon, slot) {
     if (newPos >= app.inventory.slotAreas.length) {
         return;
     }
-    
+
     var newPos = slot;
     app.inventory.slotAreas[newPos].slot = new LoadedWeaponGroup(storedWeapon);
 
@@ -343,11 +345,11 @@ function loadArmour(armour, slot) {
     if (armour === null) {
         return;
     }
-    
+
     if (newPos >= app.inventory.slotAreas.length) {
         return;
     }
-    
+
     var newPos = slot;
     app.inventory.slotAreas[newPos].slot = new LoadArmour(armour);
 
@@ -367,13 +369,13 @@ function loadArmour(armour, slot) {
 
 function storeUpgrade(UpgradeArea) {
     var storedUpgrade = {
-        text: UpgradeArea.upgradeText, 
-        x: UpgradeArea.x, 
-        y: UpgradeArea.y, 
-        startingPrice: UpgradeArea.price, 
-        costScaling: UpgradeArea.priceMult, 
-        startingPower: UpgradeArea.power, 
-        powerScaling: UpgradeArea.powerMult, 
+        text: UpgradeArea.upgradeText,
+        x: UpgradeArea.x,
+        y: UpgradeArea.y,
+        startingPrice: UpgradeArea.price,
+        costScaling: UpgradeArea.priceMult,
+        startingPower: UpgradeArea.power,
+        powerScaling: UpgradeArea.powerMult,
         startingLevel: UpgradeArea.level
     }
     return storedUpgrade;
@@ -455,31 +457,32 @@ function genWeaponBox(weapon) {
     weaponDamage.position.set(5, weaponBox.height + 5);
 
     weaponBox.addChild(weaponDamage);
-    
+
     var effectName = [];
-    
-    var critText = {}, pierceText = {};
-    
+
+    var critText = {},
+        pierceText = {};
+
     for (var i = 0; i < weapon.effects.length; i += 1) {
         effectName[i] = new PIXI.Text(weapon.effects[i], style);
         effectName[i].position.set(5, weaponBox.height + 5);
         weaponBox.addChild(effectName[i]);
-        
+
         if (weapon.effects[i] === "Critical") {
             var rate = weapon.power.exponent * 5;
             if (rate > 100) {
                 rate = 100
             }
-            critText = new PIXI.Text(rate + "% chance to do x" + 
-            formatNumber(new Decimal(new Decimal(1.05).pow(weapon.power).log(2))) + " more damage.", style);
+            critText = new PIXI.Text(rate + "% chance to do x" +
+                formatNumber(new Decimal(new Decimal(1.05).pow(weapon.power).log(2))) + " more damage.", style);
             critText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(critText);
-            
+
         }
-        
+
         if (weapon.effects[i] === "Pierce") {
-            pierceText = new PIXI.Text("Bullets pierce " + 
-            weapon.power.exponent + " enemies.", style);
+            pierceText = new PIXI.Text("Bullets pierce " +
+                weapon.power.exponent + " enemies.", style);
             pierceText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(pierceText);
         }
@@ -533,28 +536,34 @@ function formatNumber(num) {
     //console.log(num);
     var str = "";
     var temp = "";
-    if (app.settings.format == "normal") {
-        if (str.length < 4) {
-            temp = str;
+    if (app.settings.format == "norm") {
+        if (num.exponent > 12) {
+            var ones = ["", "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"],
+                tens = ["", "Dc", "Vi", "Tg", "Qag", "Qig", "Sxg", "Spg", "Og", "Ng"],
+                hundreds = ["", "C", "DC", "TC", "QaC", "QiC", "SxC", "Spc", "OcC", "NcC"]
+            str = num.mantissaWithDecimalPlaces(2) + "";
+            str += hundreds[Math.floor(num.exponent / 300)] +
+                ones[Math.floor(num.exponent / 3) % ones.length] +
+                tens[Math.floor(num.exponent / 30) % tens.length];
+        } else if (num.exponent > 2) {
+            str = num.mantissaWithDecimalPlaces(2);
+            var startNotations = ['K', 'M', 'B', 'T', 'Qt', 'Qi', 'Sx', 'Sp', 'O', 'N'];
+            str += startNotations[num.exponent - 3];
         } else {
-            if (str.length % 3 > 0) {
-                temp = str.slice(0, str.length % 3);
-            } else {
-                temp = str.slice(0, 3);
-            }
-            for (var i = str.length % 3 + 3; i <= str.length; i += 3) {
-                if (i > 3) {
-                    temp += ", " + str.slice(i - 3, i);
-                }
-            }
+            str = num.toNumber().toFixed(2);
         }
-        str = temp;
     } else if (app.settings.format == "sci") {
-        str = num.mantissaWithDecimalPlaces(2) + "e" + num.exponent;
+        if (num.exponent > 2) {
+            str = num.mantissaWithDecimalPlaces(2) + "e" + num.exponent;
+        } else {
+            str = num.toNumber().toFixed(2);
+        }
     } else if (app.settings.format == "eng") {
-        var exp = Math.floor(Math.log10(num));
-        var base = (num / Math.pow(10, exp)).toFixed(2);
-        str = (base * Math.pow(10, exp % 3)).toFixed(2) + "E" + (exp - exp % 3);
+        if (num.exponent > 2) {
+            str = (num.mantissaWithDecimalPlaces(2 + (num.exponent % 3)) * Math.pow(10, (num.exponent % 3))).toFixed(2) + "E" + (num.exponent - (num.exponent % 3));
+        } else {
+            str = num.toNumber().toFixed(2);
+        }
     }
     return str;
 }
@@ -566,18 +575,17 @@ function storageAvailable(type) {
         storage.setItem(x, x);
         storage.removeItem(x);
         return true;
-    }
-    catch(e) {
+    } catch (e) {
         return e instanceof DOMException && (
-            // everything except Firefox
-            e.code === 22 ||
-            // Firefox
-            e.code === 1014 ||
-            // test name field too, because code might not be present
-            // everything except Firefox
-            e.name === 'QuotaExceededError' ||
-            // Firefox
-            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+                // everything except Firefox
+                e.code === 22 ||
+                // Firefox
+                e.code === 1014 ||
+                // test name field too, because code might not be present
+                // everything except Firefox
+                e.name === 'QuotaExceededError' ||
+                // Firefox
+                e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
             // acknowledge QuotaExceededError only if there's something already stored
             storage.length !== 0;
     }

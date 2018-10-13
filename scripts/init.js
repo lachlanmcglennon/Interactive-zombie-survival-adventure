@@ -163,7 +163,7 @@ function init() {
     }
 
     app.settings = {
-        format: "sci"
+        format: "norm"
     };
 
     app.upgrades = {};
@@ -258,7 +258,31 @@ function init() {
             this.text.text = "Buy Max";
         } else {
             this.buyType = "single";
-            this.text.text = "Buy one";
+            this.text.text = "Buy One";
+        }
+    }
+    
+    app.upgrades.settingsButton = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
+    app.upgrades.upgradesArea.addChild(app.upgrades.settingsButton);
+    app.upgrades.settingsButton.position.set(105, 490);
+    app.upgrades.settingsButton.interactive = true;
+    app.upgrades.settingsButton.buttonMode = true;
+    app.upgrades.settingsButton.text = new PIXI.Text("Normal", style);
+    app.upgrades.upgradesArea.addChild(app.upgrades.settingsButton.text);
+    app.upgrades.settingsButton.text.position.set(125, 500);
+    app.upgrades.settingsButton.click = function (e) {
+        if (app.settings.format === "sci") {
+            app.settings.format = "eng";
+            this.text.text = "Engineering";
+        } else if (app.settings.format === "eng") {
+            app.settings.format = "norm";
+            this.text.text = "Normal";
+        } else if (app.settings.format === "norm") {
+            app.settings.format = "sci";
+            this.text.text = "Scientific";
+        }
+        for (var i = 0; i < app.upgrades.slots.length; i += 1) {
+            app.upgrades.slots[i].updateText();
         }
     }
 
