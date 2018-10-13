@@ -560,7 +560,7 @@ function formatNumber(num) {
         }
     } else if (app.settings.format == "eng") {
         if (num.exponent > 2) {
-            str = (num.mantissaWithDecimalPlaces(2 + (num.exponent % 3)) * Math.pow(10, (num.exponent % 3))).toFixed(2) + "E" + (num.exponent - (num.exponent % 3));
+            str = (num.mantissaWithDecimalPlaces(2 + (num.exponent % 3)) * Math.pow(10, (num.exponent % 3))).toFixed(2) + "e" + (num.exponent - (num.exponent % 3));
         } else {
             str = num.toNumber().toFixed(2);
         }
