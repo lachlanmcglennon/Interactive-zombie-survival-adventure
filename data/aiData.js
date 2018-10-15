@@ -105,11 +105,11 @@ function PlayerAI() {
                 number: new Decimal(0),
                 enemiesInWave: 1,
                 enemiesOnScreen: 0,
-                enemyFactor: 1
+                enemyFactor: new Decimal(1)
             };
 
             app.power = new Decimal(1);
-            this.armour.curHP = this.armour.maxHP;
+            this.armour.curHP = this.armour.getMaxHP();
             app.keys.deathPaused = false;
             return;
         } else if (this.armour.curHP.div(this.armour.maxHP).gt(0.2)) {

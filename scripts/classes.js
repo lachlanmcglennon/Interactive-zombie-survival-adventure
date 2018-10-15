@@ -469,7 +469,6 @@ function LoadArmour(storedArmour) {
     this.maxHP = this.getMaxHP(app.upgrades.slots[2].power);
     //console.log(this.maxHP);
     this.curHP = new Decimal(this.maxHP);
-    console.log(this.curHP);
 
     this.maxRegen = 0.2;
     this.curRegen = 0.01;
@@ -695,7 +694,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                     if (this.crit === true) {
                         var power = this.entity.weapon.power,
                             critRate = power.exponent * 5 / 100,
-                            critMult = new Decimal(1.2).pow(power.log2()),
+                            critMult = new Decimal(1.05).pow(power.log10()),
                             randomSeed = Math.random();
                         if (critRate > 1) {
                             critRate = 1;
@@ -820,7 +819,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                     if (this.parent.percentBonus === true) {
                         this.parent.power = this.parent.powerMult.pow(this.maxLevels);
                     } else {
-                        this.parent.power = this.parent.powerMult.pow(this.maxLevels);
+                        this.parent.power = this.parent.powerMult.mul(this.maxLevels);
                     }
                     this.parent.level = this.maxLevels;
                     app.money.curMoney = app.money.curMoney.sub(this.parent.price);

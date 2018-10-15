@@ -76,8 +76,10 @@ function circularCollision(eSize1, eSize2, ePos1, ePos2) {
 function getMaxReload(maxUse, team) {
     if ((maxUse - app.upgrades.slots[3].power <= 3) && (team === 0)) {
         return 3;
+    } else if (team === 0) {
+        return maxUse - app.upgrades.slots[3].power;
     } else {
-        return maxUse;
+        return maxUse
     }
 }
 
@@ -474,7 +476,7 @@ function genWeaponBox(weapon) {
                 rate = 100
             }
             critText = new PIXI.Text(rate + "% chance to do x" +
-                formatNumber(new Decimal(new Decimal(1.05).pow(weapon.power).log(2))) + " more damage.", style);
+                formatNumber(new Decimal(new Decimal(1.05).pow(weapon.power.log2()))) + " more damage.", style);
             critText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(critText);
 
@@ -537,14 +539,21 @@ function formatNumber(num) {
     var str = "";
     var temp = "";
     if (app.settings.format == "norm") {
-        if (num.exponent > 12) {
+        if (num.exponent > 3002) {
+            if (num.exponent > 2) {
+                str = num.mantissaWithDecimalPlaces(2) + "e" + num.exponent;
+            } else {
+                str = num.toNumber().toFixed(2);
+            }
+        } else if (num.exponent > 12) {
             var ones = ["", "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"],
                 tens = ["", "Dc", "Vi", "Tg", "Qag", "Qig", "Sxg", "Spg", "Og", "Ng"],
                 hundreds = ["", "C", "DC", "TC", "QaC", "QiC", "SxC", "Spc", "OcC", "NcC"]
-            str = num.mantissaWithDecimalPlaces(2) + "";
-            str += hundreds[Math.floor(num.exponent / 300)] +
-                ones[Math.floor(num.exponent / 3) % ones.length] +
-                tens[Math.floor(num.exponent / 30) % tens.length];
+            str = (Math.pow(10, num.exponent % 3) * num.mantissa).toFixed(2) + "";
+            var exp = num.exponent - 3;
+            str += hundreds[Math.floor(exp / 300)] +
+                ones[Math.floor(exp / 3) % ones.length] +
+                tens[Math.floor(exp / 30) % tens.length];
         } else if (num.exponent > 2) {
             str = num.mantissaWithDecimalPlaces(2);
             var startNotations = ['K', 'M', 'B', 'T', 'Qt', 'Qi', 'Sx', 'Sp', 'O', 'N'];
@@ -589,4 +598,14 @@ function storageAvailable(type) {
             // acknowledge QuotaExceededError only if there's something already stored
             storage.length !== 0;
     }
+}
+
+function getEnPow(wave) {
+    var base = new Decimal(1.95), cur = new Decimal(1), curWave = wave;
+    while (curWave >= 100) {
+        cur = cur.mul(base.add(Math.floor(curWave / 1000)).pow(100));
+        curWave -= 100;
+    }
+    cur = cur.add(base.mul(curWave));
+    return cur;
 }

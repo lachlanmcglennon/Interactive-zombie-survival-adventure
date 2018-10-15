@@ -58,7 +58,7 @@ function init() {
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
         document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
-        //localStorage.clear();
+        localStorage.clear();
     }
 
     app.particles = new PIXI.particles.ParticleContainer(
@@ -124,6 +124,7 @@ function init() {
     app.ticker.add(function () {
         if (app.tick % 60 === 0) {
             app.money.curMoney = app.money.curMoney.add(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power));
+            app.money.highestMoneyGainRate = app.money.highestMoneyGainRate.mul(app.upgrades.slots[4].power);
             if (app.keys.pause === false) {
                 var average = new Decimal(0);
                 for (var i = 0; i < 5; i += 1) {
@@ -157,13 +158,13 @@ function init() {
         if (localStorage.getItem('wave') > 0) {
             app.wave.number = new Decimal(localStorage.getItem('wave'));
             app.power = new Decimal(Math.pow(1.4, app.wave.number));
-            app.wave.enemyFactor = new Decimal(Math.pow(1.9, app.wave.number));
+            app.wave.enemyFactor = getEnPow(app.wave.number);
             app.wave.enemiesInWave = 10;
         }
     }
 
     app.settings = {
-        format: "norm"
+        format: "sci"
     };
 
     app.upgrades = {};
@@ -225,7 +226,8 @@ function init() {
         new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, new Decimal(1000), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 1, true, 0),
         new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 1, true, 1),
         new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 1, true, 2),
-        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal(100000), new Decimal(100000), new Decimal(1), new Decimal(1), 1, false, 3)];
+        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal("1e15"), new Decimal("1e5"), new Decimal(1), new Decimal(1), 1, false, 3), 
+        new UpgradeArea("Increases interest gained per minute to xval1 \n cost: val2 level: val3", 5, 215, new Decimal("1e20"), new Decimal("1e20"), new Decimal(1), new Decimal(0.1), 1, false, 3)];
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('upgradeItems'))) {
         var upgradeItem = {};
@@ -509,7 +511,7 @@ function init() {
             app.wave.enemiesInWave = 10;
             app.wave.number = app.wave.number.add(1);
             app.power = app.power.mul(1.4);
-            app.wave.enemyFactor = app.wave.enemyFactor.mul(1.9);
+            app.wave.enemyFactor = app.wave.enemyFactor.mul(1.95 + Math.round(app.wave.number / 1000));
         }
 
         if ((app.tick % 600 === 0) && (storageAvailable('localStorage'))) {
