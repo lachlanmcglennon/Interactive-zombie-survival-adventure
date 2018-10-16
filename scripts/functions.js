@@ -545,7 +545,7 @@ function formatNumber(num) {
             } else {
                 str = num.toNumber().toFixed(2);
             }
-        } else if (num.exponent > 12) {
+        } else if (num.exponent > 32) {
             var ones = ["", "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"],
                 tens = ["", "Dc", "Vi", "Tg", "Qag", "Qig", "Sxg", "Spg", "Og", "Ng"],
                 hundreds = ["", "C", "DC", "TC", "QaC", "QiC", "SxC", "Spc", "OcC", "NcC"]
@@ -555,9 +555,9 @@ function formatNumber(num) {
                 ones[Math.floor(exp / 3) % ones.length] +
                 tens[Math.floor(exp / 30) % tens.length];
         } else if (num.exponent > 2) {
-            str = num.mantissaWithDecimalPlaces(2);
+            str = (Math.pow(10, num.exponent % 3) * num.mantissa).toFixed(2);
             var startNotations = ['K', 'M', 'B', 'T', 'Qt', 'Qi', 'Sx', 'Sp', 'O', 'N'];
-            str += startNotations[num.exponent - 3];
+            str += startNotations[Math.floor(num.exponent / 3) - 1];
         } else {
             str = num.toNumber().toFixed(2);
         }
@@ -606,6 +606,6 @@ function getEnPow(wave) {
         cur = cur.mul(base.add(Math.floor(curWave / 1000) * app.wave.factorIncrease).pow(100));
         curWave -= 100;
     }
-    cur = cur.add(base.mul(curWave));
+    cur = cur.add(base.pow(curWave));
     return cur;
 }
