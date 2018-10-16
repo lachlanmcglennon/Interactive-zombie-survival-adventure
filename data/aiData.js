@@ -11,7 +11,7 @@ function PlayerAI() {
 
         var moveBorderX = app.renderer.width / 4;
         var moveBorderY = app.renderer.height / 4;
-        
+
         if (app.keys.d == true || app.keys.a == true) {
             if (app.keys.d == true && app.keys.a == true) {
                 this.accel.x = 0;
@@ -61,26 +61,26 @@ function PlayerAI() {
                 app.transform.y -= this.accel.y;
             }
         }
-        
+
         if (((this.accel.x !== 0) || (this.accel.y !== 0))) {
             app.players.setTransform(app.transform.x, app.transform.y);
-            app.particles.setTransform(app.transform.x, app.transform.y);   
+            app.particles.setTransform(app.transform.x, app.transform.y);
         }
 
         if (app.keys.mouseLocked === false) {
             this.weaponTarget = app.mouse.position;
             this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
         } else {
-            if (app.players.children.length > 2) {
-                var closestDistance = 1000000000, closestEnemy = -1;
-                for (var i = 2; i < app.players.children.length; i += 1) {
-                    if (getDistanceFrom(this.position, app.players.children[i].position) < closestDistance) {
-                        closestEnemy = i;
-                    }
-                } 
-                this.weaponTarget = app.players.children[closestEnemy].position;
-                this.image.rotation = getAngleInRadians(this.position, app.players.children[closestEnemy].position);
+            var closestDistance = 1000000000,
+                closestEnemy = 0;
+            for (var i = 0; i < app.players.children.length; i += 1) {
+                if ((getDistanceFrom(this.position, app.players.children[i].position) < closestDistance - 10) &&
+                    (app.players.children[i].team === 1)) {
+                    closestEnemy = i;
+                }
             }
+            this.weaponTarget = app.players.children[closestEnemy].position;
+            this.image.rotation = getAngleInRadians(this.position, app.players.children[closestEnemy].position);
         }
 
         if ((this.armour.curHP.div(this.armour.getMaxHP(app.upgrades.slots[2].power)).lte(0.2)) && (app.keys.deathPaused === false)) {
@@ -88,7 +88,7 @@ function PlayerAI() {
             app.keys.deathPaused = true;
             app.keys.pause = true;
             if (this.armour.curHP.lt(0)) {
-                this.armour.curHP = this.armour.getMaxHP().mul(0.1);   
+                this.armour.curHP = this.armour.getMaxHP().mul(0.1);
             }
         } else if (this.armour.curHP.lte(0)) {
             for (var n = 0; n < app.players.children.length; n += 1) {

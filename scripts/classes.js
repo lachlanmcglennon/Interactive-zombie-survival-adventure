@@ -806,23 +806,23 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
             } else {
                 if (app.upgrades.buyButton.buyType === "single") {
                     app.money.curMoney.sub(this.parent.price);
-                    this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.parent.level));
+                    this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.parent.level + 1));
                     if (this.parent.percentBonus === true) {
                         this.parent.power = this.parent.powerMult.pow(this.parent.level);
                     } else {
-                        this.parent.power = this.parent.power.mul(this.parent.powerMult);
+                        this.parent.power = this.parent.power.add(this.parent.powerMult);
                     }
                     this.parent.level += 1;
                 } else if (app.upgrades.buyButton.buyType === "max") {
-                    this.maxLevels = Math.floor(app.money.curMoney.div(this.parent.basePrice).log(this.parent.priceMult));
+                    this.maxLevels = Math.floor(app.money.curMoney.div(this.parent.basePrice).log(this.parent.priceMult)) + 1;
                     this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels));
                     if (this.parent.percentBonus === true) {
                         this.parent.power = this.parent.powerMult.pow(this.maxLevels);
                     } else {
-                        this.parent.power = this.parent.powerMult.mul(this.maxLevels);
+                        this.parent.power = this.parent.power.add(this.parent.powerMult.mul(this.maxLevels));
                     }
                     this.parent.level = this.maxLevels;
-                    app.money.curMoney = app.money.curMoney.sub(this.parent.price);
+                    app.money.curMoney = app.money.curMoney.sub(this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels - 1)));
                 }
                 this.parent.text.text = this.parent.getText();
                 if (this.parent.id === 2) {
@@ -837,7 +837,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
             if (this.percentBonus === true) {
                 this.power = this.powerMult.pow(this.maxLevels);
             } else {
-                this.power = this.powerMult.mul(this.maxLevels);
+                this.power = this.power.add(this.powerMult.mul(this.maxLevels));
             }
             this.level = this.maxLevels;
             this.text.text = this.getText();

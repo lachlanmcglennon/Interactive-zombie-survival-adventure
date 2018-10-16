@@ -601,9 +601,9 @@ function storageAvailable(type) {
 }
 
 function getEnPow(wave) {
-    var base = new Decimal(1.95), cur = new Decimal(1), curWave = wave;
+    var base = new Decimal(app.wave.factorStartPow), cur = new Decimal(1), curWave = wave;
     while (curWave >= 100) {
-        cur = cur.mul(base.add(Math.floor(curWave / 1000)).pow(100));
+        cur = cur.mul(base.add(Math.floor(curWave / 1000) * app.wave.factorIncrease).pow(100));
         curWave -= 100;
     }
     cur = cur.add(base.mul(curWave));
