@@ -805,7 +805,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                 return;
             } else {
                 if (app.upgrades.buyButton.buyType === "single") {
-                    app.money.curMoney.sub(this.parent.price);
+                    app.money.curMoney = app.money.curMoney.sub(this.parent.price);
                     this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.parent.level + 1));
                     if (this.parent.percentBonus === true) {
                         this.parent.power = this.parent.powerMult.pow(this.parent.level);
