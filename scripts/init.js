@@ -529,7 +529,7 @@ function init() {
             app.wave.number = app.wave.number.add(1);
             checkUnlocks(app.wave.number);
             app.power = app.power.mul(1.4);
-            app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number / 1000) * app.wave.factorIncrease));
+            app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number.toNumber() / 1000) * app.wave.factorIncrease));
         }
 
         if ((app.tick % 600 === 0) && (storageAvailable('localStorage'))) {

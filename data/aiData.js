@@ -105,7 +105,9 @@ function PlayerAI() {
                 number: new Decimal(0),
                 enemiesInWave: 1,
                 enemiesOnScreen: 0,
-                enemyFactor: new Decimal(1)
+                enemyFactor: new Decimal(0.1),
+                factorStartPow: 1.65,
+                factorIncrease: 0.15
             };
 
             app.power = new Decimal(1);
