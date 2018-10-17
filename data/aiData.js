@@ -109,7 +109,7 @@ function PlayerAI() {
             };
 
             app.power = new Decimal(1);
-            this.armour.curHP = this.armour.getMaxHP();
+            this.armour.curHP = this.armour.getMaxHP(app.upgrades.slots[2].power);
             app.keys.deathPaused = false;
             return;
         } else if (this.armour.curHP.div(this.armour.maxHP).gt(0.2)) {
