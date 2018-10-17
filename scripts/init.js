@@ -58,7 +58,7 @@ function init() {
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
         document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
-        //localStorage.clear();
+        localStorage.clear();
     }
 
     app.particles = new PIXI.particles.ParticleContainer(
@@ -168,6 +168,18 @@ function init() {
     app.settings = {
         format: "sci"
     };
+    
+    app.unlocks = {
+        upgrades: 0,
+        maxRarity: 0,
+        inventoryUnlocked: false,
+        upgradesUnlocked: false,
+        arenaName: "Unranked (Next rank at wave 12)."
+    };
+    
+    if ((storageAvailable('localStorage')) && (localStorage.getItem('unlocks'))) {
+        app.unlocks = JSON.parse(localStorage.getItem('unlocks'));
+    }
 
     app.upgrades = {};
     app.upgrades.backgroundImage = genBoxSprite(522, app.renderer.height, 2, 0x000000, 0xFFFFFF);
@@ -179,7 +191,9 @@ function init() {
 
     app.upgrades.upgradesArea.enabled = false;
     app.upgrades.upgradesArea.interactiveChildren = true;
-    app.upgrades.clickTab.interactive = true;
+    app.upgrades.upgradesArea.enabled = false;
+    app.upgrades.upgradesArea.visible = app.unlocks.upgradesUnlocked;
+    app.upgrades.clickTab.interactive = app.unlocks.upgradesUnlocked;
     app.upgrades.clickTab.buttonMode = true;
 
     var style = {
@@ -303,7 +317,8 @@ function init() {
     app.inventory.inventoryArea.enabled = false;
     app.inventory.inventoryArea.interactiveChildren = true;
     app.inventory.inventoryArea.interactive = true;
-    app.inventory.clickTab.interactive = true;
+    app.inventory.inventoryArea.visible = app.unlocks.inventoryUnlocked;
+    app.inventory.clickTab.interactive = app.unlocks.inventoryUnlocked;
     app.inventory.clickTab.buttonMode = true;
 
     var style = {
@@ -479,7 +494,7 @@ function init() {
         app.player.weapon = app.inventory.slotAreas[0].slot;
         app.player.armour = app.inventory.slotAreas[1].slot;
     } else {
-        newWeapon();
+        newWeapon(3);
         app.player.weapon = app.inventory.slotAreas[0].slot;
         app.money.curMoney = new Decimal(10);
         app.inventory.slotAreas[1].slot = null;
@@ -512,6 +527,7 @@ function init() {
             (app.wave.enemiesOnScreen <= 0 && app.wave.number.eq(0))) {
             app.wave.enemiesInWave = 10;
             app.wave.number = app.wave.number.add(1);
+            checkUnlocks(app.wave.number);
             app.power = app.power.mul(1.4);
             app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number / 1000) * app.wave.factorIncrease));
         }
@@ -541,6 +557,7 @@ function init() {
             localStorage.setItem('money', app.money.curMoney.toString());
             localStorage.setItem('moneyGain', app.money.highestMoneyGainRate.toString());
             localStorage.setItem('wave', app.wave.number);
+            localStorage.setItem('unlocks', JSON.stringify(app.unlocks));
         }
     });
 

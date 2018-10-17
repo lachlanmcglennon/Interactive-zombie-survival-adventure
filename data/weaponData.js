@@ -46,7 +46,7 @@ function loadBulletImages(app) {
         },
         {
             name: "Destroyer",
-            speed: 2,
+            speed: 3,
             useTime: 60,
             damageMod: 10,
             lifetime: 240,

@@ -80,7 +80,7 @@ function addEvents() {
                     app.stage.removeChild(app.pauseText);
                 }
             }
-            if (event.key == "i") {
+            if ((event.key == "i") && (app.unlocks.inventoryUnlocked)) {
                 if (app.inventory.inventoryArea.enabled) {
                     app.inventory.inventoryArea.position.x += app.inventory.inventoryArea.width;
                     app.keys.pause = false;
@@ -95,7 +95,7 @@ function addEvents() {
                 app.inventory.inventoryArea.enabled = !app.inventory.inventoryArea.enabled;
             }
 
-            if (event.key === "u") {
+            if ((event.key === "u") && (app.unlocks.upgradesUnlocked)) {
                 if (app.upgrades.upgradesArea.enabled) {
                     app.upgrades.upgradesArea.position.x += app.upgrades.upgradesArea.width;
                     app.keys.pause = false;
@@ -115,7 +115,7 @@ function addEvents() {
             }
 
             if (event.key == "n") {
-                newWeapon();
+                newWeapon(-1);
             }
             if (event.key == "m") {
                 newArmour();
@@ -173,7 +173,6 @@ function addEvents() {
         });
 
 }
-
 document.onmousemove = function (event) {
     var dot, eventDoc, doc, body, pageX, pageY;
 

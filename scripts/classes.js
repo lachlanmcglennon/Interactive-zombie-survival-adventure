@@ -95,7 +95,7 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
 
     this.team = team;
 
-    this.weapon = new WeaponGroup(this.id, power, team);
+    this.weapon = new WeaponGroup(this.id, power, team, -1);
 
     //this.interactive = true;
     this.hitArea = new PIXI.Circle(0, 0, 10);
@@ -168,7 +168,7 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
     app.ticker.add(this.testWallCollision, this);
 }
 
-function WeaponGroup(id, power, team) {
+function WeaponGroup(id, power, team, type) {
     //0 for player, 1 for enemy.
     this.team = team;
     this.weapons = [];
@@ -183,21 +183,34 @@ function WeaponGroup(id, power, team) {
 
     var maxDeviation = toRadians(90);
     this.numbarrels = Math.ceil(Math.random() * 8) + 0;
-    this.weaponType = Math.floor(Math.random() * app.weaponTypes.length);
-    this.weaponPlaceType = Math.ceil(Math.random() * 3) + 0;
+    if (type === -1) {
+        this.weaponType = Math.floor(Math.random() * app.weaponTypes.length);
+        this.weaponPlaceType = Math.ceil(Math.random() * 3);
+    } else {
+        this.weaponType = type;
+        this.weaponPlaceType = 0;
+    }
     //this.weaponPlaceType = 2;
 
     var raritySeed = Math.random();
+    this.rarity = 0;
 
     if (raritySeed > 0.99) {
-        this.rarity = app.rarities[3];
+        this.rarity = 3;
     } else if (raritySeed > 0.9) {
-        this.rarity = app.rarities[2];
+        this.rarity = 2;
     } else if (raritySeed > 0.6) {
-        this.rarity = app.rarities[1];
+        this.rarity = 1;
     } else {
-        this.rarity = app.rarities[0];
+        this.rarity = 0;
     }
+    
+    if (this.rarity > app.unlocks.maxRarity) {
+        this.rarity = app.rarities[app.unlocks.maxRarity];
+    } else {
+        this.rarity = app.rarities[this.rarity];
+    }
+    
     if (this.team === 0) {
         this.maxNumEffects = this.rarity.effectSlots;
 
@@ -796,7 +809,12 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
         this.button = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
         this.addChild(this.button);
         this.button.position.set(46, 50);
-        this.button.interactive = true;
+        if (app.unlocks.upgrades < this.id) {
+            this.visible = false;
+            this.button.interactive = false;
+        } else {
+            this.button.interactive = true;
+        }
         this.button.buttonMode = true;
         this.button.parent = this;
         app.upgrades.upgradesArea.addChild(this);

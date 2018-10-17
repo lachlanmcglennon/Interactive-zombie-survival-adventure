@@ -220,18 +220,26 @@ function swapItems(item1, item2) {
 function updateUI() {
     document.getElementById("curWave").innerHTML = "Wave: " + app.wave.number;
     document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.wave.enemyFactor);
-    document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
-    document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(new Decimal(app.money.highestMoneyGainRate).mul(app.upgrades.slots[0].power));
+    if (app.unlocks.inventoryUnlocked) {
+        document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
+        document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power));
+    } else {
+        document.getElementById("curMoney").innerHTML = "???";
+        document.getElementById("curMoneyGainRate").innerHTML = "???";
+    }
+    
     document.getElementById("curPlayerHP").innerHTML = "Player HP: " + formatNumber(app.player.armour.curHP);
+    document.getElementById("curArenaName").innerHTML = "Arena: " + app.unlocks.arenaName;
     document.getElementById("fps").innerHTML = "Fps: " + Math.ceil(1000 / app.ticker.elapsedMS);
 
 }
 
-function newWeapon() {
+function newWeapon(type) {
+    console.log(type);
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney, 0);
+            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney, 0, type);
             break;
         }
     }
@@ -540,11 +548,7 @@ function formatNumber(num) {
     var temp = "";
     if (app.settings.format == "norm") {
         if (num.exponent > 3002) {
-            if (num.exponent > 2) {
                 str = num.mantissaWithDecimalPlaces(2) + "e" + num.exponent;
-            } else {
-                str = num.toNumber().toFixed(2);
-            }
         } else if (num.exponent > 32) {
             var ones = ["", "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"],
                 tens = ["", "Dc", "Vi", "Tg", "Qag", "Qig", "Sxg", "Spg", "Og", "Ng"],
@@ -608,4 +612,78 @@ function getEnPow(wave) {
     }
     cur = cur.add(base.pow(curWave));
     return cur;
+}
+
+function checkUnlocks(wave) {
+    if ((app.unlocks.inventoryUnlocked === false) && (wave.gte(12))) {
+        app.unlocks.inventoryUnlocked = true;
+        app.inventory.inventoryArea.visible = true;
+        app.inventory.clickTab.interactive = true;
+        app.unlocks.arenaName = "Bronze 1 (Next rank at wave 25)"
+    }
+    if ((app.unlocks.maxRarity <= 0) && (wave.gte(25))) {
+        app.unlocks.maxRarity = 1;
+        app.unlocks.arenaName = "Bronze 2 (Next rank at wave 50)"
+    }
+    if ((app.unlocks.maxRarity <= 1) && (wave.gte(50))) {
+        app.unlocks.maxRarity = 2;
+        app.unlocks.arenaName = "Bronze 3 (Next rank at wave 75)"
+    }
+    if ((app.unlocks.upgradesUnlocked === false) && (wave.gte(75))) {
+        app.unlocks.upgradesUnlocked = true;
+        app.upgrades.upgradesArea.visible = true;
+        app.upgrades.clickTab.interactive = true;
+        app.unlocks.arenaName = "Bronze 4 (Next rank at wave 100)"
+    }
+    if ((app.unlocks.upgrades <= 0) && (wave.gte(100))) {
+        app.unlocks.upgrades = 1;
+        app.upgrades.slots[1].visible = true;
+        app.upgrades.slots[1].button.interactive = true;
+        app.unlocks.arenaName = "Silver 1 (Next rank at wave 125)"
+    }
+    if ((app.unlocks.upgrades <= 1) && (wave.gte(125))) {
+        app.unlocks.upgrades = 2;
+        app.upgrades.slots[2].visible = true;
+        app.upgrades.slots[2].button.interactive = true;
+        app.unlocks.arenaName = "Silver 2 (Next rank at wave 150)"
+    }
+    
+    if (wave.gte(150)) {
+        app.unlocks.arenaName = "Silver 3 (Next rank at wave 175)"
+    }
+    
+    if (wave.gte(175)) {
+        app.unlocks.arenaName = "Silver 4 (Next rank at wave 200)"
+    }
+    
+    if ((app.unlocks.maxRarity <= 2) && (wave.gte(200))) {
+        app.unlocks.maxRarity = 3;
+        app.unlocks.arenaName = "Gold 1 (Next rank at wave 225)"
+    }
+    
+    if ((app.unlocks.upgrades <= 2) && (wave.gte(225))) {
+        app.unlocks.upgrades = 3;
+        app.upgrades.slots[3].visible = true;
+        app.upgrades.slots[3].button.interactive = true;
+        app.unlocks.arenaName = "Gold 2 (Next rank at wave 250)"
+    }
+    
+    if (wave.gte(250)) {
+        app.unlocks.arenaName = "Gold 3 (Next rank at wave 275)"
+    }
+    
+    if ((app.unlocks.upgrades <= 3) && (wave.gte(275))) {
+        app.unlocks.upgrades = 4;
+        app.upgrades.slots[4].visible = true;
+        app.upgrades.slots[4].button.interactive = true;
+        app.unlocks.arenaName = "Gold 4 (Next rank at wave 500)"
+    }
+    
+    if ((wave.gte(500)) && (wave.lte(1000))) {
+        app.unlocks.arenaName = "Elite rank " + Math.ceil(100 - ((wave.toNumber() - 500) / 5)) + " (Next rank at wave " + (wave.toNumber() + 5) + ")"
+    }
+    
+    if (wave.gt(1000)) {
+        app.unlocks.arenaName = "You're the champion!"
+    }
 }
