@@ -227,7 +227,7 @@ function updateUI() {
         document.getElementById("curMoney").innerHTML = "???";
         document.getElementById("curMoneyGainRate").innerHTML = "???";
     }
-    
+
     document.getElementById("curPlayerHP").innerHTML = "Player HP: " + formatNumber(app.player.armour.curHP);
     document.getElementById("curArenaName").innerHTML = "Arena: " + app.unlocks.arenaName;
     document.getElementById("fps").innerHTML = "Fps: " + Math.ceil(1000 / app.ticker.elapsedMS);
@@ -263,7 +263,29 @@ function newWeapon(type) {
         weaponImage.getChildAt(i).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
     }
 
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 8,
+        fill: "red"
+    };
+    
+    for (var i = 0; i < app.inventory.slotAreas[newPos].slot.effects.length; i += 1) {
+        if (app.inventory.slotAreas[newPos].slot.effects[i] === "Critical") {
+            style.fill = "orange";                     
+        }
+    }
 
+    var stats = new PIXI.Text(formatNumber(app.inventory.slotAreas[newPos].slot.weaponProto.damage.mul(app.upgrades.slots[1].power).mul(app.inventory.slotAreas[newPos].slot.rarity.statMod)), style);
+
+    if (app.inventory.slotAreas[newPos].slot.numbarrels > 1) {
+        stats.text += " x " + app.inventory.slotAreas[newPos].slot.numbarrels;
+    }
+    
+    
+
+    stats.position.set(5, 48);
+
+    weaponImage.addChild(stats);
 
     app.inventory.slotAreas[newPos].addChild(weaponImage);
     app.money.curMoney.mul(0.5);
@@ -309,7 +331,27 @@ function loadWeapon(storedWeapon, slot) {
         weaponImage.getChildAt(i).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
     }
 
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 8,
+        fill: "red"
+    };
+    
+    for (var i = 0; i < app.inventory.slotAreas[newPos].slot.effects.length; i += 1) {
+        if (app.inventory.slotAreas[newPos].slot.effects[i] === "Critical") {
+            style.fill = "orange";                     
+        }
+    }
 
+    var stats = new PIXI.Text(formatNumber(app.inventory.slotAreas[newPos].slot.weaponProto.damage.mul(app.upgrades.slots[1].power).mul(app.inventory.slotAreas[newPos].slot.rarity.statMod)), style);
+
+    if (app.inventory.slotAreas[newPos].slot.numbarrels > 1) {
+        stats.text += " x " + app.inventory.slotAreas[newPos].slot.numbarrels;
+    }
+
+    stats.position.set(5, 48);
+
+    weaponImage.addChild(stats);
 
     app.inventory.slotAreas[newPos].addChild(weaponImage);
 }
@@ -336,6 +378,18 @@ function newArmour() {
     armourImage.addChild(new PIXI.Sprite(app.playerImage));
 
     armourImage.getChildAt(0).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
+
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 8,
+        fill: "red"
+    };
+
+    var stats = new PIXI.Text(formatNumber(app.inventory.slotAreas[newPos].slot.getMaxHP(app.upgrades.slots[2].power)), style);
+
+    stats.position.set(5, 48);
+
+    armourImage.addChild(stats);
 
     app.inventory.slotAreas[newPos].addChild(armourImage);
 
@@ -373,6 +427,18 @@ function loadArmour(armour, slot) {
     armourImage.addChild(new PIXI.Sprite(app.playerImage));
 
     armourImage.getChildAt(0).tint = app.inventory.slotAreas[newPos].slot.rarity.colour;
+
+    var style = {
+        fontFamily: "Arial",
+        fontSize: 8,
+        fill: "red"
+    };
+
+    var stats = new PIXI.Text(formatNumber(app.inventory.slotAreas[newPos].slot.getMaxHP(app.upgrades.slots[2].power)), style);
+
+    stats.position.set(5, 48);
+
+    armourImage.addChild(stats);
 
     app.inventory.slotAreas[newPos].addChild(armourImage);
 }
@@ -548,7 +614,7 @@ function formatNumber(num) {
     var temp = "";
     if (app.settings.format == "norm") {
         if (num.exponent > 3002) {
-                str = num.mantissaWithDecimalPlaces(2) + "e" + num.exponent;
+            str = num.mantissaWithDecimalPlaces(2) + "e" + num.exponent;
         } else if (num.exponent > 32) {
             var ones = ["", "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No"],
                 tens = ["", "Dc", "Vi", "Tg", "Qag", "Qig", "Sxg", "Spg", "Og", "Ng"],
@@ -605,7 +671,9 @@ function storageAvailable(type) {
 }
 
 function getEnPow(wave) {
-    var base = new Decimal(app.wave.factorStartPow), cur = new Decimal(1), curWave = wave;
+    var base = new Decimal(app.wave.factorStartPow),
+        cur = new Decimal(1),
+        curWave = wave;
     while (curWave >= 100) {
         cur = cur.mul(base.add(Math.floor(curWave / 1000) * app.wave.factorIncrease).pow(100));
         curWave -= 100;
@@ -616,7 +684,7 @@ function getEnPow(wave) {
 
 function checkUnlocks(wave) {
     var arenaNames = ["Unranked ", "Bronze ", "Silver ", "Gold ", "Diamond ", "Antimatter "];
-    
+
     if (wave.lt(12)) {
         app.unlocks.arenaName = arenaNames[0];
     } else if (wave.lt(500)) {
@@ -626,9 +694,9 @@ function checkUnlocks(wave) {
     } else {
         app.unlocks.arenaName = "Champion "
     }
-    
-     app.unlocks.arenaName += "(Next unlock at wave " + app.unlocks.nextUnlock + ")";
-    
+
+    app.unlocks.arenaName += "(Next unlock at wave " + app.unlocks.nextUnlock + ")";
+
     if ((app.unlocks.inventoryUnlocked === false) && (wave.gte(12))) {
         app.unlocks.inventoryUnlocked = true;
         app.inventory.inventoryArea.visible = true;
@@ -665,13 +733,13 @@ function checkUnlocks(wave) {
         new Notification("You unlocked Health upgrades in the upgrades screen");
         app.unlocks.nextUnlock = 200;
     }
-    
+
     if ((app.unlocks.maxRarity <= 2) && (wave.gte(200))) {
         app.unlocks.maxRarity = 3;
         new Notification("You can now craft Perfect rarity items \n These ultra rare items have all effects at once.");
         app.unlocks.nextUnlock = 225;
     }
-    
+
     if ((app.unlocks.upgrades <= 2) && (wave.gte(225))) {
         app.unlocks.upgrades = 3;
         app.upgrades.slots[3].visible = true;
@@ -679,7 +747,7 @@ function checkUnlocks(wave) {
         new Notification("You unlocked Rate of fire upgrades in the upgrades screen");
         app.unlocks.nextUnlock = 275;
     }
-    
+
     if ((app.unlocks.upgrades <= 3) && (wave.gte(275))) {
         app.unlocks.upgrades = 4;
         app.upgrades.slots[4].visible = true;
@@ -687,12 +755,28 @@ function checkUnlocks(wave) {
         new Notification("You unlocked interest upgrades in the upgrades screen \n These will increase your money gained per second, every second");
         app.unlocks.nextUnlock = 500;
     }
-    
+
     if (wave.gte(500)) {
         app.unlocks.nextUnlock = 1000;
     }
-    
+
     if (wave.gte(1000)) {
         app.unlocks.nextUnlock = "???";
+    }
+}
+
+function updateInventoryText() {
+    for (var i = 0; i < app.inventory.slotAreas.length; i += 1) {
+        if (app.inventory.slotAreas[i].slot != null) {
+            if (app.inventory.slotAreas[i].slot.className === "Weapon") {
+                app.inventory.slotAreas[i].children[1].children[app.inventory.slotAreas[i].children[1].children.length - 1].text = formatNumber(app.inventory.slotAreas[i].slot.weaponProto.damage.mul(app.upgrades.slots[1].power).mul(app.inventory.slotAreas[i].slot.rarity.statMod));
+
+                if (app.inventory.slotAreas[i].slot.numbarrels > 1) {
+                    app.inventory.slotAreas[i].children[1].children[app.inventory.slotAreas[i].children[1].children.length - 1].text += " x " + app.inventory.slotAreas[i].slot.numbarrels;
+                }
+            } else {
+                app.inventory.slotAreas[i].children[1].children[app.inventory.slotAreas[i].children[1].children.length - 1].text = formatNumber(app.inventory.slotAreas[i].slot.getMaxHP(app.upgrades.slots[2].power));
+            }
+        }
     }
 }

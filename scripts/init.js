@@ -306,6 +306,7 @@ function init() {
         for (var i = 0; i < app.upgrades.slots.length; i += 1) {
             app.upgrades.slots[i].updateText();
         }
+        updateInventoryText();
     }
 
     app.player = new Entity(new PIXI.Texture(app.playerImage), getPlayerColour(), app.power.mul(10), 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);

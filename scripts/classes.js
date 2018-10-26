@@ -881,6 +881,7 @@ function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powe
                 app.player.armour.curHP = app.player.armour.getMaxHP(this.parent.power);
             }
         }
+        updateInventoryText();
     }
     this.setLevel = function (level) {
         //console.log(level);
