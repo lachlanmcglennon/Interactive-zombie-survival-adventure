@@ -784,7 +784,7 @@ function Notification(text) {
         justify: "centre"
     };
     
-    this.text = new PIXI.Text(text, textStyle);
+    this.text = new PIXI.Text(text + "\n Click this box to close this.", textStyle);
     
     this.text.position.set(10, 10);
     this.addChild(this.text);
