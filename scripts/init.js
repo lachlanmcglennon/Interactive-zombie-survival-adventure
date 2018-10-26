@@ -50,6 +50,8 @@ function init() {
             app.upgrades.upgradesArea.position.set(width, 0);
         }
         app.pauseText.position.set((app.renderer.width / 2) - (app.pauseText.width / 2), app.renderer.height / 2);
+        app.settingsButton.position.set(31, app.renderer.height - 55);
+        app.settingsButton.text.position.set(36, app.renderer.height - 51);
     }
 
     app = loadBulletImages(app);
@@ -58,7 +60,7 @@ function init() {
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
         document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
-        localStorage.clear();
+        //localStorage.clear();
     }
 
     app.particles = new PIXI.particles.ParticleContainer(
@@ -166,7 +168,7 @@ function init() {
     }
 
     app.settings = {
-        format: "sci"
+        format: "norm"
     };
     
     app.unlocks = {
@@ -174,7 +176,8 @@ function init() {
         maxRarity: 0,
         inventoryUnlocked: false,
         upgradesUnlocked: false,
-        arenaName: "Unranked (Next rank at wave 12)."
+        arenaName: "Unranked + (Next unlock at wave 12)",
+        nextUnlock: 12
     };
     
     if ((storageAvailable('localStorage')) && (localStorage.getItem('unlocks'))) {
@@ -259,6 +262,7 @@ function init() {
         fill: "black",
         wordWrap: false,
         wordWrapWidth: 200,
+        justify: "centre"
     };
 
     app.upgrades.buyButton = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
@@ -280,24 +284,24 @@ function init() {
         }
     }
     
-    app.upgrades.settingsButton = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
-    app.upgrades.upgradesArea.addChild(app.upgrades.settingsButton);
-    app.upgrades.settingsButton.position.set(105, 490);
-    app.upgrades.settingsButton.interactive = true;
-    app.upgrades.settingsButton.buttonMode = true;
-    app.upgrades.settingsButton.text = new PIXI.Text("Normal", style);
-    app.upgrades.upgradesArea.addChild(app.upgrades.settingsButton.text);
-    app.upgrades.settingsButton.text.position.set(125, 500);
-    app.upgrades.settingsButton.click = function (e) {
+    app.settingsButton = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
+    app.stage.addChild(app.settingsButton);
+    app.settingsButton.position.set(31, app.renderer.height - 5);
+    app.settingsButton.interactive = true;
+    app.settingsButton.buttonMode = true;
+    app.settingsButton.text = new PIXI.Text("Number Format \nNormal", style);
+    app.stage.addChild(app.settingsButton.text);
+    app.settingsButton.text.position.set(36, app.renderer.height - 1);
+    app.settingsButton.click = function (e) {
         if (app.settings.format === "sci") {
             app.settings.format = "eng";
-            this.text.text = "Engineering";
+            this.text.text = "Number Format \nEngineering";
         } else if (app.settings.format === "eng") {
             app.settings.format = "norm";
-            this.text.text = "Normal";
+            this.text.text = "Number Format \nNormal";
         } else if (app.settings.format === "norm") {
             app.settings.format = "sci";
-            this.text.text = "Scientific";
+            this.text.text = "Number Format \nScientific";
         }
         for (var i = 0; i < app.upgrades.slots.length; i += 1) {
             app.upgrades.slots[i].updateText();

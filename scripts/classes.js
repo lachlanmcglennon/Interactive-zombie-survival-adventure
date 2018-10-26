@@ -204,13 +204,13 @@ function WeaponGroup(id, power, team, type) {
     } else {
         this.rarity = 0;
     }
-    
+
     if (this.rarity > app.unlocks.maxRarity) {
         this.rarity = app.rarities[app.unlocks.maxRarity];
     } else {
         this.rarity = app.rarities[this.rarity];
     }
-    
+
     if (this.team === 0) {
         this.maxNumEffects = this.rarity.effectSlots;
 
@@ -719,153 +719,188 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                     }
                     new PopUpEntity(this, this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
                     app.players.getChildAt(n).armour.curHP = app.players.getChildAt(n).armour.curHP.sub(this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
-                        if (app.players.getChildAt(n).armour.curHP.lte(0)) {
-                            app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].add(app.power.mul(10));
-                            app.wave.playersOnScreen -= 1;
-                            app.players.getChildAt(n).delete();
-                            app.wave.enemiesOnScreen -= 1;
-                        }
-                        this.numPierce -= 1; this.lastEnemyHit = app.players.getChildAt(n);
-                        if (this.numPierce <= 0) {
-                            this.delete();
-                            return;
-                        }
+                    if (app.players.getChildAt(n).armour.curHP.lte(0)) {
+                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].add(app.power.mul(10));
+                        app.wave.playersOnScreen -= 1;
+                        app.players.getChildAt(n).delete();
+                        app.wave.enemiesOnScreen -= 1;
                     }
-                    else if (this.lastEnemyHit === app.players.getChildAt(n)) {
-                        this.lastEnemyHit = {};
-                    }
-                }
-            } else {
-                //Enemy bullet hit player
-
-                if ((this.weapon.type.collisionType === "circle") &&
-                    (circularCollision(this.weapon.type.size, app.player.size, this.position, app.player.position)) &&
-                    (this.lastEnemyHit != app.player)) {
-                    if (this.crit === true) {
-                        var power = this.entity.weapon.power,
-                            critRate = power.exponent * 5 / 100,
-                            critMult = new Decimal(1.2).pow(power.log2()),
-                            randomSeed = Math.random();
-                        if (critRate > 1) {
-                            critRate = 1;
-                        }
-
-                        if (randomSeed < critRate) {
-                            this.critMult = critMult;
-                        }
-                    }
-                    new PopUpEntity(this, new Decimal(this.damage).mul(this.critMult));
-                    app.player.armour.curHP = app.player.armour.curHP.sub(this.damage.mul(this.critMult));
                     this.numPierce -= 1;
-                    this.lastEnemyHit = app.player;
+                    this.lastEnemyHit = app.players.getChildAt(n);
                     if (this.numPierce <= 0) {
                         this.delete();
                         return;
                     }
-                } else {
+                } else if (this.lastEnemyHit === app.players.getChildAt(n)) {
                     this.lastEnemyHit = {};
                 }
             }
-        }
-        app.ticker.add(this.tick, this);
-        app.particles.addChild(this);
-    }
-
-    function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powerScaling, startingLevel, percentBonus, id) {
-        PIXI.Container.call(this);
-        this.position.set(x, y);
-        this.interactiveChildren = true;
-        this.percentBonus = percentBonus;
-        this.background = genBoxSprite(app.upgrades.backgroundImage.width / 2 - 10, 100, 2, 0x000000, 0xFFFFFF);
-        this.addChild(this.background);
-        this.basePrice = new Decimal(startingPrice);
-        this.price = new Decimal(startingPrice);
-        this.priceMult = new Decimal(costScaling);
-        this.power = new Decimal(startingPower);
-        this.powerMult = new Decimal(powerScaling);
-        this.level = startingLevel;
-        this.textStyle = {
-            fontFamily: "Arial",
-            fontSize: 12,
-            fill: "black",
-            wordWrap: false,
-            wordWrapWidth: this.background.width,
-            justify: "centre"
-        };
-        this.upgradeText = text;
-        this.id = id;
-
-        this.getText = function () {
-            if (this.percentBonus === true) {
-                return this.upgradeText.replace("val1", formatNumber(this.power.mul(100))).replace("val2", formatNumber(this.price)).replace("val3", this.level);
-            } else {
-                return this.upgradeText.replace("val1", this.power).replace("val2", formatNumber(this.price)).replace("val3", this.level);
-            }
-        }
-        this.text = new PIXI.Text(this.getText(), this.textStyle);
-        this.addChild(this.text);
-        this.text.position.set(4, 4);
-
-        this.button = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
-        this.addChild(this.button);
-        this.button.position.set(46, 50);
-        if (app.unlocks.upgrades < this.id) {
-            this.visible = false;
-            this.button.interactive = false;
         } else {
-            this.button.interactive = true;
-        }
-        this.button.buttonMode = true;
-        this.button.parent = this;
-        app.upgrades.upgradesArea.addChild(this);
-        this.button.click = function (e) {
-            if (app.money.curMoney.lt(this.parent.price)) {
-                return;
-            } else {
-                if (app.upgrades.buyButton.buyType === "single") {
-                    app.money.curMoney = app.money.curMoney.sub(this.parent.price);
-                    this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.parent.level + 1));
-                    if (this.parent.percentBonus === true) {
-                        this.parent.power = this.parent.powerMult.pow(this.parent.level);
-                    } else {
-                        this.parent.power = this.parent.power.add(this.parent.powerMult);
+            //Enemy bullet hit player
+
+            if ((this.weapon.type.collisionType === "circle") &&
+                (circularCollision(this.weapon.type.size, app.player.size, this.position, app.player.position)) &&
+                (this.lastEnemyHit != app.player)) {
+                if (this.crit === true) {
+                    var power = this.entity.weapon.power,
+                        critRate = power.exponent * 5 / 100,
+                        critMult = new Decimal(1.2).pow(power.log2()),
+                        randomSeed = Math.random();
+                    if (critRate > 1) {
+                        critRate = 1;
                     }
-                    this.parent.level += 1;
-                } else if (app.upgrades.buyButton.buyType === "max") {
-                    this.maxLevels = Math.floor(app.money.curMoney.div(this.parent.basePrice).log(this.parent.priceMult)) + 1;
-                    this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels));
-                    if (this.parent.percentBonus === true) {
-                        this.parent.power = this.parent.powerMult.pow(this.maxLevels);
-                    } else {
-                        this.parent.power = this.parent.power.add(this.parent.powerMult.mul(this.maxLevels));
+
+                    if (randomSeed < critRate) {
+                        this.critMult = critMult;
                     }
-                    this.parent.level = this.maxLevels;
-                    app.money.curMoney = app.money.curMoney.sub(this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels - 1)));
                 }
-                this.parent.text.text = this.parent.getText();
-                if (this.parent.id === 2) {
-                    app.player.armour.curHP = app.player.armour.getMaxHP(this.parent.power);
+                new PopUpEntity(this, new Decimal(this.damage).mul(this.critMult));
+                app.player.armour.curHP = app.player.armour.curHP.sub(this.damage.mul(this.critMult));
+                this.numPierce -= 1;
+                this.lastEnemyHit = app.player;
+                if (this.numPierce <= 0) {
+                    this.delete();
+                    return;
                 }
-            }
-        }
-        this.setLevel = function (level) {
-            //console.log(level);
-            this.maxLevels = level;
-            this.price = this.basePrice.mul(this.priceMult.pow(this.maxLevels));
-            if (this.percentBonus === true) {
-                this.power = this.powerMult.pow(this.maxLevels);
             } else {
-                this.power = this.power.add(this.powerMult.mul(this.maxLevels));
+                this.lastEnemyHit = {};
             }
-            this.level = this.maxLevels;
-            this.text.text = this.getText();
-        }
-        this.updateText = function () {
-            this.text.text = this.getText();
         }
     }
+    app.ticker.add(this.tick, this);
+    app.particles.addChild(this);
+}
 
-    Entity.prototype = Object.create(PIXI.Container.prototype);
-    Bullet.prototype = Object.create(PIXI.Sprite.prototype);
-    PopUpEntity.prototype = Object.create(PIXI.Text.prototype);
-    UpgradeArea.prototype = Object.create(PIXI.Container.prototype);
+function Notification(text) {
+    PIXI.Container.call(this);
+    this.type = "Notification";
+    
+    var textStyle = {
+        fontFamily: "Arial",
+        fontSize: 12,
+        fill: "black",
+        wordWrap: false,
+        wordWrapWidth: 200,
+        justify: "centre"
+    };
+    
+    this.text = new PIXI.Text(text, textStyle);
+    
+    this.text.position.set(10, 10);
+    this.addChild(this.text);
+    
+    this.background = genBoxSprite(this.width + 15, this.height + 15, 2, 0x000000, 0xFFFFFF);
+    this.addChild(this.background);
+    this.swapChildren(this.text, this.background);
+    
+    this.position.set(app.renderer.width / 2 - (this.width / 2), app.renderer.height / 2 - (this.height / 2) - 200);
+    
+    this.interactive = true;
+    this.buttonMode = true;
+    
+    this.click = function(e) {
+        this.destroy();
+    }
+    
+    app.stage.addChild(this);
+}
+
+function UpgradeArea(text, x, y, startingPrice, costScaling, startingPower, powerScaling, startingLevel, percentBonus, id) {
+    PIXI.Container.call(this);
+    this.position.set(x, y);
+    this.interactiveChildren = true;
+    this.percentBonus = percentBonus;
+    this.background = genBoxSprite(app.upgrades.backgroundImage.width / 2 - 10, 100, 2, 0x000000, 0xFFFFFF);
+    this.addChild(this.background);
+    this.basePrice = new Decimal(startingPrice);
+    this.price = new Decimal(startingPrice);
+    this.priceMult = new Decimal(costScaling);
+    this.power = new Decimal(startingPower);
+    this.powerMult = new Decimal(powerScaling);
+    this.level = startingLevel;
+    this.textStyle = {
+        fontFamily: "Arial",
+        fontSize: 12,
+        fill: "black",
+        wordWrap: false,
+        wordWrapWidth: this.background.width,
+        justify: "centre"
+    };
+    this.upgradeText = text;
+    this.id = id;
+
+    this.getText = function () {
+        if (this.percentBonus === true) {
+            return this.upgradeText.replace("val1", formatNumber(this.power.mul(100))).replace("val2", formatNumber(this.price)).replace("val3", this.level);
+        } else {
+            return this.upgradeText.replace("val1", this.power).replace("val2", formatNumber(this.price)).replace("val3", this.level);
+        }
+    }
+    this.text = new PIXI.Text(this.getText(), this.textStyle);
+    this.addChild(this.text);
+    this.text.position.set(4, 4);
+
+    this.button = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
+    this.addChild(this.button);
+    this.button.position.set(46, 50);
+    if (app.unlocks.upgrades < this.id) {
+        this.visible = false;
+        this.button.interactive = false;
+    } else {
+        this.button.interactive = true;
+    }
+    this.button.buttonMode = true;
+    this.button.parent = this;
+    app.upgrades.upgradesArea.addChild(this);
+    this.button.click = function (e) {
+        if (app.money.curMoney.lt(this.parent.price)) {
+            return;
+        } else {
+            if (app.upgrades.buyButton.buyType === "single") {
+                app.money.curMoney = app.money.curMoney.sub(this.parent.price);
+                this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.parent.level + 1));
+                if (this.parent.percentBonus === true) {
+                    this.parent.power = this.parent.powerMult.pow(this.parent.level);
+                } else {
+                    this.parent.power = this.parent.power.add(this.parent.powerMult);
+                }
+                this.parent.level += 1;
+            } else if (app.upgrades.buyButton.buyType === "max") {
+                this.maxLevels = Math.floor(app.money.curMoney.div(this.parent.basePrice).log(this.parent.priceMult)) + 1;
+                this.parent.price = this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels));
+                if (this.parent.percentBonus === true) {
+                    this.parent.power = this.parent.powerMult.pow(this.maxLevels);
+                } else {
+                    this.parent.power = this.parent.power.add(this.parent.powerMult.mul(this.maxLevels));
+                }
+                this.parent.level = this.maxLevels;
+                app.money.curMoney = app.money.curMoney.sub(this.parent.basePrice.mul(this.parent.priceMult.pow(this.maxLevels - 1)));
+            }
+            this.parent.text.text = this.parent.getText();
+            if (this.parent.id === 2) {
+                app.player.armour.curHP = app.player.armour.getMaxHP(this.parent.power);
+            }
+        }
+    }
+    this.setLevel = function (level) {
+        //console.log(level);
+        this.maxLevels = level;
+        this.price = this.basePrice.mul(this.priceMult.pow(this.maxLevels));
+        if (this.percentBonus === true) {
+            this.power = this.powerMult.pow(this.maxLevels);
+        } else {
+            this.power = this.power.add(this.powerMult.mul(this.maxLevels));
+        }
+        this.level = this.maxLevels;
+        this.text.text = this.getText();
+    }
+    this.updateText = function () {
+        this.text.text = this.getText();
+    }
+}
+
+Entity.prototype = Object.create(PIXI.Container.prototype);
+Bullet.prototype = Object.create(PIXI.Sprite.prototype);
+PopUpEntity.prototype = Object.create(PIXI.Text.prototype);
+UpgradeArea.prototype = Object.create(PIXI.Container.prototype);
+Notification.prototype = Object.create(PIXI.Container.prototype);

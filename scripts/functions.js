@@ -615,75 +615,84 @@ function getEnPow(wave) {
 }
 
 function checkUnlocks(wave) {
+    var arenaNames = ["Unranked ", "Bronze ", "Silver ", "Gold ", "Diamond ", "Antimatter "];
+    
+    if (wave.lt(12)) {
+        app.unlocks.arenaName = arenaNames[0];
+    } else if (wave.lt(500)) {
+        app.unlocks.arenaName = arenaNames[Math.floor(app.wave.number.toNumber() / 100) + 1] + Math.floor(((app.wave.number.toNumber() % 100) - (app.wave.number.toNumber() % 10)) / 10);
+    } else if (wave.lt(1000)) {
+        app.unlocks.arenaName = "Elite rank " + Math.ceil(100 - ((wave.toNumber() - 500) / 5));
+    } else {
+        app.unlocks.arenaName = "Champion "
+    }
+    
+     app.unlocks.arenaName += "(Next unlock at wave " + app.unlocks.nextUnlock + ")";
+    
     if ((app.unlocks.inventoryUnlocked === false) && (wave.gte(12))) {
         app.unlocks.inventoryUnlocked = true;
         app.inventory.inventoryArea.visible = true;
         app.inventory.clickTab.interactive = true;
-        app.unlocks.arenaName = "Bronze 1 (Next rank at wave 25)"
+        new Notification("You unlocked the inventory screen \n Press n/m or press the buttons to make a new weapon/armour using 50% of your collected money\n and press x to sell them.");
+        app.unlocks.nextUnlock = 25;
     }
     if ((app.unlocks.maxRarity <= 0) && (wave.gte(25))) {
         app.unlocks.maxRarity = 1;
-        app.unlocks.arenaName = "Bronze 2 (Next rank at wave 50)"
+        new Notification("You can now craft Specialized rarity items.\n These items will have special effects such as:\n Homing will cause your bullets to move to chase down enemies automatically.\n Crit gives a % chance to do extra damage with a hit\n Pierce allows your bullet to hit multiple enemies.");
+        app.unlocks.nextUnlock = 50;
     }
     if ((app.unlocks.maxRarity <= 1) && (wave.gte(50))) {
         app.unlocks.maxRarity = 2;
-        app.unlocks.arenaName = "Bronze 3 (Next rank at wave 75)"
+        new Notification("You can now craft Elite rarity items \n These are rare but will have 2 special effects.");
+        app.unlocks.nextUnlock = 75;
     }
     if ((app.unlocks.upgradesUnlocked === false) && (wave.gte(75))) {
         app.unlocks.upgradesUnlocked = true;
         app.upgrades.upgradesArea.visible = true;
-        app.upgrades.clickTab.interactive = true;
-        app.unlocks.arenaName = "Bronze 4 (Next rank at wave 100)"
+        new Notification("You unlocked the upgrades screen \n Click the button under each upgrade to buy them.");
+        app.unlocks.nextUnlock = 100;
     }
     if ((app.unlocks.upgrades <= 0) && (wave.gte(100))) {
         app.unlocks.upgrades = 1;
         app.upgrades.slots[1].visible = true;
         app.upgrades.slots[1].button.interactive = true;
-        app.unlocks.arenaName = "Silver 1 (Next rank at wave 125)"
+        new Notification("You unlocked Damage upgrades in the upgrades screen");
+        app.unlocks.nextUnlock = 125;
     }
     if ((app.unlocks.upgrades <= 1) && (wave.gte(125))) {
         app.unlocks.upgrades = 2;
         app.upgrades.slots[2].visible = true;
-        app.upgrades.slots[2].button.interactive = true;
-        app.unlocks.arenaName = "Silver 2 (Next rank at wave 150)"
-    }
-    
-    if (wave.gte(150)) {
-        app.unlocks.arenaName = "Silver 3 (Next rank at wave 175)"
-    }
-    
-    if (wave.gte(175)) {
-        app.unlocks.arenaName = "Silver 4 (Next rank at wave 200)"
+        new Notification("You unlocked Health upgrades in the upgrades screen");
+        app.unlocks.nextUnlock = 200;
     }
     
     if ((app.unlocks.maxRarity <= 2) && (wave.gte(200))) {
         app.unlocks.maxRarity = 3;
-        app.unlocks.arenaName = "Gold 1 (Next rank at wave 225)"
+        new Notification("You can now craft Perfect rarity items \n These ultra rare items have all effects at once.");
+        app.unlocks.nextUnlock = 225;
     }
     
     if ((app.unlocks.upgrades <= 2) && (wave.gte(225))) {
         app.unlocks.upgrades = 3;
         app.upgrades.slots[3].visible = true;
         app.upgrades.slots[3].button.interactive = true;
-        app.unlocks.arenaName = "Gold 2 (Next rank at wave 250)"
-    }
-    
-    if (wave.gte(250)) {
-        app.unlocks.arenaName = "Gold 3 (Next rank at wave 275)"
+        new Notification("You unlocked Rate of fire upgrades in the upgrades screen");
+        app.unlocks.nextUnlock = 275;
     }
     
     if ((app.unlocks.upgrades <= 3) && (wave.gte(275))) {
         app.unlocks.upgrades = 4;
         app.upgrades.slots[4].visible = true;
         app.upgrades.slots[4].button.interactive = true;
-        app.unlocks.arenaName = "Gold 4 (Next rank at wave 500)"
+        new Notification("You unlocked interest upgrades in the upgrades screen \n These will increase your money gained per second, every second");
+        app.unlocks.nextUnlock = 500;
     }
     
-    if ((wave.gte(500)) && (wave.lte(1000))) {
-        app.unlocks.arenaName = "Elite rank " + Math.ceil(100 - ((wave.toNumber() - 500) / 5)) + " (Next rank at wave " + (wave.toNumber() + 5) + ")"
+    if (wave.gte(500)) {
+        app.unlocks.nextUnlock = 1000;
     }
     
-    if (wave.gt(1000)) {
-        app.unlocks.arenaName = "You're the champion!"
+    if (wave.gte(1000)) {
+        app.unlocks.nextUnlock = "???";
     }
 }

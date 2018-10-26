@@ -109,6 +109,8 @@ function PlayerAI() {
                 factorStartPow: 1.65,
                 factorIncrease: 0.15
             };
+            
+            app.unlocks.arenaName = "Unranked ";
 
             app.power = new Decimal(1);
             this.armour.curHP = this.armour.getMaxHP(app.upgrades.slots[2].power);
