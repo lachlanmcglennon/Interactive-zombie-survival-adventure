@@ -96,8 +96,7 @@ function init() {
         if (localStorage.getItem("money")) {
             app.money.curMoney = new Decimal(localStorage.getItem("money"));
             app.money.highestMoneyGainRate = new Decimal(localStorage.getItem('moneyGain'));
-        } else {
-        }
+        } else {}
     }
 
     app.transform = new PIXI.Point(0, 0);
@@ -170,7 +169,7 @@ function init() {
     app.settings = {
         format: "norm"
     };
-    
+
     app.unlocks = {
         upgrades: 0,
         maxRarity: 0,
@@ -179,7 +178,7 @@ function init() {
         arenaName: "Unranked + (Next unlock at wave 12)",
         nextUnlock: 12
     };
-    
+
     if ((storageAvailable('localStorage')) && (localStorage.getItem('unlocks'))) {
         app.unlocks = JSON.parse(localStorage.getItem('unlocks'));
     }
@@ -245,7 +244,7 @@ function init() {
         new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, new Decimal(1000), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 0),
         new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 1),
         new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 2),
-        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal("1e15"), new Decimal("1e5"), new Decimal(1), new Decimal(1), 0, false, 3), 
+        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal("1e15"), new Decimal("1e5"), new Decimal(1), new Decimal(1), 0, false, 3),
         new UpgradeArea("Increases interest gained per minute to xval1 \n cost: val2 level: val3", 5, 215, new Decimal("1e20"), new Decimal("1e20"), new Decimal(1), new Decimal(0.1), 0, false, 4)];
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('upgradeItems'))) {
@@ -283,7 +282,7 @@ function init() {
             this.text.text = "Buy One";
         }
     }
-    
+
     app.settingsButton = genBoxSprite(96, 46, 2, 0x000000, 0xFFFFFF);
     app.stage.addChild(app.settingsButton);
     app.settingsButton.position.set(31, app.renderer.height - 5);
@@ -483,6 +482,30 @@ function init() {
         }
     }
 
+    style.fontSize = 16;
+
+    app.inventory.clear = genBoxSprite(120, 48, 2, 0x000000, 0xFFFFFF);
+    app.inventory.clearText = new PIXI.Text("Clear Items", style);
+
+    app.inventory.clear.position.set(5, 450);
+    app.inventory.clearText.position.set(19, 465);
+
+    app.inventory.inventoryArea.addChild(app.inventory.clear);
+    app.inventory.inventoryArea.addChild(app.inventory.clearText);
+
+    app.inventory.clear.interactive = true;
+    app.inventory.clear.buttonMode = true;
+    app.inventory.clear.click = function (e) {
+        for (var i = 2; i < app.inventory.slotAreas.length; i += 1) {
+            if (app.inventory.slotAreas[i].slot != null) {
+                app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.9));
+                app.inventory.slotAreas[i].slot = null;
+
+                app.inventory.slotAreas[i].removeChildAt(1);
+            }
+        }
+    }
+
     if ((storageAvailable('localStorage')) && (localStorage.getItem('inventoryItems'))) {
         var item = {};
         for (var i = 0; i < localStorage.getItem('inventoryItems'); i += 1) {
@@ -572,7 +595,7 @@ function init() {
 
     app.ticker.add(updateUI);
     addEvents();
-    
+
     app.ticker.speed = 1;
 
     app.ticker.start();
