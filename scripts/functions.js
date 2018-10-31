@@ -239,10 +239,12 @@ function newWeapon(type) {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney, 0, type);
+            app.inventory.slotAreas[newPos].slot = new WeaponGroup(app.player.id, app.money.curMoney.mul(0.5), 0, type);
             break;
         }
     }
+    
+    app.money.curMoney = app.money.curMoney.mul(0.5);
 
     if (newPos >= app.inventory.slotAreas.length) {
         return;
@@ -288,7 +290,6 @@ function newWeapon(type) {
     weaponImage.addChild(stats);
 
     app.inventory.slotAreas[newPos].addChild(weaponImage);
-    app.money.curMoney.mul(0.5);
 }
 
 function storeWeapon(weapon) {
@@ -360,7 +361,7 @@ function newArmour() {
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
-            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney.mul(10), 0);
+            app.inventory.slotAreas[newPos].slot = new Armour(app.money.curMoney.mul(5), 0);
             break;
         }
     }
@@ -393,7 +394,7 @@ function newArmour() {
 
     app.inventory.slotAreas[newPos].addChild(armourImage);
 
-    app.money.curMoney.mul(0.5);
+    app.money.curMoney = app.money.curMoney.mul(0.5);
 }
 
 function storeArmour(armour) {
