@@ -101,6 +101,9 @@ function PlayerAI() {
                     i = 0;
                 }
             }
+            
+            app.money.moneyGainBonus = app.money.moneyGainBonus.add(app.wave.number.mul(0.08));
+            
             app.wave = {
                 number: new Decimal(0),
                 enemiesInWave: 1,
@@ -115,6 +118,8 @@ function PlayerAI() {
             app.power = new Decimal(1);
             this.armour.curHP = this.armour.getMaxHP(app.upgrades.slots[2].power);
             app.keys.deathPaused = false;
+            
+            
             return;
         } else if (this.armour.curHP.div(this.armour.maxHP).gt(0.2)) {
             app.keys.deathPaused = false;

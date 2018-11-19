@@ -222,7 +222,7 @@ function updateUI() {
     document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.wave.enemyFactor);
     if (app.unlocks.inventoryUnlocked) {
         document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
-        document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power));
+        document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power)) + " x " + formatNumber(app.money.moneyGainBonus);
     } else {
         document.getElementById("curMoney").innerHTML = "???";
         document.getElementById("curMoneyGainRate").innerHTML = "???";
@@ -698,7 +698,7 @@ function checkUnlocks(wave) {
 
     app.unlocks.arenaName += "(Next unlock at wave " + app.unlocks.nextUnlock + ")";
 
-    if ((app.unlocks.inventoryUnlocked === false) && (wave.gte(12))) {
+    if ((app.unlocks.inventoryUnlocked === false) && (wave.gte(8))) {
         app.unlocks.inventoryUnlocked = true;
         app.inventory.inventoryArea.visible = true;
         app.inventory.clickTab.interactive = true;
@@ -718,6 +718,7 @@ function checkUnlocks(wave) {
     if ((app.unlocks.upgradesUnlocked === false) && (wave.gte(75))) {
         app.unlocks.upgradesUnlocked = true;
         app.upgrades.upgradesArea.visible = true;
+        app.upgrades.clickTab.interactive = true;
         new Notification("You unlocked the upgrades screen \n Click the button under each upgrade to buy them.");
         app.unlocks.nextUnlock = 100;
     }
@@ -731,6 +732,7 @@ function checkUnlocks(wave) {
     if ((app.unlocks.upgrades <= 1) && (wave.gte(125))) {
         app.unlocks.upgrades = 2;
         app.upgrades.slots[2].visible = true;
+        app.upgrades.slots[2].button.interactive = true;
         new Notification("You unlocked Health upgrades in the upgrades screen");
         app.unlocks.nextUnlock = 200;
     }

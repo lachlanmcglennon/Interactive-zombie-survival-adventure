@@ -89,13 +89,15 @@ function init() {
         curMoney: new Decimal(10),
         highestMoneyGainRate: new Decimal(0.1),
         moneyGainedIn5Sec: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
-        moneyGainedSec: 0
+        moneyGainedSec: 0,
+        moneyGainBonus: new Decimal(1)
     };
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("money"))) {
         if (localStorage.getItem("money")) {
             app.money.curMoney = new Decimal(localStorage.getItem("money"));
             app.money.highestMoneyGainRate = new Decimal(localStorage.getItem('moneyGain'));
+            app.money.moneyGainBonus = new Decimal(localStorage.getItem('moneyGainBonus'));
         } else {}
     }
 
@@ -124,8 +126,7 @@ function init() {
 
     app.ticker.add(function () {
         if (app.tick % 60 === 0) {
-            app.money.curMoney = app.money.curMoney.add(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power));
-            app.money.highestMoneyGainRate = app.money.highestMoneyGainRate.mul(app.upgrades.slots[4].power);
+            app.money.curMoney = app.money.curMoney.add(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power).mul(app.money.moneyGainBonus));
             if (app.keys.pause === false) {
                 var average = new Decimal(0);
                 for (var i = 0; i < 5; i += 1) {
@@ -175,8 +176,8 @@ function init() {
         maxRarity: 0,
         inventoryUnlocked: false,
         upgradesUnlocked: false,
-        arenaName: "Unranked + (Next unlock at wave 12)",
-        nextUnlock: 12
+        arenaName: "Unranked + (Next unlock at wave 8)",
+        nextUnlock: 8
     };
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('unlocks'))) {
@@ -241,15 +242,17 @@ function init() {
     app.upgrades.slots = [];
 
     app.upgrades.slots = [
-        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, new Decimal(1000), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 0),
-        new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 1),
-        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, new Decimal(100), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 2),
-        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal("1e15"), new Decimal("1e5"), new Decimal(1), new Decimal(1), 0, false, 3),
-        new UpgradeArea("Increases interest gained per minute to xval1 \n cost: val2 level: val3", 5, 215, new Decimal("1e20"), new Decimal("1e20"), new Decimal(1), new Decimal(0.1), 0, false, 4)];
+        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, new Decimal("1e10"), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 0),
+        new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, new Decimal("1e21"), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 1),
+        new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, new Decimal("1e21"), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 2),
+        new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal("1e30"), new Decimal("1e5"), new Decimal(1), new Decimal(1), 0, false, 3)];
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem('upgradeItems'))) {
         var upgradeItem = {};
         for (var i = 0; i < localStorage.getItem('upgradeItems'); i += 1) {
+            if (i > 3) {
+                break;
+            }
             upgradeItem = JSON.parse(localStorage.getItem('upgrade' + i));
             app.upgrades.slots[i].setLevel(upgradeItem.startingLevel);
         }
@@ -536,12 +539,12 @@ function init() {
             return;
         }
 
-        if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen <= 1)) && (app.wave.enemiesInWave > 0) &&
+        if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen <= 10)) && (app.wave.enemiesInWave > 0) &&
             (app.wave.enemiesOnScreen < 30)) {
-            var temp = moveInDirection(app.player.position, 200, toRadians(360 * Math.random()) + 45);
+            var temp = moveInDirection(app.player.position, 1000 * Math.random() + 300, toRadians(360 * Math.random()));
 
             while (collidingWithWall(temp)) {
-                var temp = moveInDirection(app.player.position, 200, toRadians(360 * Math.random()) + 45);
+                var temp = moveInDirection(app.player.position, 1000 * Math.random() + 300, toRadians(360 * Math.random()));
             }
             var xToSpawn = temp.x,
                 yToSpawn = temp.y;
@@ -551,7 +554,7 @@ function init() {
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
-        if ((app.wave.enemiesOnScreen <= 2 && app.wave.enemiesInWave <= 0 && app.wave.number.gt(0)) ||
+        if ((app.wave.enemiesOnScreen <= 5 && app.wave.enemiesInWave <= 4 && app.wave.number.gt(0)) ||
             (app.wave.enemiesOnScreen <= 0 && app.wave.number.eq(0))) {
             app.wave.enemiesInWave = 10;
             app.wave.number = app.wave.number.add(1);
@@ -584,6 +587,7 @@ function init() {
             localStorage.setItem('upgradeItems', numItems);
             localStorage.setItem('money', app.money.curMoney.toString());
             localStorage.setItem('moneyGain', app.money.highestMoneyGainRate.toString());
+            localStorage.setItem('moneyGainBonus', app.money.moneyGainBonus.toString());
             localStorage.setItem('wave', app.wave.number);
             localStorage.setItem('unlocks', JSON.stringify(app.unlocks));
         }
