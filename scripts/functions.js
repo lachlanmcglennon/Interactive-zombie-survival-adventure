@@ -235,7 +235,6 @@ function updateUI() {
 }
 
 function newWeapon(type) {
-    console.log(type);
     var newPos = 0;
     for (newPos = 0; newPos < app.inventory.slotAreas.length; newPos += 1) {
         if (app.inventory.slotAreas[newPos].slot === null) {
@@ -366,7 +365,7 @@ function newArmour() {
         }
     }
 
-    //console.log(app.inventory.slotAreas[43].slot);
+    app.money.curMoney = app.money.curMoney.mul(0.5);
 
     if (newPos >= app.inventory.slotAreas.length) {
         return;
