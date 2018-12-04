@@ -79,8 +79,13 @@ function PlayerAI() {
                     closestEnemy = i;
                 }
             }
+            if (intercept(this.position, {x: app.players.children[closestEnemy].position.x, y: app.players.children[closestEnemy].position.y, vx: app.players.children[closestEnemy].accel.x, vy: app.players.children[closestEnemy].accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
+                this.weaponTarget = intercept(this.position, {x: app.players.children[closestEnemy].position.x, y: app.players.children[closestEnemy].position.y, vx: app.players.children[closestEnemy].accel.x, vy: app.players.children[closestEnemy].accel.y}, app.weaponTypes[this.weapon.weaponType].speed);
+            } else {
+                this.weaponTarget = app.player.position;
+            }
+            this.image.rotation = getAngleInRadians(this.position, this.weaponTarget);
             this.weaponTarget = app.players.children[closestEnemy].position;
-            this.image.rotation = getAngleInRadians(this.position, app.players.children[closestEnemy].position);
         }
 
         if ((this.armour.curHP.div(this.armour.getMaxHP(app.upgrades.slots[2].power)).lte(0.2)) && (app.keys.deathPaused === false)) {
@@ -142,8 +147,12 @@ function SniperAi() {
             this.moveTarget = moveInDirection(app.player.position, 150, getAngleInRadians(app.player.position, this.position) + toRadians(10));
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
-        this.weaponTarget = app.player.position;
-        this.image.rotation = getAngleInRadians(this.position, app.player.position);
+        if (intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
+            this.weaponTarget = intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed);
+        } else {
+            this.weaponTarget = app.player.position;
+        }
+        this.image.rotation = getAngleInRadians(this.position, this.weaponTarget);
         for (var i = 0; i < this.weapon.weapons.length; i += 1) {
             this.weapon.weapons[i].fire();
         }
@@ -163,8 +172,12 @@ function CloseAi() {
             this.moveTarget = moveInDirection(app.player.position, 50, getAngleInRadians(app.player.position, this.position) + toRadians(10));
             this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
-        this.weaponTarget = app.player.position;
-        this.image.rotation = getAngleInRadians(this.position, app.player.position);
+        if (intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
+            this.weaponTarget = intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed);
+        } else {
+            this.weaponTarget = app.player.position;
+        }
+        this.image.rotation = getAngleInRadians(this.position, this.weaponTarget);
         for (var i = 0; i < this.weapon.weapons.length; i += 1) {
             this.weapon.weapons[i].fire();
         }

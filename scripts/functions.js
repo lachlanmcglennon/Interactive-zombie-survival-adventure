@@ -73,6 +73,60 @@ function circularCollision(eSize1, eSize2, ePos1, ePos2) {
     }
 }
 
+function intercept(src, dst, v) {
+  var tx = dst.x - src.x,
+      ty = dst.y - src.y,
+      tvx = dst.vx,
+      tvy = dst.vy;
+
+  // Get quadratic equation components
+  var a = tvx*tvx + tvy*tvy - v*v;
+  var b = 2 * (tvx * tx + tvy * ty);
+  var c = tx*tx + ty*ty;    
+
+  // Solve quadratic
+  var ts = quad(a, b, c); // See quad(), below
+
+  // Find smallest positive solution
+  var sol = null;
+  if (ts) {
+    var t0 = ts[0], t1 = ts[1];
+    var t = Math.min(t0, t1);
+    if (t < 0) t = Math.max(t0, t1);    
+    if (t > 0) {
+      sol = {
+        x: dst.x + dst.vx*t,
+        y: dst.y + dst.vy*t
+      };
+    }
+  }
+
+  return sol;
+}
+
+
+/**
+ * Return solutions for quadratic
+ */
+function quad(a,b,c) {
+  var sol = null;
+  if (Math.abs(a) < 1e-6) {
+    if (Math.abs(b) < 1e-6) {
+      sol = Math.abs(c) < 1e-6 ? [0,0] : null;
+    } else {
+      sol = [-c/b, -c/b];
+    }
+  } else {
+    var disc = b*b - 4*a*c;
+    if (disc >= 0) {
+      disc = Math.sqrt(disc);
+      a = 2*a;
+      sol = [(-b-disc)/a, (-b+disc)/a];
+    }
+  }
+  return sol;
+}
+
 function getMaxReload(maxUse, team) {
     if ((maxUse - app.upgrades.slots[3].power <= 3) && (team === 0)) {
         return 3;
@@ -748,14 +802,6 @@ function checkUnlocks(wave) {
         app.upgrades.slots[3].button.interactive = true;
         new Notification("You unlocked Rate of fire upgrades in the upgrades screen");
         app.unlocks.nextUnlock = 275;
-    }
-
-    if ((app.unlocks.upgrades <= 3) && (wave.gte(275))) {
-        app.unlocks.upgrades = 4;
-        app.upgrades.slots[4].visible = true;
-        app.upgrades.slots[4].button.interactive = true;
-        new Notification("You unlocked interest upgrades in the upgrades screen \n These will increase your money gained per second, every second");
-        app.unlocks.nextUnlock = 500;
     }
 
     if (wave.gte(500)) {
