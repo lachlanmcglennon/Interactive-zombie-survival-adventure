@@ -60,7 +60,7 @@ function init() {
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
         document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
-        localStorage.clear();
+        //localStorage.clear();
     }
 
     app.particles = new PIXI.particles.ParticleContainer(
@@ -152,8 +152,9 @@ function init() {
         enemiesInWave: 1,
         enemiesOnScreen: 0,
         enemyFactor: new Decimal(0.1),
-        factorStartPow: 1.65,
-        factorIncrease: 0.15
+        factorStartPow: 1.5,
+        factorIncrease: 0.10,
+        playerPowerIncrease: 1.3
     };
 
     app.power = new Decimal(1);
@@ -161,7 +162,7 @@ function init() {
     if ((storageAvailable('localStorage')) && (localStorage.getItem("wave"))) {
         if (localStorage.getItem('wave') > 0) {
             app.wave.number = new Decimal(localStorage.getItem('wave'));
-            app.power = new Decimal(Math.pow(1.4, app.wave.number));
+            app.power = new Decimal(Math.pow(app.wave.playerPowerIncrease, app.wave.number));
             app.wave.enemyFactor = getEnPow(app.wave.number);
             app.wave.enemiesInWave = 10;
         }
@@ -550,7 +551,7 @@ function init() {
                 yToSpawn = temp.y;
 
             new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
-                app.wave.enemyFactor, 2, 10, 1, xToSpawn, yToSpawn);
+                app.wave.enemyFactor, 2.5, 10, 1, xToSpawn, yToSpawn);
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
@@ -559,7 +560,7 @@ function init() {
             app.wave.enemiesInWave = 10;
             app.wave.number = app.wave.number.add(1);
             checkUnlocks(app.wave.number);
-            app.power = app.power.mul(1.4);
+            app.power = app.power.mul(app.wave.playerPowerIncrease);
             app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number.toNumber() / 1000) * app.wave.factorIncrease));
         }
 

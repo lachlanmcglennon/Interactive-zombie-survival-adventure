@@ -20,11 +20,13 @@ function loadBulletImages(app) {
     destroyerImage.endFill();
 
     app.bulletImages.push(app.renderer.generateTexture(destroyerImage));
+    
+    var speedMod = 1.3;
 
     app.weaponTypes = [
         {
             name: "Sniper",
-            speed: 5,
+            speed: 5 * speedMod,
             useTime: 30,
             damageMod: 5,
             lifetime: 240,
@@ -35,7 +37,7 @@ function loadBulletImages(app) {
         },
         {
             name: "Laser",
-            speed: 6,
+            speed: 6 * speedMod,
             useTime: 5,
             damageMod: 5 / 6,
             lifetime: 60,
@@ -46,7 +48,7 @@ function loadBulletImages(app) {
         },
         {
             name: "Destroyer",
-            speed: 3,
+            speed: 3 * speedMod,
             useTime: 60,
             damageMod: 10,
             lifetime: 480,
@@ -57,7 +59,7 @@ function loadBulletImages(app) {
         },
         {
             name: "Machine Gun",
-            speed: 4,
+            speed: 4 * speedMod,
             useTime: 10,
             damageMod: 5 / 3,
             lifetime: 120,

@@ -142,11 +142,18 @@ function SniperAi() {
         }
         if (getDistanceFrom(this.position, app.player.position) > 150) {
             this.moveTarget = moveToPoint(app.player.position, this.position, 150);
-            this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
+            
         } else {
             this.moveTarget = moveInDirection(app.player.position, 150, getAngleInRadians(app.player.position, this.position) + toRadians(10));
-            this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
+        
+        for (var i = 2; i < app.players.children.length; i += 1) {
+            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 20) && (this != app.players.getChildAt(i))) {
+                this.moveTarget = moveInDirection(app.players.getChildAt(i).position, 25, getAngleInRadians(app.players.getChildAt(i).position, this.position));
+                break;
+            }
+        }
+        this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         if (intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
             this.weaponTarget = intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed);
         } else {
@@ -167,11 +174,16 @@ function CloseAi() {
         }
         if (getDistanceFrom(this.position, app.player.position) > 50) {
             this.moveTarget = moveToPoint(app.player.position, this.position, 30);
-            this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         } else {
             this.moveTarget = moveInDirection(app.player.position, 50, getAngleInRadians(app.player.position, this.position) + toRadians(10));
-            this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         }
+        for (var i = 2; i < app.players.children.length; i += 1) {
+            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 20) && (this != app.players.getChildAt(i))) {
+                this.moveTarget = moveInDirection(app.players.getChildAt(i).position, 25, getAngleInRadians(app.players.getChildAt(i).position, this.position));
+                break;
+            }
+        }
+        this.accel = setAccelToPoint(this.position, this.moveTarget, this.speed);
         if (intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
             this.weaponTarget = intercept(this.position, {x: app.player.position.x, y: app.player.position.y, vx: app.player.accel.x, vy: app.player.accel.y}, app.weaponTypes[this.weapon.weaponType].speed);
         } else {
