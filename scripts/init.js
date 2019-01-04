@@ -609,7 +609,5 @@ function init() {
     app.ticker.add(updateUI);
     addEvents();
 
-    app.ticker.speed = 4;
-
     app.ticker.start();
 }
