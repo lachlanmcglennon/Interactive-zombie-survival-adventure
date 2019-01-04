@@ -284,7 +284,7 @@ function updateUI() {
 
     document.getElementById("curPlayerHP").innerHTML = "Player HP: " + formatNumber(app.player.armour.curHP);
     document.getElementById("curArenaName").innerHTML = "Arena: " + app.unlocks.arenaName;
-    document.getElementById("fps").innerHTML = "Fps: " + Math.ceil(1000 / app.ticker.elapsedMS);
+    document.getElementById("fps").innerHTML = "Delta Time: " + app.ticker.deltaTime;
 
 }
 

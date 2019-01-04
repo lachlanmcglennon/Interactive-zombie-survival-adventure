@@ -60,7 +60,7 @@ function init() {
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
         document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
-        localStorage.clear();
+        //localStorage.clear();
     }
 
     app.particles = new PIXI.particles.ParticleContainer(
@@ -609,7 +609,7 @@ function init() {
     app.ticker.add(updateUI);
     addEvents();
 
-    app.ticker.speed = 1;
+    app.ticker.speed = 4;
 
     app.ticker.start();
 }
