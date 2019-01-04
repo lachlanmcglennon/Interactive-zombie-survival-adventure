@@ -813,6 +813,50 @@ function checkUnlocks(wave) {
     }
 }
 
+function spawnBoss() {
+    if (app.unlocks.nextUnlock === "???") {
+        return 0;
+    }
+    
+    if (app.wave.number.eq(app.unlocks.nextUnlock - 2) && app.wave.bossSpawned === false) {
+        //Spawn the first boss
+        
+        if (app.players.children.length > 2) {
+            return 2;
+        }
+        
+        app.wave.bossSpawned = true;
+        var temp = moveInDirection(app.player.position, 1000 * Math.random() + 300, toRadians(360 * Math.random()));
+
+            while (collidingWithWall(temp)) {
+                var temp = moveInDirection(app.player.position, 1000 * Math.random() + 300, toRadians(360 * Math.random()));
+            }
+            var xToSpawn = temp.x,
+                yToSpawn = temp.y;
+        new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
+                app.wave.enemyFactor.mul(50), 2.5, 10, 1, xToSpawn, yToSpawn);
+        var spawnedBoss = app.players.children[app.players.children.length - 1];
+        spawnedBoss.scale.set(2, 2);
+        if (app.weaponTypes[spawnedBoss.weapon.weaponType].speed <= (4 * 1.3)) {
+            spawnedBoss.weapon.effects.push(effectTypes[0]);
+        }
+        return 1;
+    }
+    
+    if (app.wave.bossSpawned === true && app.wave.enemiesOnScreen === 0) {
+        //Boss was present but is dead, start next wave.
+        app.wave.bossSpawned = false;
+        return 0;
+    }
+    
+    if (app.wave.bossSpawned === false) {
+        return 0;
+    }
+    
+    //Boss is still being fought
+    return 2;
+}
+
 function updateInventoryText() {
     for (var i = 0; i < app.inventory.slotAreas.length; i += 1) {
         if (app.inventory.slotAreas[i].slot != null) {

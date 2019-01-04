@@ -65,6 +65,7 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
     PIXI.Container.call(this);
 
     this.image = new PIXI.Sprite(texture);
+    //this.image.transform.scale = size;
 
     this.id = app.id;
     app.id += 1;

@@ -60,7 +60,7 @@ function init() {
 
     if ((storageAvailable('localStorage')) && (localStorage.getItem("PlayerCol"))) {
         document.getElementById("playerCol").value = localStorage.getItem("PlayerCol");
-        //localStorage.clear();
+        localStorage.clear();
     }
 
     app.particles = new PIXI.particles.ParticleContainer(
@@ -154,7 +154,8 @@ function init() {
         enemyFactor: new Decimal(0.1),
         factorStartPow: 1.5,
         factorIncrease: 0.10,
-        playerPowerIncrease: 1.3
+        playerPowerIncrease: 1.3,
+        bossSpawned: false
     };
 
     app.power = new Decimal(1);
@@ -557,11 +558,18 @@ function init() {
         }
         if ((app.wave.enemiesOnScreen <= 5 && app.wave.enemiesInWave <= 4 && app.wave.number.gt(0)) ||
             (app.wave.enemiesOnScreen <= 0 && app.wave.number.eq(0))) {
-            app.wave.enemiesInWave = 10;
-            app.wave.number = app.wave.number.add(1);
-            checkUnlocks(app.wave.number);
-            app.power = app.power.mul(app.wave.playerPowerIncrease);
-            app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number.toNumber() / 1000) * app.wave.factorIncrease));
+            if (spawnBoss() === 1) {
+                app.wave.enemiesOnScreen = 1;
+                app.wave.number = app.wave.number.add(1);
+                app.power = app.power.mul(app.wave.playerPowerIncrease);
+                app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number.toNumber() / 1000) * app.wave.factorIncrease));
+            } else if (spawnBoss() === 0) {
+                app.wave.enemiesInWave = 10;
+                app.wave.number = app.wave.number.add(1);
+                checkUnlocks(app.wave.number);
+                app.power = app.power.mul(app.wave.playerPowerIncrease);
+                app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number.toNumber() / 1000) * app.wave.factorIncrease));
+            }
         }
 
         if ((app.tick % 600 === 0) && (storageAvailable('localStorage'))) {

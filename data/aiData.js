@@ -115,7 +115,8 @@ function PlayerAI() {
                 enemiesOnScreen: 0,
                 enemyFactor: new Decimal(0.1),
                 factorStartPow: 1.65,
-                factorIncrease: 0.15
+                factorIncrease: 0.15,
+                bossSpawned: false
             };
             
             app.unlocks.arenaName = "Unranked ";
