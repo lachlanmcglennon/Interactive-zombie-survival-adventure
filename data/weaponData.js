@@ -60,8 +60,8 @@ function loadBulletImages(app) {
         {
             name: "Machine Gun",
             speed: 4 * speedMod,
-            useTime: 10,
-            damageMod: 5 / 3,
+            useTime: 15,
+            damageMod: 5 / 2,
             lifetime: 120,
             image: 0,
             collisionType: "circle",
