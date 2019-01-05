@@ -21,14 +21,14 @@ function loadBulletImages(app) {
 
     app.bulletImages.push(app.renderer.generateTexture(destroyerImage));
     
-    var speedMod = 1.3;
+    var speedMod = 1.4;
 
     app.weaponTypes = [
         {
             name: "Sniper",
             speed: 5 * speedMod,
             useTime: 30,
-            damageMod: 5,
+            damageMod: 10 / 2,
             lifetime: 240,
             image: 0,
             collisionType: "circle",
@@ -60,8 +60,8 @@ function loadBulletImages(app) {
         {
             name: "Machine Gun",
             speed: 4 * speedMod,
-            useTime: 15,
-            damageMod: 5 / 2,
+            useTime: 20,
+            damageMod: 10 / 3,
             lifetime: 120,
             image: 0,
             collisionType: "circle",
