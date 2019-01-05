@@ -72,20 +72,30 @@ function PlayerAI() {
             this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
         } else {
             var closestDistance = 1000000000,
-                closestEnemy = 0;
-            for (var i = 0; i < app.players.children.length; i += 1) {
-                if ((getDistanceFrom(this.position, app.players.children[i].position) < closestDistance - 10) &&
+                closestEnemy = -1;
+            for (var i = 2; i < app.players.children.length; i += 1) {
+                if ((getDistanceFrom(this.position, app.players.children[i].position) < closestDistance) &&
                     (app.players.children[i].team === 1)) {
+                    closestDistance = getDistanceFrom(this.position, app.players.children[i].position);
                     closestEnemy = i;
                 }
             }
-            if (intercept(this.position, {x: app.players.children[closestEnemy].position.x, y: app.players.children[closestEnemy].position.y, vx: app.players.children[closestEnemy].accel.x, vy: app.players.children[closestEnemy].accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
-                this.weaponTarget = intercept(this.position, {x: app.players.children[closestEnemy].position.x, y: app.players.children[closestEnemy].position.y, vx: app.players.children[closestEnemy].accel.x, vy: app.players.children[closestEnemy].accel.y}, app.weaponTypes[this.weapon.weaponType].speed);
+            
+            if (closestEnemy != -1) {
+                if (intercept(this.position, {x: app.players.children[closestEnemy].position.x, y: app.players.children[closestEnemy].position.y, vx: app.players.children[closestEnemy].accel.x, vy: app.players.children[closestEnemy].accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
+                this.weaponTarget = intercept(this.position, 
+                    {x: app.players.children[closestEnemy].position.x, 
+                     y: app.players.children[closestEnemy].position.y, 
+                     vx: app.players.children[closestEnemy].accel.x, 
+                     vy: app.players.children[closestEnemy].accel.y}, app.weaponTypes[this.weapon.weaponType].speed);
             } else {
                 this.weaponTarget = app.player.position;
             }
             this.image.rotation = getAngleInRadians(this.position, this.weaponTarget);
             this.weaponTarget = app.players.children[closestEnemy].position;
+            }
+            
+            
         }
 
         if ((this.armour.curHP.div(this.armour.getMaxHP(app.upgrades.slots[2].power)).lte(0.2)) && (app.keys.deathPaused === false)) {

@@ -863,6 +863,11 @@ function spawnBoss() {
     return 2;
 }
 
+function toggleIdle() {
+    app.keys.mouseLocked = !app.keys.mouseLocked;
+    app.keys.autofire = true;
+}
+
 function updateInventoryText() {
     for (var i = 0; i < app.inventory.slotAreas.length; i += 1) {
         if (app.inventory.slotAreas[i].slot != null) {

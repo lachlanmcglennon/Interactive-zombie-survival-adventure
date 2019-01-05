@@ -37,7 +37,7 @@ function addEvents() {
         
             if (event.key == "l") {
                 app.keys.mouseLocked = !app.keys.mouseLocked;
-                app.particles.visible = !app.particles.visible;
+                app.keys.autofire = true;
             }
 
             if (event.key == "x") {
