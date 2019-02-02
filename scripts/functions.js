@@ -194,9 +194,9 @@ function decimalToHexString(number) {
 }
 
 function genRandomColour() {
-    return "0x" + decimalToHexString(Math.floor(255 * Math.random())) +
-        decimalToHexString(Math.floor(255 * Math.random())) +
-        decimalToHexString(Math.floor(255 * Math.random()));
+    return "0x" + decimalToHexString(Math.floor(255 * 0)) +
+        decimalToHexString(Math.floor(255 * 0)) +
+        decimalToHexString(Math.floor(255 * 0));
 }
 
 function collidingWithWallX(pos, size) {

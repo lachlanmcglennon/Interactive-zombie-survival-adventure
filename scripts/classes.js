@@ -183,7 +183,11 @@ function WeaponGroup(id, power, team, type) {
     this.power = power;
 
     var maxDeviation = toRadians(90);
-    this.numbarrels = Math.ceil(Math.random() * 8) + 0;
+    if (this.team === 0) {
+        this.numbarrels = Math.ceil(Math.random() * 8) + 0;
+    } else {
+        this.numbarrels = Math.ceil(Math.random() * 3) + 0;
+    }
     if (type === -1) {
         this.weaponType = Math.floor(Math.random() * app.weaponTypes.length);
         this.weaponPlaceType = Math.ceil(Math.random() * 3);

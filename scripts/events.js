@@ -42,7 +42,11 @@ function addEvents() {
 
             if (event.key == "x") {
                 if (app.inventory.slotAreas[app.mouse.curSlot].slot != null) {
-                    app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[app.mouse.curSlot].slot.power.mul(0.9));
+                    if (app.inventory.slotAreas[app.mouse.curSlot].slot.className == "Weapon") {
+                        app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[app.mouse.curSlot].slot.power.mul(0.95));
+                    } else {
+                        app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[app.mouse.curSlot].slot.power.mul(0.095));
+                    }
                     app.inventory.slotAreas[app.mouse.curSlot].slot = null;
                     var i = app.mouse.curSlot;
 

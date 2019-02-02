@@ -541,8 +541,8 @@ function init() {
             return;
         }
 
-        if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen <= 10)) && (app.wave.enemiesInWave > 0) &&
-            (app.wave.enemiesOnScreen < 30)) {
+        if (((app.tick % 30 == 0) || (app.wave.enemiesOnScreen <= 4)) && (app.wave.enemiesInWave > 0) &&
+            (app.wave.enemiesOnScreen < 5)) {
             var temp = moveInDirection(app.player.position, 1000 * Math.random() + 300, toRadians(360 * Math.random()));
 
             while (collidingWithWall(temp)) {
@@ -556,7 +556,7 @@ function init() {
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
         }
-        if ((app.wave.enemiesOnScreen <= 5 && app.wave.enemiesInWave <= 4 && app.wave.number.gt(0)) ||
+        if ((app.wave.enemiesOnScreen <= 2 && app.wave.enemiesInWave <= 4 && app.wave.number.gt(0)) ||
             (app.wave.enemiesOnScreen <= 0 && app.wave.number.eq(0))) {
             if (spawnBoss() === 1) {
                 app.wave.enemiesOnScreen = 1;
@@ -564,7 +564,7 @@ function init() {
                 app.power = app.power.mul(app.wave.playerPowerIncrease);
                 app.wave.enemyFactor = app.wave.enemyFactor.mul(app.wave.factorStartPow + (Math.round(app.wave.number.toNumber() / 1000) * app.wave.factorIncrease));
             } else if (spawnBoss() === 0) {
-                app.wave.enemiesInWave = 10;
+                app.wave.enemiesInWave = 5;
                 app.wave.number = app.wave.number.add(1);
                 checkUnlocks(app.wave.number);
                 app.power = app.power.mul(app.wave.playerPowerIncrease);
@@ -572,7 +572,7 @@ function init() {
             }
         }
 
-        if ((app.tick % 600 === 0) && (storageAvailable('localStorage'))) {
+        if ((app.tick % 1200 === 0) && (storageAvailable('localStorage'))) {
             console.log("saved");
             var numItems = 0;
             for (var i = 0; i < app.inventory.slotAreas.length; i += 1) {
