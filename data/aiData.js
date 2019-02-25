@@ -71,6 +71,13 @@ function PlayerAI() {
             this.weaponTarget = app.mouse.position;
             this.image.rotation = getAngleInRadians(this.position, app.mouse.position);
         } else {
+            this.autoDirection += toRadians(0.5);
+            if (this.autoDirection > toRadians(360)) {
+                this.autoDirection = 0;
+            }
+            var newPos = moveInDirection(this.position, 2, this.autoDirection);
+            this.accel.x = this.position.x - newPos.x;
+            this.accel.y = this.position.y - newPos.y;
             var closestDistance = 1000000000,
                 closestEnemy = -1;
             for (var i = 2; i < app.players.children.length; i += 1) {
@@ -83,7 +90,7 @@ function PlayerAI() {
             
             if (closestEnemy != -1) {
                 if (intercept(this.position, {x: app.players.children[closestEnemy].position.x, y: app.players.children[closestEnemy].position.y, vx: app.players.children[closestEnemy].accel.x, vy: app.players.children[closestEnemy].accel.y}, app.weaponTypes[this.weapon.weaponType].speed) != null) {
-                this.weaponTarget = intercept(this.position, 
+                        this.weaponTarget = intercept(this.position, 
                     {x: app.players.children[closestEnemy].position.x, 
                      y: app.players.children[closestEnemy].position.y, 
                      vx: app.players.children[closestEnemy].accel.x, 
@@ -116,8 +123,10 @@ function PlayerAI() {
                     i = 0;
                 }
             }
-            
             app.money.moneyGainBonus = app.money.moneyGainBonus.add(app.wave.number.mul(0.08));
+            if (app.wave.number.toNumber() > 1000) {
+                app.money.moneyGainBonus = app.money.moneyGainBonus.add(new Decimal(1.8).pow(app.wave.number.sub(1000)));
+            }
             
             app.wave = {
                 number: new Decimal(0),
@@ -159,7 +168,7 @@ function SniperAi() {
         }
         
         for (var i = 2; i < app.players.children.length; i += 1) {
-            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 20) && (this != app.players.getChildAt(i))) {
+            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 20) && (this != app.players.getChildAt(i)) && (app.players.getChildAt(i).team === 1)) {
                 this.moveTarget = moveInDirection(app.players.getChildAt(i).position, 25, getAngleInRadians(app.players.getChildAt(i).position, this.position));
                 break;
             }

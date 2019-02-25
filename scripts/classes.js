@@ -70,6 +70,8 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
     this.id = app.id;
     app.id += 1;
 
+    this.autoDirection = 0;
+    
     this.addChild(this.image);
 
     this.colour = colour;

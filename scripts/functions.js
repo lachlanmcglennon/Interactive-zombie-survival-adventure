@@ -100,7 +100,6 @@ function intercept(src, dst, v) {
       };
     }
   }
-
   return sol;
 }
 
@@ -787,6 +786,11 @@ function checkUnlocks(wave) {
         app.upgrades.slots[2].visible = true;
         app.upgrades.slots[2].button.interactive = true;
         new Notification("You unlocked Health upgrades in the upgrades screen");
+        app.unlocks.nextUnlock = 200;
+    }
+    if ((wave.gte(150)) && (app.unlocks.autoUnlocked === false)) {
+        app.unlocks.autoUnlocked = true;
+        new Notification("You can now use the autoplay feature by pressing L.");
         app.unlocks.nextUnlock = 200;
     }
 

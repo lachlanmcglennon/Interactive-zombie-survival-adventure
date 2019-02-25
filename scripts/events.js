@@ -36,8 +36,10 @@ function addEvents() {
             }
         
             if (event.key == "l") {
-                app.keys.mouseLocked = !app.keys.mouseLocked;
-                app.keys.autofire = true;
+                if (app.unlocks.autoUnlocked === true) {
+                    app.keys.mouseLocked = !app.keys.mouseLocked;
+                    app.keys.autofire = true;
+                }
             }
 
             if (event.key == "x") {

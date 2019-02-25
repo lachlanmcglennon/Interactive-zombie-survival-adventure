@@ -86,7 +86,7 @@ function init() {
     app.mouse = new Mouse();
     app.enemies = [];
     app.money = {
-        curMoney: new Decimal(10),
+        curMoney: new Decimal(20),
         highestMoneyGainRate: new Decimal(0.1),
         moneyGainedIn5Sec: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
         moneyGainedSec: 0,
@@ -178,6 +178,7 @@ function init() {
         maxRarity: 0,
         inventoryUnlocked: false,
         upgradesUnlocked: false,
+        autoUnlocked: false,
         arenaName: "Unranked + (Next unlock at wave 8)",
         nextUnlock: 8
     };
