@@ -168,8 +168,8 @@ function SniperAi() {
         }
         
         for (var i = 2; i < app.players.children.length; i += 1) {
-            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 20) && (this != app.players.getChildAt(i)) && (app.players.getChildAt(i).team === 1)) {
-                this.moveTarget = moveInDirection(app.players.getChildAt(i).position, 25, getAngleInRadians(app.players.getChildAt(i).position, this.position));
+            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 10) && (this != app.players.getChildAt(i)) && (app.players.getChildAt(i).team === 1)) {
+                this.moveTarget = moveInDirection(app.players.getChildAt(i).position, 10, getAngleInRadians(app.players.getChildAt(i).position, this.position));
                 break;
             }
         }
@@ -193,13 +193,13 @@ function CloseAi() {
             return;
         }
         if (getDistanceFrom(this.position, app.player.position) > 50) {
-            this.moveTarget = moveToPoint(app.player.position, this.position, 30);
+            this.moveTarget = moveToPoint(app.player.position, this.position, 50);
         } else {
             this.moveTarget = moveInDirection(app.player.position, 50, getAngleInRadians(app.player.position, this.position) + toRadians(10));
         }
         for (var i = 2; i < app.players.children.length; i += 1) {
-            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 20) && (this != app.players.getChildAt(i))) {
-                this.moveTarget = moveInDirection(app.players.getChildAt(i).position, 25, getAngleInRadians(app.players.getChildAt(i).position, this.position));
+            if ((getDistanceFrom(this.position, app.players.getChildAt(i).position) < 10) && (this != app.players.getChildAt(i))) {
+                this.moveTarget = moveInDirection(app.players.getChildAt(i).position, 10, getAngleInRadians(app.players.getChildAt(i).position, this.position));
                 break;
             }
         }
