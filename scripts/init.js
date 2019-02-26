@@ -504,7 +504,11 @@ function init() {
     app.inventory.clear.click = function (e) {
         for (var i = 2; i < app.inventory.slotAreas.length; i += 1) {
             if (app.inventory.slotAreas[i].slot != null) {
-                app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.9));
+                if (app.inventory.slotAreas[i].slot.className == "Weapon") {
+                        app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.95));
+                    } else {
+                        app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.095));
+                    }
                 app.inventory.slotAreas[i].slot = null;
 
                 app.inventory.slotAreas[i].removeChildAt(1);
