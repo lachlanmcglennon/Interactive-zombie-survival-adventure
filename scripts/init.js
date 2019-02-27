@@ -163,7 +163,7 @@ function init() {
     if ((storageAvailable('localStorage')) && (localStorage.getItem("wave"))) {
         if (localStorage.getItem('wave') > 0) {
             app.wave.number = new Decimal(localStorage.getItem('wave'));
-            app.power = new Decimal(Math.pow(app.wave.playerPowerIncrease, app.wave.number));
+            app.power = new Decimal(app.wave.number).pow(app.wave.playerPowerIncrease);
             app.wave.enemyFactor = getEnPow(app.wave.number);
             app.wave.enemiesInWave = 10;
         }
