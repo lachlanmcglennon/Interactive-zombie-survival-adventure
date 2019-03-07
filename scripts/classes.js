@@ -239,6 +239,13 @@ function WeaponGroup(id, power, team, type) {
             app.ticker.remove(this.weapons[i].reload, this.weapons[i]);
         }
     }
+    
+    this.updatePow = function (newPow) {
+        for (var i = 0; i < this.weapons.length; i += 1) {
+            this.weapons[i].setPow(newPow);
+        }
+    }
+
 
     this.weaponProto = new Weapon(this.entityID, new Decimal(this.power).div(this.numbarrels), this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);
@@ -322,6 +329,12 @@ function LoadedWeaponGroup(storedWeapon) {
             app.ticker.remove(this.weapons[i].reload, this.weapons[i]);
         }
     }
+    
+    this.updatePow = function (newPow) {
+        for (var i = 0; i < this.weapons.length; i += 1) {
+            this.weapons[i].setPow(newPow);
+        }
+    }
 
     this.weaponProto = new Weapon(this.entityID, new Decimal(this.power).div(this.numbarrels), this.rarity, this.weaponType);
     this.weapons[0] = Object.create(this.weaponProto);
@@ -389,6 +402,12 @@ function Weapon(id, power, rarity, type) {
     this.entityID = id;
 
     this.damage = power.mul(this.type.damageMod).mul(this.rarity.statMod);
+    
+    this.setPow = function (newPow) {
+        this.damage = newPow.mul(this.type.damageMod).mul(this.rarity.statMod);
+    }
+
+    
     this.direction = 0;
 
     this.setDirection = function (direction) {
@@ -520,7 +539,7 @@ function LoadArmour(storedArmour) {
     app.ticker.add(this.regenFunction, this);
 }
 
-function PopUpEntity(bullet, text) {
+function PopUpEntity(position, text, value) {
 
     var style = {
         fontFamily: "Arial",
@@ -529,8 +548,11 @@ function PopUpEntity(bullet, text) {
         wordWrap: true,
         wordWrapWidth: 200,
     };
-
-    PIXI.Text.call(this, formatNumber(text), style);
+    if (value === -1) {
+        PIXI.Text.call(this, text, style);   
+    } else {
+        PIXI.Text.call(this, text + formatNumber(value), style);   
+    }
 
     this.style = style;
 
@@ -543,7 +565,7 @@ function PopUpEntity(bullet, text) {
     //this.tint = "000000";
     this.anchor.set(0.5, 0.5);
 
-    this.position.copy(bullet.position);
+    this.position.copy(position);
 
     this.accel = setAccelInDirection(toRadians(270), 2);
 
@@ -590,7 +612,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
     this.critMult = 1;
 
     this.numPierce = 1;
-    this.lastEnemyHit = {};
+    this.lastEnemyHit = -1;
 
     Moveable.call(this, this.weapon.type.speed);
     this.move = moveFunction;
@@ -709,12 +731,15 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
             for (var n = 0; n < app.players.children.length; n += 1) {
                 if ((this.weapon.type.collisionType === "circle") &&
                     (circularCollision(this.weapon.type.size, app.players.getChildAt(n).size, this.position, app.players.getChildAt(n).position)) &&
-                    (app.players.getChildAt(n).team != this.entity.team) &&
-                    (this.lastEnemyHit != app.players.getChildAt(n))) {
+                    (app.players.getChildAt(n).team != this.entity.team)) {
+                    if (this.lastEnemyHit === n) {
+                        return;
+                    }
+                    this.lastEnemyHit = n;
                     if (this.crit === true) {
                         var power = this.entity.weapon.power,
                             critRate = power.exponent * 5 / 100,
-                            critMult = new Decimal(1.05).pow(power.log10()),
+                            critMult = new Decimal(1.03).pow(power.log10()),
                             randomSeed = Math.random();
                         if (critRate > 1) {
                             critRate = 1;
@@ -724,22 +749,20 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                             this.critMult = critMult;
                         }
                     }
-                    new PopUpEntity(this, this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
+                    new PopUpEntity(this.position, "", this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
                     app.players.getChildAt(n).armour.curHP = app.players.getChildAt(n).armour.curHP.sub(this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
                     if (app.players.getChildAt(n).armour.curHP.lte(0)) {
-                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].add(app.power.mul(10));
+                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].add(app.power.mul(10)).mul(app.upgrades.slots[0].power);
                         app.wave.playersOnScreen -= 1;
                         app.players.getChildAt(n).delete();
                         app.wave.enemiesOnScreen -= 1;
                     }
                     this.numPierce -= 1;
-                    this.lastEnemyHit = app.players.getChildAt(n);
                     if (this.numPierce <= 0) {
                         this.delete();
                         return;
                     }
-                } else if (this.lastEnemyHit === app.players.getChildAt(n)) {
-                    this.lastEnemyHit = {};
+                    return;
                 }
             }
         } else {
@@ -761,16 +784,10 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                         this.critMult = critMult;
                     }
                 }
-                new PopUpEntity(this, new Decimal(this.damage).mul(this.critMult));
+                new PopUpEntity(this.position, "", new Decimal(this.damage).mul(this.critMult));
                 app.player.armour.curHP = app.player.armour.curHP.sub(this.damage.mul(this.critMult));
-                this.numPierce -= 1;
-                this.lastEnemyHit = app.player;
-                if (this.numPierce <= 0) {
-                    this.delete();
-                    return;
-                }
-            } else {
-                this.lastEnemyHit = {};
+                this.delete();
+                return;
             }
         }
     }

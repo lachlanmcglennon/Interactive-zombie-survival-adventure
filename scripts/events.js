@@ -43,7 +43,7 @@ function addEvents() {
             }
 
             if (event.key == "x") {
-                if (app.inventory.slotAreas[app.mouse.curSlot].slot != null) {
+                if ((app.inventory.slotAreas[app.mouse.curSlot].slot != null) && (app.mouse.curSlot > 1)) {
                     if (app.inventory.slotAreas[app.mouse.curSlot].slot.className == "Weapon") {
                         app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[app.mouse.curSlot].slot.power.mul(0.95));
                     } else {
@@ -74,6 +74,28 @@ function addEvents() {
                             app.mouse.displayBox.addChildAt(genArmourBox(app.inventory.slotAreas[app.mouse.curSlot].slot), 0);
                         }
                     }
+                }
+            }
+        
+            if (event.key == "k") {
+                if (app.inventory.slotAreas[app.mouse.curSlot].slot != null) {
+                    
+                    if (Math.random() >= 0.6) {
+                        new PopUpEntity(new PIXI.Point(app.mouse.position.x - 100, app.mouse.position.y - 20), "Enhancement Successful", -1);
+                        if (app.inventory.slotAreas[app.mouse.curSlot].slot.className == "Weapon") {
+                            app.inventory.slotAreas[app.mouse.curSlot].slot.power = app.inventory.slotAreas[app.mouse.curSlot].slot.power.add(app.money.curMoney.mul(0.2));
+                            app.inventory.slotAreas[app.mouse.curSlot].slot.updatePow(app.inventory.slotAreas[app.mouse.curSlot].slot.power);
+                        } else {
+                            app.inventory.slotAreas[app.mouse.curSlot].slot.power = app.inventory.slotAreas[app.mouse.curSlot].slot.power.add(app.money.curMoney.mul(2));
+                            if (app.mouse.curSlot === 1) {
+                                app.player.armour.curHP = app.player.armour.getMaxHP(app.upgrades.slots[2].power);
+                            }
+                        }    
+                        updateInventoryText();
+                    } else {
+                        new PopUpEntity(new PIXI.Point(app.mouse.position.x - 100, app.mouse.position.y - 20), "Enhancement Failed", -1);
+                    }
+                    app.money.curMoney = app.money.curMoney.mul(0.5);
                 }
             }
 

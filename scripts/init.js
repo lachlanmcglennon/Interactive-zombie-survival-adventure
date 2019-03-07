@@ -126,7 +126,7 @@ function init() {
 
     app.ticker.add(function () {
         if (app.tick % 60 === 0) {
-            app.money.curMoney = app.money.curMoney.add(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power).mul(app.money.moneyGainBonus));
+            app.money.curMoney = app.money.curMoney.add(app.money.highestMoneyGainRate.mul(app.money.moneyGainBonus));
             if (app.keys.pause === false) {
                 var average = new Decimal(0);
                 for (var i = 0; i < 5; i += 1) {
@@ -245,7 +245,7 @@ function init() {
     app.upgrades.slots = [];
 
     app.upgrades.slots = [
-        new UpgradeArea("Increases money gained by val1% \n cost: val2 level: val3", 5, 5, new Decimal("1e10"), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 0),
+        new UpgradeArea("Increases money gained from defeated enemies by val1% \n cost: val2 level: val3", 5, 5, new Decimal("1e10"), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 0),
         new UpgradeArea("Increases damage done by val1% \n cost: val2 level: val3", 262, 5, new Decimal("1e21"), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 1),
         new UpgradeArea("Increases maximum hp by val1% \n cost: val2 level: val3", 5, 110, new Decimal("1e21"), new Decimal(1.6), new Decimal(1), new Decimal(1.2), 0, true, 2),
         new UpgradeArea("Increases rate of fire by +val1 levels \n cost: val2 level: val3", 262, 110, new Decimal("1e30"), new Decimal("1e5"), new Decimal(1), new Decimal(1), 0, false, 3)];
@@ -393,52 +393,11 @@ function init() {
     app.inventory.inventoryArea.addChild(app.inventory.slotAreas[1]);
     app.inventory.slotAreas[1].position.set(301, 5);
 
-    app.inventory.slotAreas[0].mouseover = function (e) {
-        //console.log("over");
-        e.stopPropagation();
-
-        app.mouse.curSlot = this;
-
-        if (this.slot === null) {
-            app.mouse.showBox = false;
-        } else {
-            app.mouse.showBox = true;
-            if (app.mouse.displayBox.children.length > 0) {
-                app.mouse.displayBox.removeChildAt(0);
-            }
-
-            app.mouse.displayBox.addChildAt(genWeaponBox(this.slot), 0);
-        }
-    };
-
-    app.inventory.slotAreas[1].mouseover = function (e) {
-        e.stopPropagation();
-
-        app.mouse.curSlot = this;
-
-        if (this.slot === null) {
-            app.mouse.showBox = false;
-        } else {
-            app.mouse.showBox = true;
-            if (app.mouse.displayBox.children.length > 0) {
-                app.mouse.displayBox.removeChildAt(0);
-            }
-
-            app.mouse.displayBox.addChildAt(genArmourBox(this.slot), 0);
-        }
-    };
-
-    app.inventory.inventoryArea.mouseout = function (e) {
-        app.mouse.showBox = false;
-
-        app.mouse.curSlot = null;
-    };
-
     for (var y = 0; y < 5; y += 1) {
         for (var x = 0; x < 8; x += 1) {
             app.inventory.slotAreas[2 + x + (y * 8)] = new PIXI.Container();
             app.inventory.slotAreas[2 + x + (y * 8)].addChild(genBoxSprite(64, 64, 2, 0x000000, 0xFFFFFF));
-            app.inventory.slotAreas[2 + x + (y * 8)].pos = 2 + x + (y * 8);
+            app.inventory.slotAreas[0 + x + (y * 8)].pos = 0 + x + (y * 8);
             app.inventory.slotAreas[2 + x + (y * 8)].interactive = true;
             app.inventory.slotAreas[2 + x + (y * 8)].buttonMode = true;
 
@@ -452,7 +411,7 @@ function init() {
                 }
             };
 
-            app.inventory.slotAreas[2 + x + (y * 8)].mouseout = function (e) {
+            app.inventory.slotAreas[0 + x + (y * 8)].mouseout = function (e) {
                 if (app.mouse.curSlot === this.pos) {
                     app.mouse.showBox = false;
 
@@ -461,7 +420,7 @@ function init() {
 
             };
 
-            app.inventory.slotAreas[2 + x + (y * 8)].mouseover = function (e) {
+            app.inventory.slotAreas[0 + x + (y * 8)].mouseover = function (e) {
 
                 app.mouse.curSlot = this.pos;
 
@@ -505,10 +464,10 @@ function init() {
         for (var i = 2; i < app.inventory.slotAreas.length; i += 1) {
             if (app.inventory.slotAreas[i].slot != null) {
                 if (app.inventory.slotAreas[i].slot.className == "Weapon") {
-                        app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.95));
-                    } else {
-                        app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.095));
-                    }
+                    app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.95));
+                } else {
+                    app.money.curMoney = app.money.curMoney.add(app.inventory.slotAreas[i].slot.power.mul(0.095));
+                }
                 app.inventory.slotAreas[i].slot = null;
 
                 app.inventory.slotAreas[i].removeChildAt(1);

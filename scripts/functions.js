@@ -275,7 +275,7 @@ function updateUI() {
     document.getElementById("curPower").innerHTML = "Enemy Power: " + formatNumber(app.wave.enemyFactor);
     if (app.unlocks.inventoryUnlocked) {
         document.getElementById("curMoney").innerHTML = "Money: " + formatNumber(app.money.curMoney);
-        document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate.mul(app.upgrades.slots[0].power)) + " x " + formatNumber(app.money.moneyGainBonus);
+        document.getElementById("curMoneyGainRate").innerHTML = "Money Per Second: " + formatNumber(app.money.highestMoneyGainRate) + " x " + formatNumber(app.money.moneyGainBonus);
     } else {
         document.getElementById("curMoney").innerHTML = "???";
         document.getElementById("curMoneyGainRate").innerHTML = "???";
@@ -577,10 +577,10 @@ function genWeaponBox(weapon) {
 
     style.fill = "black";
 
-    var weaponDamage = new PIXI.Text(formatNumber(weapon.weaponProto.damage.mul(app.upgrades.slots[1].power).mul(weapon.rarity.statMod)) + " damage", style);
+    var weaponDamage = new PIXI.Text(formatNumber(weapon.power.mul(app.upgrades.slots[1].power).mul(weapon.rarity.statMod)) + " damage", style);
 
     if ((weapon.numbarrels > 1) && (weapon.weaponPlaceType != 1)) {
-        weaponDamage.text = formatNumber(weapon.weaponProto.damage.mul(app.upgrades.slots[1].power)) + " damage x" + weapon.numbarrels;
+        weaponDamage.text = formatNumber(weapon.power.mul(app.upgrades.slots[1].power)) + " damage x" + weapon.numbarrels;
     }
 
     weaponDamage.position.set(5, weaponBox.height + 5);
@@ -603,7 +603,7 @@ function genWeaponBox(weapon) {
                 rate = 100
             }
             critText = new PIXI.Text(rate + "% chance to do x" +
-                formatNumber(new Decimal(new Decimal(1.05).pow(weapon.power.log2()))) + " more damage.", style);
+                formatNumber(new Decimal(new Decimal(1.03).pow(weapon.power.log2()))) + " more damage.", style);
             critText.position.set(5, weaponBox.height + 5);
             weaponBox.addChild(critText);
 
@@ -728,7 +728,7 @@ function getEnPow(wave) {
         cur = new Decimal(1),
         curWave = wave;
     while (curWave >= 100) {
-        cur = cur.mul(base.add(Math.floor(curWave / 1000) * app.wave.factorIncrease).pow(100));
+        cur = cur.mul(base.add(Math.floor(curWave / 100) * app.wave.factorIncrease).pow(100));
         curWave -= 100;
     }
     cur = cur.add(base.pow(curWave));
@@ -876,7 +876,7 @@ function updateInventoryText() {
     for (var i = 0; i < app.inventory.slotAreas.length; i += 1) {
         if (app.inventory.slotAreas[i].slot != null) {
             if (app.inventory.slotAreas[i].slot.className === "Weapon") {
-                app.inventory.slotAreas[i].children[1].children[app.inventory.slotAreas[i].children[1].children.length - 1].text = formatNumber(app.inventory.slotAreas[i].slot.weaponProto.damage.mul(app.upgrades.slots[1].power).mul(app.inventory.slotAreas[i].slot.rarity.statMod));
+                app.inventory.slotAreas[i].children[1].children[app.inventory.slotAreas[i].children[1].children.length - 1].text = formatNumber(app.inventory.slotAreas[i].slot.power.mul(app.upgrades.slots[1].power).mul(app.inventory.slotAreas[i].slot.rarity.statMod));
 
                 if (app.inventory.slotAreas[i].slot.numbarrels > 1) {
                     app.inventory.slotAreas[i].children[1].children[app.inventory.slotAreas[i].children[1].children.length - 1].text += " x " + app.inventory.slotAreas[i].slot.numbarrels;
