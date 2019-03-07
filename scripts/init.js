@@ -153,7 +153,7 @@ function init() {
         enemiesOnScreen: 0,
         enemyFactor: new Decimal(0.1),
         factorStartPow: 1.5,
-        factorIncrease: 0.2,
+        factorIncrease: 0.12,
         playerPowerIncrease: 1.3,
         bossSpawned: false
     };
