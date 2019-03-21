@@ -752,7 +752,7 @@ function Bullet(weapon, entity, texture, bonusDamage, moveFunction, moveConsts, 
                     new PopUpEntity(this.position, "", this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
                     app.players.getChildAt(n).armour.curHP = app.players.getChildAt(n).armour.curHP.sub(this.damage.mul(this.critMult).mul(app.upgrades.slots[1].power));
                     if (app.players.getChildAt(n).armour.curHP.lte(0)) {
-                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].add(app.power.mul(10)).mul(app.upgrades.slots[0].power);
+                        app.money.moneyGainedIn5Sec[app.money.moneyGainedSec] = app.money.moneyGainedIn5Sec[app.money.moneyGainedSec].add(app.power.mul(10).mul(app.upgrades.slots[0].power));
                         app.wave.playersOnScreen -= 1;
                         app.players.getChildAt(n).delete();
                         app.wave.enemiesOnScreen -= 1;
