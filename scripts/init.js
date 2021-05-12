@@ -314,7 +314,7 @@ function init() {
         updateInventoryText();
     }
 
-    app.player = new Entity(new PIXI.Texture(app.playerImage), getPlayerColour(), app.power.mul(10), 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
+    app.player = new Entity(new PIXI.Texture(app.playerImage), 0xf9dec5, app.power.mul(10), 3, 5, 0, app.renderer.width / 2, app.renderer.height / 2);
 
     app.inventory = {};
     app.inventory.backgroundImage = genBoxSprite(522, app.renderer.width, 2, 0x000000, 0xFFFFFF);
@@ -515,7 +515,7 @@ function init() {
             var xToSpawn = temp.x,
                 yToSpawn = temp.y;
 
-            new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
+            new Entity(new PIXI.Texture(app.playerImage), 0x00FF00,)
                 app.wave.enemyFactor, 2.5, 10, 1, xToSpawn, yToSpawn);
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
