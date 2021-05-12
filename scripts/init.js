@@ -515,7 +515,7 @@ function init() {
             var xToSpawn = temp.x,
                 yToSpawn = temp.y;
 
-            new Entity(new PIXI.Texture(app.playerImage), 0x00FF00,)
+            new Entity(new PIXI.Texture(app.playerImage), 0x00FF00,
                 app.wave.enemyFactor, 2.5, 10, 1, xToSpawn, yToSpawn);
             app.wave.enemiesInWave -= 1;
             app.wave.enemiesOnScreen += 1;
