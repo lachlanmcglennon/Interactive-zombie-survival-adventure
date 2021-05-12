@@ -314,7 +314,7 @@ function init() {
         updateInventoryText();
     }
 
-    app.player = new Entity(new PIXI.Texture(app.playerImage), 0xf9dec5, app.power.mul(10), 3, 0.1, 0, app.renderer.width / 2, app.renderer.height / 2);
+    app.player = new Entity(new PIXI.Texture(app.playerImage), 0xf9dec5, app.power.mul(10), 3, 1, 0, app.renderer.width / 2, app.renderer.height / 2);
 
     app.inventory = {};
     app.inventory.backgroundImage = genBoxSprite(522, app.renderer.width, 2, 0x000000, 0xFFFFFF);
