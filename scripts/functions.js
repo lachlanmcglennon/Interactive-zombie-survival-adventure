@@ -830,7 +830,7 @@ function doSpawnBoss() {
         }
         var xToSpawn = temp.x,
             yToSpawn = temp.y;
-    new Entity(new PIXI.Texture(app.playerImage), genRandomColour(),
+    new Entity(new PIXI.Texture(app.playerImage), 0x00FF00,
             app.wave.enemyFactor.mul(50), 2.5, 10, 1, xToSpawn, yToSpawn);
     var spawnedBoss = app.players.children[app.players.children.length - 1];
     spawnedBoss.scale.set(2, 2);
