@@ -109,7 +109,7 @@ function Entity(texture, colour, power, speed, size, team, x, y) {
 
     Moveable.call(this, speed);
 
-    this.size = size;
+    this.size = 0.5;
 
     this.moveTarget = new PIXI.Point();
     this.weaponTarget = new PIXI.Point();
