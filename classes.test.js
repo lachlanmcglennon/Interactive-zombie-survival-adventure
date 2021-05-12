@@ -20,6 +20,6 @@ test('Create an application and add a player.', () => {
     app = rarities.loadRarities(app);
     app.keys = new classes.Keys();
     
-    app.player = new classes.Entity(app, new PIXI.Texture(app.playerImage), "0x000000", 1, 3, 5, 0, 500, 500);
+    app.player = new classes.Entity(app, new PIXI.Texture(app.playerImage), "0x00FF00", 1, 3, 5, 0, 500, 500);
     expect(0).toBe(0);
 });
